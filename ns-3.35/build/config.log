@@ -1,6 +1,6 @@
-# project ns (3.35) configured on Thu Nov 11 10:23:47 2021 by
-# waf 2.0.21 (abi 20, python 30907f0 on darwin)
-# using waf configure --enable-examples --enable-tests --with-pybindgen ../pybindgen-0.22.0
+# project ns (3.35) configured on Mon Jan 24 13:45:45 2022 by
+# waf 2.0.21 (abi 20, python 30909f0 on darwin)
+# using waf configure --with-pybindgen ../pybindgen-0.22.0
 #
 ----------------------------------------
 Setting top to
@@ -10,7 +10,7 @@ Setting out to
 /Users/william/Documents/ns-allinone-3.35/ns-3.35/build
 ----------------------------------------
 Checking for 'clang' (C compiler)
-find program=['clang'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CC' -> ['/usr/bin/clang']
+find program=['clang'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CC' -> ['/usr/bin/clang']
 ['/usr/bin/clang', '-dM', '-E', '-']
 out: #define _LP64 1
 #define __AARCH64EL__ 1
@@ -398,15 +398,15 @@ out: #define _LP64 1
 #define __unsafe_unretained 
 #define __weak __attribute__((objc_gc(weak)))
 
-find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
-find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
 /usr/bin/clang
 ----------------------------------------
 Checking for cc version
 13.0.0
 ----------------------------------------
 Checking for 'clang++' (C++ compiler)
-find program=['clang++'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CXX' -> ['/usr/bin/clang++']
+find program=['clang++'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CXX' -> ['/usr/bin/clang++']
 ['/usr/bin/clang++', '-dM', '-E', '-']
 out: #define _LP64 1
 #define __AARCH64EL__ 1
@@ -794,8 +794,8 @@ out: #define _LP64 1
 #define __unsafe_unretained 
 #define __weak __attribute__((objc_gc(weak)))
 
-find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
-find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
 /usr/bin/clang++
 ------------------------------------------------
 Checking for compilation flag -std=c++17 support
@@ -818,14 +818,14 @@ boost: checking which libs are present
 ------------------------------------------------
 Checking for program 'python'
 /opt/homebrew/opt/python@3.9/bin/python3.9
-find program=['python'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9']
+find program=['python'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9']
 ['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', 'import sys\ntry:\n print(sys.implementation.cache_tag)\nexcept AttributeError:\n import imp\n print(imp.get_tag())\n']
 out: cpython-39
 
 ['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', 'import sys\nfor x in sys.version_info: print(str(x))']
 out: 3
 9
-7
+9
 final
 0
 
@@ -841,7 +841,7 @@ out: '/usr/local/lib/python3.9/site-packages'
 
 ------------------------------------------------
 Checking for python version >= 2.3
-3.9.7
+3.9.9
 ['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_config_var('prefix') or ''))\nprint(repr(get_config_var('SO') or ''))\nprint(repr(get_config_var('LDFLAGS') or ''))\nprint(repr(get_config_var('LIBDIR') or ''))\nprint(repr(get_config_var('LIBPL') or ''))\nprint(repr(get_config_var('INCLUDEPY') or ''))\nprint(repr(get_config_var('Py_ENABLE_SHARED') or ''))\nprint(repr(get_config_var('MACOSX_DEPLOYMENT_TARGET') or ''))\nprint(repr(get_config_var('LDSHARED') or ''))\nprint(repr(get_config_var('CFLAGS') or ''))\nprint(repr(get_config_var('LDVERSION') or ''))"]
 out: '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9'
 '.cpython-39-darwin.so'
@@ -885,7 +885,7 @@ LDVERSION = '3.9'
 ------------------------------------------------
 python-config
 /opt/homebrew/opt/python@3.9/bin/python3.9-config
-find program=['/opt/homebrew/opt/python@3.9/bin/python3.9-config', 'python3.9-config', 'python-config-3.9', 'python3.9m-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON_CONFIG' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9-config']
+find program=['/opt/homebrew/opt/python@3.9/bin/python3.9-config', 'python3.9-config', 'python-config-3.9', 'python3.9m-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON_CONFIG' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9-config']
 --------------------------------------------------------------------------
 Asking python-config for pyembed '--cflags --libs --ldflags --embed' flags
 ['/opt/homebrew/opt/python@3.9/bin/python3.9-config', '--cflags', '--libs', '--ldflags', '--embed']
@@ -1108,7 +1108,7 @@ not found
 --------------------------------------------------------------------------
 Checking for program 'pkg-config'
 /opt/homebrew/bin/pkg-config
-find program=['pkg-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> ['/opt/homebrew/bin/pkg-config']
+find program=['pkg-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> ['/opt/homebrew/bin/pkg-config']
 --------------------------------------------------------------------------
 Checking for 'gtk+-3.0 >= 3.22'
 ['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'gtk+-3.0', '>=', '3.22']
@@ -1723,13 +1723,16 @@ ModuleNotFoundError: No module named 'gi'
 not found
 from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.GooCanvas'
 --------------------------------------------------------------------------
+Found contrib module
+my-aodv
+--------------------------------------------------------------------------
 Checking for program 'sudo'
 /usr/bin/sudo
-find program=['sudo'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='SUDO' -> ['/usr/bin/sudo']
+find program=['sudo'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='SUDO' -> ['/usr/bin/sudo']
 --------------------------------------------------------------------------
 Checking for program 'valgrind'
 not found
-find program=['valgrind'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='VALGRIND' -> None
+find program=['valgrind'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='VALGRIND' -> None
 from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['valgrind']
 --------------------------------------------------------------------------
 Checking for 'gsl'
@@ -1744,10 +1747,10 @@ from /Users/william/Documents/ns-allinone-3.35/ns-3.35: The configuration failed
 --------------------------------------------------------------------------
 libgcrypt-config
 not found
-find program=['libgcrypt-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='LIBGCRYPT_CONFIG' -> None
+find program=['libgcrypt-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='LIBGCRYPT_CONFIG' -> None
 from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['libgcrypt-config']
 --------------------------------------------------------------------------
 Checking for program 'doxygen'
 not found
-find program=['doxygen'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='DOXYGEN' -> None
+find program=['doxygen'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='DOXYGEN' -> None
 from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['doxygen']
