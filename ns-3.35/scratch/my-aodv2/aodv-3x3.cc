@@ -164,13 +164,12 @@ int main(int argc, char* argv[])
   uint32_t PrimaryPktSize = 1024; // bytes
   uint32_t InterferingPktSize = 1024; // bytes
   std::string AppDataRate = {'8', '1', '9', '2'}; // bits per second
-  //uint32_t PacketSize = 512; // bytes
-  //uint32_t PRNGRunNumber = 1;
+  uint32_t PacketSize = 512; // bytes
+  uint32_t PRNGRunNumber = 1;
   uint32_t NumPackets = 10;
   bool Broadcast = true;
   bool showPings = true;
   bool printRoutes = true;
-  uint32_t size = 12;
 
   CommandLine cmd;
   cmd.AddValue ("printRoutes", "Print routing table dumps.", printRoutes);
@@ -312,23 +311,14 @@ int main(int argc, char* argv[])
   // WRITE YOUR CODE HERE:
   // Create and install the source application over UDP on the last node that
   // generates random traffic directed to the sink (n0)
-    V4PingHelper ping (interfaces.GetAddress (6));
-  ping.SetAttribute ("Verbose", BooleanValue (true));
 
-  ApplicationContainer p = ping.Install (nodes.Get (1));
-  p.Start (Seconds (0));
-  p.Stop (Seconds (SimulationTime) - Seconds (0.001));
 
-  // move node away
-  Ptr<Node> node = nodes.Get (size/2);
-  Ptr<MobilityModel> mob = node->GetObject<MobilityModel> ();
-  Simulator::Schedule (Seconds (SimulationTime/3), &MobilityModel::SetPosition, mob, Vector (1e5, 1e5, 1e5));
 
-  // Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
-  // Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
-  // Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
-  // udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
-  // nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
+  Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
+  Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
+  Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
+  udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
+  nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
 
   // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
   wifiPhyHelper.EnablePcap("3x3.pcap", nodes.Get(0)->GetDevice(1), false, true);
@@ -337,7 +327,7 @@ int main(int argc, char* argv[])
 
   // Configure time resolution, simulation start and stop times.
   Time::SetResolution(Time::NS);
-  //udpSourceAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
+  udpSourceAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
   Simulator::Stop(Seconds(SimulationTime));
 
 
