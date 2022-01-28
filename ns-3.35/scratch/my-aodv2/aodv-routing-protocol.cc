@@ -1325,10 +1325,17 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
       m_routingTable.Update (toNeighbor);
     }
   m_nb.Update (src, Time (m_allowedHelloLoss * m_helloInterval));
+  m_nb.Printn ();
+  //NS_LOG_LOGIC ("******** Neighbors: " << m_nb.Update(src,Time (m_allowedHelloLoss * m_helloInterval)) << "*********");
 
   NS_LOG_LOGIC (receiver << " receive RREQ with hop count " << static_cast<uint32_t> (rreqHeader.GetHopCount ())
                          << " ID " << rreqHeader.GetId ()
                          << " to destination " << rreqHeader.GetDst ());
+  
+    NS_LOG_LOGIC ("******** Source: " << src << "*********");
+    NS_LOG_LOGIC ("******** Receiver: " << receiver << "*********");
+    //NS_LOG_LOGIC ("******** Receiver: " << m_nb << "*********");
+
 
   //  A node generates a RREP if either:
   //  (i)  it is itself the destination,
@@ -1459,6 +1466,7 @@ RoutingProtocol::SendReplyByIntermediateNode (RoutingTableEntry & toDst, Routing
   toOrigin.InsertPrecursor (toDst.GetNextHop ());
   m_routingTable.Update (toDst);
   m_routingTable.Update (toOrigin);
+  
 
   Ptr<Packet> packet = Create<Packet> ();
   SocketIpTtlTag tag;

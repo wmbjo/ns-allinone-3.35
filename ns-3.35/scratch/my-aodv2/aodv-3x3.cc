@@ -32,28 +32,28 @@
 //                          Wifi 10.1.1.0
 //                *               *
 //                |               |
-//               dst           promiscuous
-//
-//
-//                *               *               *
-//                |               |               |
-//               n0              n1              n2
-//
+//               dst (1)         promiscuous (0)
+//               10.1.1.2        10.1.1.1
 //
 //                *               *               *
 //                |               |               |
-//               n3              n4              n5
-//
+//                n (2)           n (3)           n (4)
+//                10.1.1.3        10.1.1.4        10.1.1.5
 //
 //                *               *               *
 //                |               |               |
-//               n6              n7              n8
+//                n (5)           n (6)           n (7)
+//                10.1.1.6        10.1.1.7        10.1.1.8
 //
+//                *               *               *
+//                |               |               |
+//                n (8)           n (9)           n (10)
+//                10.1.1.9        10.1.1.10       10.1.1.11
 //
 //                                                *
 //                                                |
-//                                               src
-//
+//                                               src (11)
+//                                               10.1.1.12
 // Broadcast = True
 //
 //   Interference:
@@ -374,3 +374,9 @@ int main(int argc, char* argv[])
 //Confirm import statements from custom aodv library
 //use aodv-neighbor and aodv-routing-protocol and other files to
   //1. find neighbors, update neighbors, choose neighbors
+
+
+//how the packets are created and transmitted (rreq). Will need nodes to transmit hello messages. Replicate what aodv does to create and transmit for rreq messages.
+// each node in Roberto's code transmit hello 10 times per second (gps,speed,other params)
+//begin creation of class that replicates rreq class functionality. Mine should transmit messages 10 times per second
+//When node receives rreq packet, we need to update our list of neighbors.

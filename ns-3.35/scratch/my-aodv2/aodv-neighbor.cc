@@ -25,7 +25,7 @@
  * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
  *          Pavel Boyko <boyko@iitp.ru>
  */
-
+#include <iostream> 
 #include <algorithm>
 #include "ns3/log.h"
 #include "ns3/wifi-mac-header.h"
@@ -57,6 +57,7 @@ Neighbors::IsNeighbor (Ipv4Address addr)
         }
     }
   return false;
+  //NS_LOG_LOGIC ("IS NEIGHBOR" << addr);
 }
 
 Time
@@ -74,15 +75,46 @@ Neighbors::GetExpireTime (Ipv4Address addr)
   return Seconds (0);
 }
 
+void Neighbors::Printn()
+{
+  for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
+  { 
+    Ipv4Address addr = i->m_neighborAddress;
+    std::ofstream nextMessageOut; 
+    nextMessageOut.open("tempMessage.txt");
+    //nextMessage = "xxxxxxxxx";
+    addr.Print(nextMessageOut);
+    nextMessageOut.close();
+    std::ifstream nextMessageIn;
+    nextMessageIn.open("tempMessage.txt");
+    std::string addrs;
+    getline(nextMessageIn, addrs);
+    //std::cout << nextMessage <<'\n';
+    NS_LOG_LOGIC ("Address ----> " << addrs);
+  }
+}
+
+
+// void Neighbors::Printv(Ptr<OutputStreamWrapper> stream)const
+//  {
+//     //for (int i = 0; i < stream.size(); i++) {
+//         //std::cout << input.at(i) << ' ';
+//         //std::cout << typeid(stream) << '\n';
+//     //}
+//    } 
+
 void
 Neighbors::Update (Ipv4Address addr, Time expire)
 {
   for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
     {
+      
       if (i->m_neighborAddress == addr)
         {
+          // std::cout << "*******" << addr;
           i->m_expireTime
             = std::max (expire + Simulator::Now (), i->m_expireTime);
+            
           if (i->m_hardwareAddress == Mac48Address ())
             {
               i->m_hardwareAddress = LookupMacAddress (i->m_neighborAddress);
@@ -90,8 +122,9 @@ Neighbors::Update (Ipv4Address addr, Time expire)
           return;
         }
     }
-
+  //NS_LOG_LOGIC ("************** " << std::vector<Neighbor>::iterator i = m_nb.begin ());
   NS_LOG_LOGIC ("Open link to " << addr);
+  NS_LOG_LOGIC ("expire time " << expire << typeid(expire).name());
   Neighbor neighbor (addr, LookupMacAddress (addr), expire + Simulator::Now ());
   m_nb.push_back (neighbor);
   Purge ();

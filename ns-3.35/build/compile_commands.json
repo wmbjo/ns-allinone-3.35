@@ -4646,12 +4646,12 @@
   },
   {
     "directory": "/Users/william/Documents/ns-allinone-3.35/ns-3.35/build",
-    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/my-aodv-helper.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/my-aodv-helper.cc.2.o",
+    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/my-aodv-helper.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/my-aodv-helper.cc.3.o",
     "file": "../scratch/my-aodv2/my-aodv-helper.cc"
   },
   {
     "directory": "/Users/william/Documents/ns-allinone-3.35/ns-3.35/build",
-    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/aodv-neighbor.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/aodv-neighbor.cc.2.o",
+    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/aodv-neighbor.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/aodv-neighbor.cc.3.o",
     "file": "../scratch/my-aodv2/aodv-neighbor.cc"
   },
   {
@@ -4661,7 +4661,7 @@
   },
   {
     "directory": "/Users/william/Documents/ns-allinone-3.35/ns-3.35/build",
-    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/aodv-routing-protocol.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/aodv-routing-protocol.cc.2.o",
+    "command": "/usr/bin/clang++ -O0 -ggdb -g3 -Wall -Werror -Wno-unused-local-typedefs -Wno-potentially-evaluated-expression -std=c++17 -I. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_SQLITE3=1 -DHAVE_SEMAPHORE_H=1 ../scratch/my-aodv2/aodv-routing-protocol.cc -c -o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/scratch/my-aodv2/aodv-routing-protocol.cc.3.o",
     "file": "../scratch/my-aodv2/aodv-routing-protocol.cc"
   },
   {

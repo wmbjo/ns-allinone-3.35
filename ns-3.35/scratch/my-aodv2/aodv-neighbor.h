@@ -101,6 +101,8 @@ public:
    * \param expire the expire time for the address
    */
   void Update (Ipv4Address addr, Time expire);
+   void Printn();
+  // void Printv(Ptr<OutputStreamWrapper> stream)const;
   /// Remove all expired entries
   void Purge ();
   /// Schedule m_ntimer.
