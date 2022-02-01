@@ -388,6 +388,12 @@ private:
    * \param rreqHeader route request header
    * \param toOrigin routing table entry to originator
    */
+  void MySendRequest ();
+  /** Send RREP
+   * \param rreqHeader route request header
+   * \param toOrigin routing table entry to originator
+   */
+
   void SendReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin);
   /** Send RREP by intermediate node
    * \param toDst routing table entry to destination

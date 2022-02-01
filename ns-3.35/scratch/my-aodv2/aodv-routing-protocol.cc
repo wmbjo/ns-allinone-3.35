@@ -136,7 +136,7 @@ private:
 
 NS_OBJECT_ENSURE_REGISTERED (DeferredRouteOutputTag);
 
-
+//minimize initializations and set ipv4 values. get access to ip layer. modify helper to call SetIpv4.
 //-----------------------------------------------------------------------------
 RoutingProtocol::RoutingProtocol ()
   : m_rreqRetries (2),
@@ -650,7 +650,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   NS_ASSERT (ipv4 != 0);
   NS_ASSERT (m_ipv4 == 0);
 
-  m_ipv4 = ipv4;
+  m_ipv4 = ipv4; //m_ipv4 set here
 
   // Create lo route. It is asserted that the only one interface up for now is loopback
   NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
@@ -851,7 +851,7 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
           m_socketAddresses.erase (unicastSocket);
         }
 
-      Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+      Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> (); //Perhaps start with m_ipv4. where is m_ipv4 value set
       if (l3->GetNAddresses (i))
         {
           Ipv4InterfaceAddress iface = l3->GetAddress (i, 0);
@@ -1078,6 +1078,67 @@ RoutingProtocol::SendRequest (Ipv4Address dst)
       Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
     }
   ScheduleRreqRetry (dst);
+}
+
+//start writing aodv-routing-protocol from scratch. this will be for my thesis. 
+//
+void
+RoutingProtocol::MySendRequest ()
+{
+  //NS_LOG_FUNCTION ( this << dst);
+  // A node SHOULD NOT originate more than RREQ_RATELIMIT RREQ messages per second.
+  // if (m_rreqCount == m_rreqRateLimit)
+  //   {
+  //     Simulator::Schedule (m_rreqRateLimitTimer.GetDelayLeft () + MicroSeconds (100),
+  //                          &RoutingProtocol::SendRequest, this, dst);
+  //     return;
+  //   }
+  // else
+  //   {
+  //     m_rreqCount++;
+  //   }
+  // // Create RREQ header
+  RreqHeader rreqHeader;
+  //rreqHeader.SetDst (dst);
+
+  m_seqNo++;
+  rreqHeader.SetOriginSeqno (m_seqNo);
+  m_requestId++;
+  rreqHeader.SetId (m_requestId);
+
+  // Send RREQ as subnet directed broadcast from each interface used by aodv
+  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j =
+         m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+    {
+      Ptr<Socket> socket = j->first;
+      Ipv4InterfaceAddress iface = j->second;
+
+      rreqHeader.SetOrigin (iface.GetLocal ());
+      m_rreqIdCache.IsDuplicate (iface.GetLocal (), m_requestId);
+
+      Ptr<Packet> packet = Create<Packet> ();
+      SocketIpTtlTag tag;
+      double ttl = 0.1;
+      tag.SetTtl (ttl);
+      packet->AddPacketTag (tag);
+      packet->AddHeader (rreqHeader);
+      TypeHeader tHeader (AODVTYPE_RREQ);
+      packet->AddHeader (tHeader);
+      // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
+      Ipv4Address destination;
+      if (iface.GetMask () == Ipv4Mask::GetOnes ())
+        {
+          destination = Ipv4Address ("255.255.255.255");
+        }
+      else
+        {
+          destination = iface.GetBroadcast ();
+        }
+      NS_LOG_DEBUG ("**Send RREQ with id " << rreqHeader.GetId () << " to socket");
+      m_lastBcastTime = Simulator::Now ();
+      Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
+    }
+  //ScheduleRreqRetry (dst);
 }
 
 void
@@ -1856,7 +1917,7 @@ RoutingProtocol::SendHello ()
    *   Hop Count                      0
    *   Lifetime                       AllowedHelloLoss * HelloInterval
    */
-  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j) //below udp because uses sockets. how do they create socket initially?
     {
       Ptr<Socket> socket = j->first;
       Ipv4InterfaceAddress iface = j->second;
@@ -1864,6 +1925,7 @@ RoutingProtocol::SendHello ()
                                                /*origin=*/ iface.GetLocal (),/*lifetime=*/ Time (m_allowedHelloLoss * m_helloInterval));
       Ptr<Packet> packet = Create<Packet> ();
       SocketIpTtlTag tag;
+      //double ttl = 0.1;
       tag.SetTtl (1);
       packet->AddPacketTag (tag);
       packet->AddHeader (helloHeader);
@@ -1882,6 +1944,7 @@ RoutingProtocol::SendHello ()
       Time jitter = Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10)));
       Simulator::Schedule (jitter, &RoutingProtocol::SendTo, this, socket, packet, destination);
     }
+  NS_LOG_LOGIC ("Send Hello");  
 }
 
 void
