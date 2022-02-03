@@ -176,7 +176,7 @@ RoutingProtocol::RoutingProtocol ()
     m_rerrRateLimitTimer (Timer::CANCEL_ON_DESTROY),
     m_lastBcastTime (Seconds (0))
 {
-  m_nb.SetCallback (MakeCallback (&RoutingProtocol::SendRerrWhenBreaksLinkToNextHop, this));
+ m_nb.SetCallback (MakeCallback (&RoutingProtocol::SendRerrWhenBreaksLinkToNextHop, this));
 }
 
 TypeId
@@ -357,7 +357,7 @@ RoutingProtocol::AssignStreams (int64_t stream)
 }
 
 void
-RoutingProtocol::Start ()
+RoutingProtocol::Start () //start can be empty for now, in my custom code. just print a console log that outputs. later, schedule hello-packet tr
 {
   NS_LOG_FUNCTION (this);
   if (m_enableHello)
@@ -660,10 +660,10 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   RoutingTableEntry rt (/*device=*/ m_lo, /*dst=*/ Ipv4Address::GetLoopback (), /*know seqno=*/ true, /*seqno=*/ 0,
                                     /*iface=*/ Ipv4InterfaceAddress (Ipv4Address::GetLoopback (), Ipv4Mask ("255.0.0.0")),
                                     /*hops=*/ 1, /*next hop=*/ Ipv4Address::GetLoopback (),
-                                    /*lifetime=*/ Simulator::GetMaximumSimulationTime ());
+                                    /*lifetime=*/ Simulator::GetMaximumSimulationTime ()); //ignore routingtable entry in my custom code, for now
   m_routingTable.AddRoute (rt);
 
-  Simulator::ScheduleNow (&RoutingProtocol::Start, this);
+  Simulator::ScheduleNow (&RoutingProtocol::Start, this); 
 }
 
 void
@@ -1560,24 +1560,24 @@ RoutingProtocol::SendReplyByIntermediateNode (RoutingTableEntry & toDst, Routing
     }
 }
 
-void
-RoutingProtocol::SendReplyAck (Ipv4Address neighbor)
-{
-  NS_LOG_FUNCTION (this << " to " << neighbor);
-  RrepAckHeader h;
-  TypeHeader typeHeader (AODVTYPE_RREP_ACK);
-  Ptr<Packet> packet = Create<Packet> ();
-  SocketIpTtlTag tag;
-  tag.SetTtl (1);
-  packet->AddPacketTag (tag);
-  packet->AddHeader (h);
-  packet->AddHeader (typeHeader);
-  RoutingTableEntry toNeighbor;
-  m_routingTable.LookupRoute (neighbor, toNeighbor);
-  Ptr<Socket> socket = FindSocketWithInterfaceAddress (toNeighbor.GetInterface ());
-  NS_ASSERT (socket);
-  socket->SendTo (packet, 0, InetSocketAddress (neighbor, AODV_PORT));
-}
+// void
+// RoutingProtocol::SendReplyAck (Ipv4Address neighbor)
+// {
+//   NS_LOG_FUNCTION (this << " to " << neighbor);
+//   RrepAckHeader h;
+//   TypeHeader typeHeader (AODVTYPE_RREP_ACK);
+//   Ptr<Packet> packet = Create<Packet> ();
+//   SocketIpTtlTag tag;
+//   tag.SetTtl (1);
+//   packet->AddPacketTag (tag);
+//   packet->AddHeader (h);
+//   packet->AddHeader (typeHeader);
+//   RoutingTableEntry toNeighbor;
+//   m_routingTable.LookupRoute (neighbor, toNeighbor);
+//   Ptr<Socket> socket = FindSocketWithInterfaceAddress (toNeighbor.GetInterface ());
+//   NS_ASSERT (socket);
+//   socket->SendTo (packet, 0, InetSocketAddress (neighbor, AODV_PORT));
+// }
 
 void
 RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender)

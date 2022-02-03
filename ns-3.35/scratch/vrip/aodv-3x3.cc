@@ -23,7 +23,7 @@
 #include "ns3/netanim-module.h"
 #include "ns3/vector.h"
 #include "ns3/v4ping-helper.h"
-#include "MyRandomExpTrafficApp.h"
+//#include "MyRandomExpTrafficApp.h"
 //#include "ns3/my-aodv-module.h"
 #include "my-aodv-helper.h"
 //#include <limits>
@@ -164,8 +164,8 @@ int main(int argc, char* argv[])
   uint32_t PrimaryPktSize = 1024; // bytes
   uint32_t InterferingPktSize = 1024; // bytes
   std::string AppDataRate = {'8', '1', '9', '2'}; // bits per second
-  uint32_t PacketSize = 512; // bytes
-  uint32_t PRNGRunNumber = 1;
+  //uint32_t PacketSize = 512; // bytes
+  //uint32_t PRNGRunNumber = 1;
   uint32_t NumPackets = 10;
   bool Broadcast = true;
   bool showPings = true;
@@ -305,11 +305,11 @@ int main(int argc, char* argv[])
 
 
 
-  Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
-  Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
-  Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
-  udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
-  nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
+  //Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
+  //Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
+  // Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
+  // udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
+  // nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
 
   // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
   wifiPhyHelper.EnablePcap("3x3.pcap", nodes.Get(0)->GetDevice(1), false, true);
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 
   // Configure time resolution, simulation start and stop times.
   Time::SetResolution(Time::NS);
-  udpSourceAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
+  //udpSourceAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
   Simulator::Stop(Seconds(SimulationTime));
 
 

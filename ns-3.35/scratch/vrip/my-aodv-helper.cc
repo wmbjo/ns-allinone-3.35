@@ -45,6 +45,8 @@ MyAodvHelper::Create (Ptr<Node> node) const //method executed when .install in a
   Ptr<aodv::RoutingProtocol> agent = m_agentFactory.Create<aodv::RoutingProtocol> (); //creates instance of routing protocol. protocol initialized. how does m_ipv4 given a value to start with? disable data traffic coming from src node. no packet transmissions. just try to get code to compile
   node->AggregateObject (agent); //aggregates instance to node
   //setipv4
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> (); //added this line
+  agent->SetIpv4(ipv4); //added this line
   return agent;
 }
 
@@ -54,43 +56,43 @@ MyAodvHelper::Set (std::string name, const AttributeValue &value)
   m_agentFactory.Set (name, value);
 }
 
-int64_t
-MyAodvHelper::AssignStreams (NodeContainer c, int64_t stream)
-{
-  int64_t currentStream = stream;
-  Ptr<Node> node;
-  for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
-    {
-      node = (*i);
-      Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> (); //node already has ipv4 protocol, this line retrives it. Do this for the Create method. Pass this value to setipv4 when I call it in the Create method
-      NS_ASSERT_MSG (ipv4, "Ipv4 not installed on node");
-      Ptr<Ipv4RoutingProtocol> proto = ipv4->GetRoutingProtocol ();
-      NS_ASSERT_MSG (proto, "Ipv4 routing not installed on node");
-      Ptr<aodv::RoutingProtocol> aodv = DynamicCast<aodv::RoutingProtocol> (proto); //routing protocol created here
-      if (aodv)
-        {
-          currentStream += aodv->AssignStreams (currentStream);
-          continue;
-        }
-      // Aodv may also be in a list
-      Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (proto);
-      if (list)
-        {
-          int16_t priority;
-          Ptr<Ipv4RoutingProtocol> listProto;
-          Ptr<aodv::RoutingProtocol> listAodv;
-          for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
-            {
-              listProto = list->GetRoutingProtocol (i, priority);
-              listAodv = DynamicCast<aodv::RoutingProtocol> (listProto);
-              if (listAodv)
-                {
-                  currentStream += listAodv->AssignStreams (currentStream);
-                  break;
-                }
-            }
-        }
-    }
-  return (currentStream - stream);
-}
+// int64_t
+// MyAodvHelper::AssignStreams (NodeContainer c, int64_t stream)
+// {
+//   int64_t currentStream = stream;
+//   Ptr<Node> node;
+//   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
+//     {
+//       node = (*i);
+//       Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> (); //node already has ipv4 protocol, this line retrives it. Do this for the Create method. Pass this value to setipv4 when I call it in the Create method
+//       NS_ASSERT_MSG (ipv4, "Ipv4 not installed on node");
+//       Ptr<Ipv4RoutingProtocol> proto = ipv4->GetRoutingProtocol ();
+//       NS_ASSERT_MSG (proto, "Ipv4 routing not installed on node");
+//       Ptr<aodv::RoutingProtocol> aodv = DynamicCast<aodv::RoutingProtocol> (proto); //routing protocol created here
+//       if (aodv)
+//         {
+//           currentStream += aodv->AssignStreams (currentStream);
+//           continue;
+//         }
+//       // Aodv may also be in a list
+//       Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (proto);
+//       if (list)
+//         {
+//           int16_t priority;
+//           Ptr<Ipv4RoutingProtocol> listProto;
+//           Ptr<aodv::RoutingProtocol> listAodv;
+//           for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+//             {
+//               listProto = list->GetRoutingProtocol (i, priority);
+//               listAodv = DynamicCast<aodv::RoutingProtocol> (listProto);
+//               if (listAodv)
+//                 {
+//                   currentStream += listAodv->AssignStreams (currentStream);
+//                   break;
+//                 }
+//             }
+//         }
+//     }
+//   return (currentStream - stream);
+// }
 }
