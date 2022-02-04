@@ -28,7 +28,7 @@
 
 #include "aodv-routing-protocol.h"
 #include "ns3/log.h"
-#include "ns3/boolean.h"
+//#include "ns3/boolean.h"
 // #include "ns3/random-variable-stream.h"
 // #include "ns3/inet-socket-address.h"
 // #include "ns3/trace-source-accessor.h"
@@ -51,107 +51,107 @@ namespace aodv {
 NS_OBJECT_ENSURE_REGISTERED (RoutingProtocol);
 
 /// UDP Port for AODV control traffic
-const uint32_t RoutingProtocol::AODV_PORT = 654;
+//const uint32_t RoutingProtocol::AODV_PORT = 654;
 
-/**
-* \ingroup aodv
-* \brief Tag used by AODV implementation
-*/
-class DeferredRouteOutputTag : public Tag
-{
+// /**
+// * \ingroup aodv
+// * \brief Tag used by AODV implementation
+// */
+// class DeferredRouteOutputTag : public Tag
+// {
 
-public:
-  /**
-   * \brief Constructor
-   * \param o the output interface
-   */
-  // DeferredRouteOutputTag (int32_t o = -1) : Tag (),
-  //                                           m_oif (o)
-  // {
-  // }
+// public:
+//   /**
+//    * \brief Constructor
+//    * \param o the output interface
+//    */
+//   // DeferredRouteOutputTag (int32_t o = -1) : Tag (),
+//   //                                           m_oif (o)
+//   // {
+//   // }
 
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
+  // /**
+  //  * \brief Get the type ID.
+  //  * \return the object TypeId
+  //  */
   // static TypeId GetTypeId ()
   // {
   //   static TypeId tid = TypeId ("ns3::aodv2::DeferredRouteOutputTag")
   //     .SetParent<Tag> ()
   //     .SetGroupName ("Aodv")
-  //     .AddConstructor<DeferredRouteOutputTag> ()
+  //     //.AddConstructor<> ("")
   //   ;
   //   return tid;
   // }
 
-  // TypeId  GetInstanceTypeId () const
-  // {
-  //   return GetTypeId ();
-  // }
+//   // TypeId  GetInstanceTypeId () const
+//   // {
+//   //   return GetTypeId ();
+//   // }
 
-  /**
-   * \brief Get the output interface
-   * \return the output interface
-   */
-  // int32_t GetInterface () const
-  // {
-  //   return m_oif;
-  // }
+//   /**
+//    * \brief Get the output interface
+//    * \return the output interface
+//    */
+//   // int32_t GetInterface () const
+//   // {
+//   //   return m_oif;
+//   // }
 
-  // /**
-  //  * \brief Set the output interface
-  //  * \param oif the output interface
-  //  */
-  // void SetInterface (int32_t oif)
-  // {
-  //   m_oif = oif;
-  // }
+//   // /**
+//   //  * \brief Set the output interface
+//   //  * \param oif the output interface
+//   //  */
+//   // void SetInterface (int32_t oif)
+//   // {
+//   //   m_oif = oif;
+//   // }
 
-  // uint32_t GetSerializedSize () const
-  // {
-  //   return sizeof(int32_t);
-  // }
+//   // uint32_t GetSerializedSize () const
+//   // {
+//   //   return sizeof(int32_t);
+//   // }
 
-  // void  Serialize (TagBuffer i) const
-  // {
-  //   i.WriteU32 (m_oif);
-  // }
+//   // void  Serialize (TagBuffer i) const
+//   // {
+//   //   i.WriteU32 (m_oif);
+//   // }
 
-  // void  Deserialize (TagBuffer i)
-  // {
-  //   m_oif = i.ReadU32 ();
-  // }
+//   // void  Deserialize (TagBuffer i)
+//   // {
+//   //   m_oif = i.ReadU32 ();
+//   // }
 
-  // void  Print (std::ostream &os) const
-  // {
-  //   os << "DeferredRouteOutputTag: output interface = " << m_oif;
-  // }
+//   // void  Print (std::ostream &os) const
+//   // {
+//   //   os << "DeferredRouteOutputTag: output interface = " << m_oif;
+//   // }
 
-private:
-  /// Positive if output device is fixed in RouteOutput
-  //int32_t m_oif;
-};
+// private:
+//   /// Positive if output device is fixed in RouteOutput
+//   //int32_t m_oif;
+// };
 
-NS_OBJECT_ENSURE_REGISTERED (DeferredRouteOutputTag);
+// NS_OBJECT_ENSURE_REGISTERED (DeferredRouteOutputTag);
 
-//minimize initializations and set ipv4 values. get access to ip layer. modify helper to call SetIpv4.
-//-----------------------------------------------------------------------------
+// //minimize initializations and set ipv4 values. get access to ip layer. modify helper to call SetIpv4.
+// //-----------------------------------------------------------------------------
 RoutingProtocol::RoutingProtocol () = default; // '= default' to deal with my empty constructor
-// : 
-// {
+// // : 
+// // {
 
-// }
+// // }
 
 TypeId
 RoutingProtocol::GetTypeId (void)
 {
-   static TypeId tid = TypeId ("ns3::aodv2::RoutingProtocol")
+  static TypeId tid = TypeId ("ns3::aodv2::RoutingProtocol")
     .SetParent<Ipv4RoutingProtocol> ()
     .SetGroupName ("Aodv")
     .AddConstructor<RoutingProtocol> ()
   ;
   return tid;
-}
+ }
 
 // RoutingProtocol::~RoutingProtocol ()
 // {
@@ -176,12 +176,11 @@ RoutingProtocol::GetTypeId (void)
 //   Ipv4RoutingProtocol::DoDispose ();
 // }
 
-
 void
-RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
+RoutingProtocol::TestMethod(Ptr<Ipv4> ipv4)
 {
-  NS_ASSERT (ipv4 != 0);
-  NS_ASSERT (m_ipv4 == 0);
+  // NS_ASSERT (ipv4 != 0);
+  // NS_ASSERT (m_ipv4 == 0);
 
   m_ipv4 = ipv4; //m_ipv4 set here
 
@@ -189,9 +188,38 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
   m_lo = m_ipv4->GetNetDevice (0);
   NS_ASSERT (m_lo != 0);
+  std::cout << "Test Method" << std::endl;
+  return;
+}
+
+void
+RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
+{
+
+  // NS_ASSERT (ipv4 != 0);
+  // NS_ASSERT (m_ipv4 == 0);
+
+  m_ipv4 = ipv4; //m_ipv4 set here
+
+  // Create lo route. It is asserted that the only one interface up for now is loopback
+  NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
+  m_lo = m_ipv4->GetNetDevice (0);
+  NS_ASSERT (m_lo != 0);
+  std::cout << "Set Ipv4" << std::endl;
+  return;
 
 }
 
 
-} //namespace aodv
+// Ptr<Ipv4Route>
+// RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header,
+//                               Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+// {
+//   Ptr<Ipv4Route> route;
+//   return route;
+// }
+
+
+
+} //namespace aodv2
 } //namespace ns3

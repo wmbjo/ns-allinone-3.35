@@ -42,11 +42,13 @@ MyAodvHelper::Copy (void) const
 Ptr<Ipv4RoutingProtocol> 
 MyAodvHelper::Create (Ptr<Node> node) const //method executed when .install in aodv-3x3 script. do not modify for my own code
 {
+
   Ptr<aodv::RoutingProtocol> agent = m_agentFactory.Create<aodv::RoutingProtocol> (); //creates instance of routing protocol. protocol initialized. how does m_ipv4 given a value to start with? disable data traffic coming from src node. no packet transmissions. just try to get code to compile
   node->AggregateObject (agent); //aggregates instance to node
   //setipv4
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> (); //added this line
-  agent->SetIpv4(ipv4); //added this line
+  agent->TestMethod(ipv4);
+  //agent->SetIpv4(ipv4); //added this line
   return agent;
 }
 

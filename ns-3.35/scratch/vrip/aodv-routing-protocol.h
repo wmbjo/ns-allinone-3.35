@@ -55,15 +55,27 @@ public:
    * \return the object TypeId
    */
   static TypeId GetTypeId (void);
-  static const uint32_t AODV_PORT;
+  //static const uint32_t AODV_PORT;
 
   /// constructor
   RoutingProtocol ();
-  virtual ~RoutingProtocol ();
-  // virtual void DoDispose ();
+ virtual ~RoutingProtocol ();
+  virtual void DoDispose ();
+
+  void TestMethod(Ptr<Ipv4> ipv4);
 
   // Inherited from Ipv4RoutingProtocol
+   // Inherited from Ipv4RoutingProtocol
+  Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr);
+  bool RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
+                   UnicastForwardCallback ucb, MulticastForwardCallback mcb,
+                   LocalDeliverCallback lcb, ErrorCallback ecb);
+  virtual void NotifyInterfaceUp (uint32_t interface);
+  virtual void NotifyInterfaceDown (uint32_t interface);
+  virtual void NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address);
+  virtual void NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address);
   virtual void SetIpv4 (Ptr<Ipv4> ipv4);
+  virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
 
 
   /// IP protocol
@@ -74,7 +86,7 @@ public:
 private:
 };
 
-} //namespace aodv
+} //namespace aodv2
 } //namespace ns3
 
 #endif /* AODVROUTINGPROTOCOL_H */

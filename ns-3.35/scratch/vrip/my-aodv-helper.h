@@ -73,7 +73,7 @@ public:
    *          should be modified to use a fixed stream
    * \return the number of stream indices assigned by this helper
    */
-  int64_t AssignStreams (NodeContainer c, int64_t stream);
+  //int64_t AssignStreams (NodeContainer c, int64_t stream);
 
 private:
   /** the factory to create AODV routing object */

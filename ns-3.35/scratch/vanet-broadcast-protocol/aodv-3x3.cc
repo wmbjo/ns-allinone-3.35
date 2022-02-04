@@ -25,7 +25,7 @@
 #include "ns3/v4ping-helper.h"
 //#include "MyRandomExpTrafficApp.h"
 //#include "ns3/my-aodv-module.h"
-#include "my-aodv-helper.h"
+#include "vanet-broadcast-helper.h"
 //#include <limits>
 // ====================================================================
 //
@@ -192,9 +192,9 @@ int main(int argc, char* argv[])
 
 
   //aodv
-  MyAodvHelper aodv; //don't modify helper for my own aodv-routing-protocol script from scratch
-  stack.SetRoutingHelper(aodv);
-  stack.Install(nodes); //install
+  VanetBroadcastHelper vbp; 
+  stack.SetRoutingHelper(vbp);
+  stack.Install(nodes);
 
 
   Ptr<ListPositionAllocator> PositionAllocator = CreateObject<ListPositionAllocator>(); //Goes in order from node 0 to node n
@@ -327,11 +327,11 @@ int main(int argc, char* argv[])
 
  
 
-  if (printRoutes)
-    {
-      Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("aodv.routes", std::ios::out);
-      aodv.PrintRoutingTableAllAt (Seconds (20), routingStream);
-    }
+  // if (printRoutes)
+  //   {
+  //     Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("aodv.routes", std::ios::out);
+  //     aodv.PrintRoutingTableAllAt (Seconds (20), routingStream);
+  //   }
 
   // Enable network animation
   // AnimationInterface anim("rip-3x3.xml");
