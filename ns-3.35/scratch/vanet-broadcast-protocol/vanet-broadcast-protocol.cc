@@ -89,10 +89,10 @@ VanetBroadcastProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   return;
 }
 
-void 
-VanetBroadcastProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const
-  {
+void
+VanetBroadcastProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+{
+    
+}
 
-  }
-  
 }//namespace ns3
