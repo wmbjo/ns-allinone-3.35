@@ -77,7 +77,7 @@ void
 VanetBroadcastProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 {
   NS_ASSERT (ipv4 != 0);
-  NS_ASSERT (m_ipv4 == 0);
+  //NS_ASSERT (m_ipv4 == 0);
 
   m_ipv4 = ipv4; //m_ipv4 set here
 
@@ -92,7 +92,7 @@ VanetBroadcastProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 void
 VanetBroadcastProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
 {
-    
+
 }
 
 }//namespace ns3
