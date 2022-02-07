@@ -1,6 +1,6 @@
-# project ns (3.35) configured on Mon Jan 24 13:45:45 2022 by
+# project ns (3.35) configured on Sun Feb  6 14:00:48 2022 by
 # waf 2.0.21 (abi 20, python 30909f0 on darwin)
-# using waf configure --with-pybindgen ../pybindgen-0.22.0
+# using ./waf configure
 #
 ----------------------------------------
 Setting top to
@@ -979,7 +979,7 @@ int main() { return 0; }
 ok
 --------------------------------------------------------------------------
 Checking for pybindgen location
-../pybindgen-0.22.0 (given)
+../pybindgen-0.22.0 (guessed)
 --------------------------------------------------------------------------
 Checking for python module 'pybindgen'
 ['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport pybindgen as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]

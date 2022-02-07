@@ -1,5 +1,5 @@
-#ifndef VANETBROADCASTPROTOCOL_H
-#define VANETBROADCASTPROTOCOL_H
+#ifndef RoutingProtocol_H
+#define RoutingProtocol_H
 
 
 #include "ns3/ipv4-interface.h"
@@ -30,11 +30,12 @@
 
 namespace ns3{
 
-class VanetBroadcastProtocol : public Ipv4RoutingProtocol
+namespace vbp{
+class RoutingProtocol : public Ipv4RoutingProtocol
 {
   public:
-    VanetBroadcastProtocol ();
-    virtual ~VanetBroadcastProtocol ();
+    RoutingProtocol ();
+    virtual ~RoutingProtocol ();
 
   // Inherited from Ipv4RoutingProtocol
   Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr);
@@ -56,6 +57,7 @@ class VanetBroadcastProtocol : public Ipv4RoutingProtocol
   private:
 };
 
+} //namespace vbp
 } //namespace ns3
 
-#endif /* VANETBROADCASTPROTOCOL_H */
+#endif /* RoutingProtocol_H */

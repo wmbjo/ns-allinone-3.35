@@ -29,23 +29,25 @@
 namespace ns3 {
 NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
 
-VanetBroadcastProtocol::VanetBroadcastProtocol ()
+namespace vbp {
+
+RoutingProtocol::RoutingProtocol ()
 {
 
 }
 
-VanetBroadcastProtocol::~VanetBroadcastProtocol ()
+RoutingProtocol::~RoutingProtocol ()
 {
 }
 
 Ptr<Ipv4Route> 
-VanetBroadcastProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
         Ptr<Ipv4Route> dummyvar;
         return dummyvar;
     }
 bool 
-VanetBroadcastProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
+RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
                    UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                    LocalDeliverCallback lcb, ErrorCallback ecb)
                    {
@@ -53,28 +55,28 @@ VanetBroadcastProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &heade
                     return false;
                    }
 void 
-VanetBroadcastProtocol::NotifyInterfaceUp (uint32_t interface)
+RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
   {
 
   }
 void 
-VanetBroadcastProtocol::NotifyInterfaceDown (uint32_t interface)
+RoutingProtocol::NotifyInterfaceDown (uint32_t interface)
   {
 
   }
 void 
-VanetBroadcastProtocol::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
+RoutingProtocol::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
   {
 
   }
 void 
-VanetBroadcastProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
+RoutingProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
   {
 
   }
 
 void
-VanetBroadcastProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
+RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 {
   NS_ASSERT (ipv4 != 0);
   //NS_ASSERT (m_ipv4 == 0);
@@ -90,9 +92,17 @@ VanetBroadcastProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 }
 
 void
-VanetBroadcastProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
 {
 
 }
 
-}//namespace ns3
+void
+RoutingProtocol::SetL3HelloSocket()
+{
+
+  
+}
+
+}// namespace vbp
+}// namespace ns3
