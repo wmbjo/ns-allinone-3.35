@@ -31,6 +31,9 @@ NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
 
 namespace vbp {
 
+/// UDP Port for VBP control traffic
+const uint32_t RoutingProtocol::VBP_PORT = 655;
+
 RoutingProtocol::RoutingProtocol ()
 {
 
@@ -87,7 +90,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
   m_lo = m_ipv4->GetNetDevice (0);
   NS_ASSERT (m_lo != 0);
-  std::cout << "Set Ipv4" << std::endl;
+  std::cout << "Set Ipv4" << m_ipv4->GetNInterfaces() << std::endl;
   return;
 }
 
@@ -100,9 +103,45 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 void
 RoutingProtocol::SetL3HelloSocket()
 {
+  Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (), UdpSocketFactory::GetTypeId ());
+  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+  Ipv4InterfaceAddress iface = l3->GetAddress (0, 0); //need interface from my script here. figure out what i means. maybe we don't need this line of code. try without iface.
+    if (iface.GetLocal () == Ipv4Address ("127.0.0.1"))
+    {
+      std::cout << "Test didn't pass" << std::endl;
+      return;
+    }
 
-  
+   socket->BindToNetDevice (l3->GetNetDevice (0));
+   socket->Bind (InetSocketAddress (iface.GetLocal (), VBP_PORT));
+  socket->SetAllowBroadcast (true);
+  m_L3HelloSocket = socket;
 }
 
+void
+RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
+{
+  socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
+
+}
+
+void RoutingProtocol::ScheduleHelloTx()
+{
+  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+  Ipv4InterfaceAddress iface = l3->GetAddress (0, 0);
+  Ptr<Packet> packet = Create<Packet>(100);
+  Ipv4Address destination;
+  if (iface.GetMask () == Ipv4Mask::GetOnes ())
+    {
+      destination = Ipv4Address ("255.255.255.255");
+    }
+  else
+    {
+      destination = iface.GetBroadcast ();
+    }
+  m_sendEvent = Simulator::Schedule(Time(MilliSeconds(100)), &RoutingProtocol::SendTo, this, m_L3HelloSocket, packet, destination);
+    
+}
+  
 }// namespace vbp
 }// namespace ns3

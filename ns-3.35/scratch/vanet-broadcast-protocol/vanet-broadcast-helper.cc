@@ -26,19 +26,20 @@ VanetBroadcastHelper::Copy (void) const
 Ptr<Ipv4RoutingProtocol> 
 VanetBroadcastHelper::Create (Ptr<Node> node) const 
 {
-  // Ptr<vbp::RoutingProtocol> agent = CreateObject<vbp::RoutingProtocol>();
+  Ptr<vbp::RoutingProtocol> agent = CreateObject<vbp::RoutingProtocol>();
+  node->AggregateObject (agent);
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+  agent->SetIpv4(ipv4);
+  agent->SetL3HelloSocket(); 
+  return agent;
+
+
+  // Ptr<vbp::RoutingProtocol> agent = m_agentFactory.Create<vbp::RoutingProtocol>();
+  //   std::cout << "HELLO" << std::endl;
   // node->AggregateObject (agent);
   // Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
   // agent->SetIpv4(ipv4); 
   // return agent;
-
-
-  Ptr<vbp::RoutingProtocol> agent = m_agentFactory.Create<vbp::RoutingProtocol>();
-    std::cout << "HELLO" << std::endl;
-  node->AggregateObject (agent);
-  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
-  agent->SetIpv4(ipv4); 
-  return agent;
 }
 
 } //namespace ns3
