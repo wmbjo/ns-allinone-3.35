@@ -60,20 +60,53 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<
 void 
 RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
   {
+    Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+    if (l3->GetNAddresses (interface) > 1)
+    {
+      NS_LOG_WARN ("AODV does not work with more then one address per each interface.");
+    }
+    Ipv4InterfaceAddress iface = l3->GetAddress (interface, 0);
+    if (iface.GetLocal () == Ipv4Address ("127.0.0.1"))
+    {
+      return;
+    }
+    // Create a socket to listen only on this interface
+    Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (), UdpSocketFactory::GetTypeId ());
+    NS_ASSERT (socket != 0);
+    socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvVbp,this));
+    socket->BindToNetDevice (l3->GetNetDevice (interface));
+    socket->Bind (InetSocketAddress (iface.GetLocal (), VBP_PORT));
+    socket->SetAllowBroadcast (true);
+    socket->SetIpRecvTtl (true);
+    m_socketAddresses.insert (std::make_pair (socket, iface));
 
+    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "NotifyInterfaceUp " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
   }
 void 
 RoutingProtocol::NotifyInterfaceDown (uint32_t interface)
   {
-
+    std::cout << "Notify Interface Down " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
   }
 void 
 RoutingProtocol::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
   {
+  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
 
+  if (!l3->IsUp (interface))
+    {
+      return;
+    }
+    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " <<  "NotifyAddAddress " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
   }
+
 void 
 RoutingProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
+  {
+    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Notify Remove Address " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
+  }
+
+void 
+RoutingProtocol::RecvVbp (Ptr<Socket> socket)
   {
 
   }
@@ -90,7 +123,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
   m_lo = m_ipv4->GetNetDevice (0);
   NS_ASSERT (m_lo != 0);
-  std::cout << "Set Ipv4" << m_ipv4->GetNInterfaces() << std::endl;
+  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Set Ipv4 " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
   return;
 }
 
@@ -101,46 +134,30 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 }
 
 void
-RoutingProtocol::SetL3HelloSocket()
+RoutingProtocol::SendTo ()
 {
-  Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (), UdpSocketFactory::GetTypeId ());
-  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
-  Ipv4InterfaceAddress iface = l3->GetAddress (0, 0); //need interface from my script here. figure out what i means. maybe we don't need this line of code. try without iface.
-    if (iface.GetLocal () == Ipv4Address ("127.0.0.1"))
-    {
-      std::cout << "Test didn't pass" << std::endl;
-      return;
-    }
-
-   socket->BindToNetDevice (l3->GetNetDevice (0));
-   socket->Bind (InetSocketAddress (iface.GetLocal (), VBP_PORT));
-  socket->SetAllowBroadcast (true);
-  m_L3HelloSocket = socket;
-}
-
-void
-RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
-{
-  socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
-
+  //socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
+  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send To " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl; //send hello packets in this method
+  //include printing out simulation time in all of my print out statements. Put this time in the beginning
+  //Task for tomorrow: Schedule and transmit Hello Packets. Only implement code we need, test code every 3 lines or so.
 }
 
 void RoutingProtocol::ScheduleHelloTx()
 {
-  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
-  Ipv4InterfaceAddress iface = l3->GetAddress (0, 0);
-  Ptr<Packet> packet = Create<Packet>(100);
-  Ipv4Address destination;
-  if (iface.GetMask () == Ipv4Mask::GetOnes ())
-    {
-      destination = Ipv4Address ("255.255.255.255");
-    }
-  else
-    {
-      destination = iface.GetBroadcast ();
-    }
-  m_sendEvent = Simulator::Schedule(Time(MilliSeconds(100)), &RoutingProtocol::SendTo, this, m_L3HelloSocket, packet, destination);
-    
+  // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+  // Ipv4InterfaceAddress iface = l3->GetAddress (0, 0);
+  // Ptr<Packet> packet = Create<Packet>(100);
+  // Ipv4Address destination;
+  // if (iface.GetMask () == Ipv4Mask::GetOnes ())
+  //   {
+  //     destination = Ipv4Address ("255.255.255.255");
+  //   }
+  // else
+  //   {
+  //     destination = iface.GetBroadcast ();
+  //   }
+  m_sendEvent = Simulator::Schedule(Time(MilliSeconds(100)), &RoutingProtocol::SendTo, this);
+  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Hello Tx " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
 }
   
 }// namespace vbp

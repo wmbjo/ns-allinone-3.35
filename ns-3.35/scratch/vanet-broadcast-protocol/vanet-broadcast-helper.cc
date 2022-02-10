@@ -30,7 +30,7 @@ VanetBroadcastHelper::Create (Ptr<Node> node) const
   node->AggregateObject (agent);
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
   agent->SetIpv4(ipv4);
-  agent->SetL3HelloSocket(); 
+  agent->ScheduleHelloTx(); 
   return agent;
 
 

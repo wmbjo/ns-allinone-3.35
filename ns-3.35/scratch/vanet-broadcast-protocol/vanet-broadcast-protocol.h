@@ -43,26 +43,33 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   bool RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
                   UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                    LocalDeliverCallback lcb, ErrorCallback ecb);
-  virtual void NotifyInterfaceUp (uint32_t interface);
-  virtual void NotifyInterfaceDown (uint32_t interface);
-  virtual void NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address);
-  virtual void NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address);
   virtual void SetIpv4 (Ptr<Ipv4> ipv4);
   virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
+  virtual void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address);
+  virtual void NotifyInterfaceDown(uint32_t interface);
+  virtual void NotifyInterfaceUp(uint32_t interface);
+  virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
+  void ScheduleHelloTx(void);
 
-  virtual void SetL3HelloSocket();
-  //virtual void BroadcastHelloPacket();
+  private:
+  EventId m_sendEvent;
+
+  void SendTo (void);
   // IP protocol
   Ptr<Ipv4> m_ipv4;
   // Loopback device used to defer RREQ until packet will be fully formed
   Ptr<NetDevice> m_lo;
+
+  // virtual void SetL3HelloSocket();
+  //virtual void BroadcastHelloPacket();
+  
+  /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
+  std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketAddresses;
+
   //Create socket object
   Ptr<Socket> m_L3HelloSocket;
 
-  private:
-  EventId m_sendEvent;
-  void ScheduleHelloTx(void);
-  void SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
+  void RecvVbp(Ptr<Socket> socket);
 };
 
 } //namespace vbp

@@ -211,6 +211,12 @@ int main(int argc, char* argv[])
   mobility.SetPositionAllocator(PositionAllocator);
   mobility.Install(nodes);
 
+  //vbp
+  InternetStackHelper stack;
+  VanetBroadcastHelper vbp; 
+  stack.SetRoutingHelper(vbp);
+  stack.Install(nodes);
+
 
   // Create channel of constant propagation speed and Friis loss. Enable Radiotap link
   // layer information. Configure the wifi MAC layer in Ad Hoc mode. Use the 802.11b
@@ -284,20 +290,13 @@ int main(int argc, char* argv[])
     }
 
   }
-  
-
-
-  //vbp
-  InternetStackHelper stack;
-  VanetBroadcastHelper vbp; 
-  stack.SetRoutingHelper(vbp);
-  stack.Install(nodes);
 
 
   // Set IP addresses on wifi devices
+  //assigns second interface, first interface is by default. First interface is for myself
   Ipv4AddressHelper address;
   address.SetBase(NET_ADDRESS, NET_MASK_ADDRESS);
-  Ipv4InterfaceContainer interfaces = address.Assign(devices);
+  Ipv4InterfaceContainer interfaces = address.Assign(devices); //notify methods (called from this line) will allow us to access interface to tx hello-packets
 
   // WRITE YOUR CODE HERE:
   // Create and bind the socket on the destination node. Set the receive
