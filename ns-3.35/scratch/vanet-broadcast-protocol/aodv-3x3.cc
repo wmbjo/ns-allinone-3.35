@@ -104,8 +104,8 @@
 // ====================================================================
 
 #define NET_ADDRESS "10.1.1.0"
-#define NET_MASK_ADDRESS "255.255.255.0"
-#define BROADCAST_ADDRESS "255.255.255.255"
+#define NET_MASK_ADDRESS "255.255.255.0" //first three bytes are for indicating network address. last byte indicates node in network address.
+//#define BROADCAST_ADDRESS "255.255.255.255" Broadcast to every node on every network
 #define UDP_PORT 8080
 #define SOURCES_START_TIME 1 // seconds
 #define SOURCE_START_TIME 1 // seconds

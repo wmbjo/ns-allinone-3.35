@@ -33,6 +33,9 @@ namespace vbp {
 
 /// UDP Port for VBP control traffic
 const uint32_t RoutingProtocol::VBP_PORT = 655;
+uint64_t m_uniformRandomVariable;
+const uint32_t Period_HelloTx = 95;
+const uint32_t Jitter_HelloTx = 10;
 
 RoutingProtocol::RoutingProtocol ()
 {
@@ -55,7 +58,7 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<
                    LocalDeliverCallback lcb, ErrorCallback ecb)
                    {
                         
-                    return false;
+                   return false;
                    }
 void 
 RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
@@ -108,7 +111,7 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress a
 void 
 RoutingProtocol::RecvVbp (Ptr<Socket> socket)
   {
-
+    std::cout << "---Received Transmission--- " << std::endl;
   }
 
 void
@@ -134,31 +137,51 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 }
 
 void
-RoutingProtocol::SendTo ()
+RoutingProtocol::SendHello ()
 {
-  //socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
-  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send To " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl; //send hello packets in this method
-  //include printing out simulation time in all of my print out statements. Put this time in the beginning
-  //Task for tomorrow: Schedule and transmit Hello Packets. Only implement code we need, test code every 3 lines or so.
+  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+    {
+
+      Ptr<Socket> socket = j->first;
+      std::cout << "---Socket Info--- " << socket << std::endl;
+      Ipv4InterfaceAddress iface = j->second;
+      std::cout << "---Interface Info--- " << iface << std::endl;
+      Ptr<Packet> packet = Create<Packet> ();
+      // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
+      Ipv4Address destination;
+      std::cout << "---Destination--- " << destination << std::endl;
+      if (iface.GetMask () == Ipv4Mask::GetOnes ())
+        {
+          destination = Ipv4Address ("255.255.255.255");
+          std::cout << "---Test 1--- " << destination << std::endl;
+        }
+      else
+        {
+          destination = iface.GetBroadcast ();
+          std::cout << "---Test 2--- " << destination << std::endl;
+        }
+      Time jitter = Time (MilliSeconds (Period_HelloTx + m_uniformRandomVariable->GetInteger (0, Jitter_HelloTx)));
+      Simulator::Schedule (jitter, &RoutingProtocol::SendHello, this);
+      SendTo(socket,packet,destination);
+    }
+  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send Hello " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
+
 }
 
-void RoutingProtocol::ScheduleHelloTx()
+void
+RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
 {
-  // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
-  // Ipv4InterfaceAddress iface = l3->GetAddress (0, 0);
-  // Ptr<Packet> packet = Create<Packet>(100);
-  // Ipv4Address destination;
-  // if (iface.GetMask () == Ipv4Mask::GetOnes ())
-  //   {
-  //     destination = Ipv4Address ("255.255.255.255");
-  //   }
-  // else
-  //   {
-  //     destination = iface.GetBroadcast ();
-  //   }
-  m_sendEvent = Simulator::Schedule(Time(MilliSeconds(100)), &RoutingProtocol::SendTo, this);
-  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Hello Tx " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
+  socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
+    std::cout << "---Send To--- " << std::endl;
 }
-  
+
+void RoutingProtocol::StartHelloTx()
+{
+  m_uniformRandomVariable = CreateObject<UniformRandomVariable>();
+  Time jitter = Time (MilliSeconds (Period_HelloTx + m_uniformRandomVariable->GetInteger (0, Jitter_HelloTx)));
+  Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
+  std::cout << "---Start Hello TX--- " << std::endl;
+}
+
 }// namespace vbp
 }// namespace ns3

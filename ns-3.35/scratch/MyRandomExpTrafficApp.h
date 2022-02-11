@@ -45,7 +45,7 @@ namespace ns3
     EventId m_sendEvent;
     bool m_running;
     Ptr<ExponentialRandomVariable> m_tNextPtr;
-    //uint64_t m_PRNGRunNumber;
+    uint64_t m_PRNGRunNumber;
   };
 
   MyRandomExpTrafficApp::MyRandomExpTrafficApp() : m_socketptr(NULL), m_peeraddress(), m_packetSize(0), m_appDataRate(0), m_sendEvent(), m_running(false) {}

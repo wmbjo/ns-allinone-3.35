@@ -49,27 +49,25 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   virtual void NotifyInterfaceDown(uint32_t interface);
   virtual void NotifyInterfaceUp(uint32_t interface);
   virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
-  void ScheduleHelloTx(void);
+  void SendHello (void);
+  void StartHelloTx(void);
 
   private:
-  EventId m_sendEvent;
 
-  void SendTo (void);
+
+  void SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
   // IP protocol
   Ptr<Ipv4> m_ipv4;
   // Loopback device used to defer RREQ until packet will be fully formed
   Ptr<NetDevice> m_lo;
-
-  // virtual void SetL3HelloSocket();
-  //virtual void BroadcastHelloPacket();
   
   /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
   std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketAddresses;
 
-  //Create socket object
-  Ptr<Socket> m_L3HelloSocket;
-
   void RecvVbp(Ptr<Socket> socket);
+
+  /// Provides uniform random variables.
+  Ptr<UniformRandomVariable> m_uniformRandomVariable;
 };
 
 } //namespace vbp
