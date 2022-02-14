@@ -14,7 +14,7 @@ VanetBroadcastHelper::~VanetBroadcastHelper ()
 VanetBroadcastHelper::VanetBroadcastHelper():
     Ipv4RoutingHelper ()
 {
-    //m_agentFactory.SetTypeId ("ns3::vbp::RoutingProtocol");
+    m_agentFactory.SetTypeId ("ns3::vbp::RoutingProtocol");
 }
 
 VanetBroadcastHelper* 
@@ -26,11 +26,10 @@ VanetBroadcastHelper::Copy (void) const
 Ptr<Ipv4RoutingProtocol> 
 VanetBroadcastHelper::Create (Ptr<Node> node) const 
 {
-  Ptr<vbp::RoutingProtocol> agent = CreateObject<vbp::RoutingProtocol>();
+  Ptr<vbp::RoutingProtocol> agent = m_agentFactory.Create<vbp::RoutingProtocol> ();
   node->AggregateObject (agent);
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
   agent->SetIpv4(ipv4);
-  std::cout << "---Set Ipv4 Helper--- "  << std::endl;
   agent->StartHelloTx(); 
    std::cout << "---Start Hello Tx Helper--- "  << std::endl;
   return agent;
@@ -43,5 +42,14 @@ VanetBroadcastHelper::Create (Ptr<Node> node) const
   // agent->SetIpv4(ipv4); 
   // return agent;
 }
+
+void 
+VanetBroadcastHelper::Set (std::string name, const AttributeValue &value)
+{
+  std::cout << "NOP" << std::endl;
+  m_agentFactory.Set (name, value);
+  std::cout << "QRS" << std::endl;
+}
+
 
 } //namespace ns3

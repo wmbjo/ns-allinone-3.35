@@ -320,6 +320,7 @@ RoutingProtocol::~RoutingProtocol ()
 void
 RoutingProtocol::DoDispose ()
 {
+    std::cout << "DO Dispose" << std::endl;
   m_ipv4 = 0;
   for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::iterator iter =
          m_socketAddresses.begin (); iter != m_socketAddresses.end (); iter++)
@@ -339,6 +340,7 @@ RoutingProtocol::DoDispose ()
 void
 RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
 {
+    std::cout << "Print Routing Table" << std::endl;
   *stream->GetStream () << "Node: " << m_ipv4->GetObject<Node> ()->GetId ()
                         << "; Time: " << Now ().As (unit)
                         << ", Local time: " << m_ipv4->GetObject<Node> ()->GetLocalTime ().As (unit)
@@ -351,6 +353,7 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 int64_t
 RoutingProtocol::AssignStreams (int64_t stream)
 {
+    std::cout << "Assign Streams" << std::endl;
   NS_LOG_FUNCTION (this << stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
@@ -378,6 +381,7 @@ Ptr<Ipv4Route>
 RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header,
                               Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
 {
+    std::cout << "Route Output" << std::endl;
   NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
   if (!p)
     {
@@ -451,6 +455,7 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
                              Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
                              MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
 {
+    std::cout << "Route INput" << std::endl;
   NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
   if (m_socketAddresses.empty ())
     {
@@ -585,13 +590,16 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
     }
 
   // Forwarding
+  std::cout << "FOWARDING 123" << std::endl;
   return Forwarding (p, header, ucb, ecb);
+  std::cout << "FOWARDING 321" << std::endl;
 }
 
 bool
 RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
                              UnicastForwardCallback ucb, ErrorCallback ecb)
 {
+    std::cout << "FOWARDING" << std::endl;
   NS_LOG_FUNCTION (this);
   Ipv4Address dst = header.GetDestination ();
   Ipv4Address origin = header.GetSource ();
@@ -647,6 +655,7 @@ RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
 void
 RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 {
+    std::cout << "Set IPV4" << std::endl;
   NS_ASSERT (ipv4 != 0);
   NS_ASSERT (m_ipv4 == 0);
 
@@ -669,6 +678,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 void
 RoutingProtocol::NotifyInterfaceUp (uint32_t i)
 {
+    std::cout << "Notify Interface UP" << std::endl;
   NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ());
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   if (l3->GetNAddresses (i) > 1)
@@ -738,6 +748,7 @@ RoutingProtocol::NotifyTxError (WifiMacDropReason reason, Ptr<const WifiMacQueue
 void
 RoutingProtocol::NotifyInterfaceDown (uint32_t i)
 {
+    std::cout << "Notify Interface Down" << std::endl;
   NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ());
 
   // Disable layer 2 link state monitoring (if possible)
@@ -781,6 +792,7 @@ RoutingProtocol::NotifyInterfaceDown (uint32_t i)
 void
 RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
 {
+    std::cout << "Notify Add Address" << std::endl;
   NS_LOG_FUNCTION (this << " interface " << i << " address " << address);
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   if (!l3->IsUp (i))
@@ -836,6 +848,7 @@ RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
 void
 RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
 {
+  std::cout << "Notify Remove Address" << std::endl;
   NS_LOG_FUNCTION (this);
   Ptr<Socket> socket = FindSocketWithInterfaceAddress (address);
   if (socket)
@@ -918,6 +931,7 @@ RoutingProtocol::IsMyOwnAddress (Ipv4Address src)
 Ptr<Ipv4Route>
 RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) const
 {
+    std::cout << "Loopback Route" << std::endl;
   NS_LOG_FUNCTION (this << hdr);
   NS_ASSERT (m_lo != 0);
   Ptr<Ipv4Route> rt = Create<Ipv4Route> ();
@@ -966,6 +980,7 @@ RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) cons
 void
 RoutingProtocol::SendRequest (Ipv4Address dst)
 {
+    std::cout << "Send Request" << std::endl;
   NS_LOG_FUNCTION ( this << dst);
   // A node SHOULD NOT originate more than RREQ_RATELIMIT RREQ messages per second.
   if (m_rreqCount == m_rreqRateLimit)
@@ -1144,12 +1159,14 @@ RoutingProtocol::MySendRequest ()
 void
 RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
 {
+  std::cout << "SENDTO" << std::endl;
   socket->SendTo (packet, 0, InetSocketAddress (destination, AODV_PORT));
-
+    std::cout << "SENDTO2" << std::endl;
 }
 void
 RoutingProtocol::ScheduleRreqRetry (Ipv4Address dst)
 {
+    std::cout << "ScheduleRreqRetry" << std::endl;
   NS_LOG_FUNCTION (this << dst);
   if (m_addressReqTimer.find (dst) == m_addressReqTimer.end ())
     {
@@ -1180,6 +1197,7 @@ RoutingProtocol::ScheduleRreqRetry (Ipv4Address dst)
 void
 RoutingProtocol::RecvAodv (Ptr<Socket> socket)
 {
+  std::cout << "RECVAODV" << std::endl;
   NS_LOG_FUNCTION (this << socket);
   Address sourceAddress;
   Ptr<Packet> packet = socket->RecvFrom (sourceAddress);
@@ -1256,6 +1274,7 @@ RoutingProtocol::UpdateRouteLifeTime (Ipv4Address addr, Time lifetime)
 void
 RoutingProtocol::UpdateRouteToNeighbor (Ipv4Address sender, Ipv4Address receiver)
 {
+  std::cout << "UpdateRouteToNeighbor" << std::endl;
   NS_LOG_FUNCTION (this << "sender " << sender << " receiver " << receiver);
   RoutingTableEntry toNeighbor;
   if (!m_routingTable.LookupRoute (sender, toNeighbor))
@@ -1287,6 +1306,7 @@ RoutingProtocol::UpdateRouteToNeighbor (Ipv4Address sender, Ipv4Address receiver
 void
 RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address src)
 {
+  std::cout << "RecvRequest" << std::endl;
   NS_LOG_FUNCTION (this);
   RreqHeader rreqHeader;
   p->RemoveHeader (rreqHeader);
@@ -1482,6 +1502,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
 void
 RoutingProtocol::SendReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin)
 {
+  std::cout << "SENDREPLY" << std::endl;
   NS_LOG_FUNCTION (this << toOrigin.GetDestination ());
   /*
    * Destination node MUST increment its own sequence number by one if the sequence number in the RREQ packet is equal to that
@@ -1582,6 +1603,7 @@ RoutingProtocol::SendReplyByIntermediateNode (RoutingTableEntry & toDst, Routing
 void
 RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender)
 {
+  std::cout << "RECVREPLY" << std::endl;
   NS_LOG_FUNCTION (this << " src " << sender);
   RrepHeader rrepHeader;
   p->RemoveHeader (rrepHeader);
@@ -1731,6 +1753,7 @@ RoutingProtocol::RecvReplyAck (Ipv4Address neighbor)
 void
 RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiver )
 {
+  std::cout << "ProcessHello" << std::endl;
   NS_LOG_FUNCTION (this << "from " << rrepHeader.GetDst ());
   /*
    *  Whenever a node receives a Hello message from a neighbor, the node
@@ -1767,6 +1790,7 @@ RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiv
 void
 RoutingProtocol::RecvError (Ptr<Packet> p, Ipv4Address src )
 {
+  std::cout << "RecvError" << std::endl;
   NS_LOG_FUNCTION (this << " from " << src);
   RerrHeader rerrHeader;
   p->RemoveHeader (rerrHeader);
@@ -1867,6 +1891,7 @@ RoutingProtocol::RouteRequestTimerExpire (Ipv4Address dst)
 void
 RoutingProtocol::HelloTimerExpire ()
 {
+  std::cout << "HelloTimerExpire" << std::endl;
   NS_LOG_FUNCTION (this);
   Time offset = Time (Seconds (0));
   if (m_lastBcastTime > Time (Seconds (0)))
@@ -1910,6 +1935,7 @@ RoutingProtocol::AckTimerExpire (Ipv4Address neighbor, Time blacklistTimeout)
 void
 RoutingProtocol::SendHello ()
 {
+  std::cout << "SENDHELLO" << std::endl;
   NS_LOG_FUNCTION (this);
   /* Broadcast a RREP with TTL = 1 with the RREP message fields set as follows:
    *   Destination IP Address         The node's IP address.

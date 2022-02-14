@@ -1,5 +1,5 @@
-#ifndef VANETBROADCASTPROTOCOL_H
-#define VANETBROADCASTPROTOCOL_H
+#ifndef RoutingProtocol_H
+#define RoutingProtocol_H
 
 
 #include "ns3/ipv4-interface.h"
@@ -30,32 +30,46 @@
 
 namespace ns3{
 
-class VanetBroadcastProtocol : public Ipv4RoutingProtocol
+namespace vbp{
+class RoutingProtocol : public Ipv4RoutingProtocol
 {
   public:
-    VanetBroadcastProtocol ();
-    virtual ~VanetBroadcastProtocol ();
+    static const uint32_t VBP_PORT;
+    RoutingProtocol ();
+    virtual ~RoutingProtocol ();
 
   // Inherited from Ipv4RoutingProtocol
   Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr);
   bool RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
                   UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                    LocalDeliverCallback lcb, ErrorCallback ecb);
-  virtual void NotifyInterfaceUp (uint32_t interface);
-  virtual void NotifyInterfaceDown (uint32_t interface);
-  virtual void NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address);
-  virtual void NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address);
   virtual void SetIpv4 (Ptr<Ipv4> ipv4);
   virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
+  virtual void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address);
+  virtual void NotifyInterfaceDown(uint32_t interface);
+  virtual void NotifyInterfaceUp(uint32_t interface);
+  virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
+  void SendHello (void);
+  void StartHelloTx(void);
 
+  private:
+ Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;
+  void SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
   // IP protocol
   Ptr<Ipv4> m_ipv4;
   // Loopback device used to defer RREQ until packet will be fully formed
   Ptr<NetDevice> m_lo;
+  
+  /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
+  std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketAddresses;
 
-  private:
+  void RecvVbp(Ptr<Socket> socket);
+
+  /// Provides uniform random variables.
+  Ptr<UniformRandomVariable> m_uniformRandomVariable;
 };
 
+} //namespace vbp
 } //namespace ns3
 
-#endif /* VANETBROADCASTPROTOCOL_H */
+#endif /* RoutingProtocol_H */

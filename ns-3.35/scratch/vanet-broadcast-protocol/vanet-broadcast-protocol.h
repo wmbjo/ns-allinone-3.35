@@ -34,6 +34,7 @@ namespace vbp{
 class RoutingProtocol : public Ipv4RoutingProtocol
 {
   public:
+  static TypeId GetTypeId (void);
     static const uint32_t VBP_PORT;
     RoutingProtocol ();
     virtual ~RoutingProtocol ();
@@ -53,11 +54,13 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   void StartHelloTx(void);
 
   private:
-
-
+    Time m_activeRouteTimeout;
+ Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;
   void SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
   // IP protocol
   Ptr<Ipv4> m_ipv4;
+    /// Raw subnet directed broadcast socket per each IP interface, map socket -> iface address (IP + mask)
+  std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketSubnetBroadcastAddresses;
   // Loopback device used to defer RREQ until packet will be fully formed
   Ptr<NetDevice> m_lo;
   

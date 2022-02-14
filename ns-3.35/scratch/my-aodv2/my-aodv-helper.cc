@@ -42,21 +42,28 @@ MyAodvHelper::Copy (void) const
 Ptr<Ipv4RoutingProtocol> 
 MyAodvHelper::Create (Ptr<Node> node) const //method executed when .install in aodv-3x3 script. do not modify for my own code
 {
+  std::cout << "ABC" << std::endl;
   Ptr<aodv::RoutingProtocol> agent = m_agentFactory.Create<aodv::RoutingProtocol> (); //creates instance of routing protocol. protocol initialized. how does m_ipv4 given a value to start with? disable data traffic coming from src node. no packet transmissions. just try to get code to compile
+  std::cout << "DEF" << std::endl;
   node->AggregateObject (agent); //aggregates instance to node
+  std::cout << "HIJ" << std::endl;
   //setipv4
   return agent;
+  std::cout << "KLM" << std::endl;
 }
 
 void 
 MyAodvHelper::Set (std::string name, const AttributeValue &value)
 {
+  std::cout << "NOP" << std::endl;
   m_agentFactory.Set (name, value);
+  std::cout << "QRS" << std::endl;
 }
 
 int64_t
 MyAodvHelper::AssignStreams (NodeContainer c, int64_t stream)
 {
+  std::cout << "TUV" << std::endl;
   int64_t currentStream = stream;
   Ptr<Node> node;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
@@ -92,5 +99,6 @@ MyAodvHelper::AssignStreams (NodeContainer c, int64_t stream)
         }
     }
   return (currentStream - stream);
+  std::cout << "WXY" << std::endl;
 }
 }

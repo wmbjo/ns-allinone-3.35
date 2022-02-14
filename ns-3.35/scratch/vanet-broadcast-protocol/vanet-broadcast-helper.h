@@ -18,6 +18,7 @@ public:
   VanetBroadcastHelper* Copy (void) const;
 
   virtual Ptr<Ipv4RoutingProtocol> Create (Ptr<Node> node) const;
+  void Set (std::string name, const AttributeValue &value);
 
 
 private:

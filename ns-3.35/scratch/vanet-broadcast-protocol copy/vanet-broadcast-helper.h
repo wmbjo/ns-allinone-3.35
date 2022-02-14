@@ -14,12 +14,14 @@ class VanetBroadcastHelper : public Ipv4RoutingHelper
 
 public:
   VanetBroadcastHelper();
+  ~VanetBroadcastHelper();
   VanetBroadcastHelper* Copy (void) const;
+
   virtual Ptr<Ipv4RoutingProtocol> Create (Ptr<Node> node) const;
 
 
 private:
- // ObjectFactory m_agentFactory;
+  ObjectFactory m_agentFactory;
   
 };
 

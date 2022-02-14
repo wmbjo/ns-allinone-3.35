@@ -104,8 +104,8 @@
 // ====================================================================
 
 #define NET_ADDRESS "10.1.1.0"
-#define NET_MASK_ADDRESS "255.255.255.0"
-#define BROADCAST_ADDRESS "255.255.255.255"
+#define NET_MASK_ADDRESS "255.255.255.0" //first three bytes are for indicating network address. last byte indicates node in network address.
+//#define BROADCAST_ADDRESS "255.255.255.255" Broadcast to every node on every network
 #define UDP_PORT 8080
 #define SOURCES_START_TIME 1 // seconds
 #define SOURCE_START_TIME 1 // seconds
@@ -188,14 +188,6 @@ int main(int argc, char* argv[])
   // Create nodes. Install Internet stack. Set location of the nodes and configure them as static (no movement).
   NodeContainer nodes;
   nodes.Create(NumNodes); //Create desired number of nodes
-  InternetStackHelper stack;
-
-
-  //aodv
-  VanetBroadcastHelper vbp; 
-  stack.SetRoutingHelper(vbp);
-  stack.Install(nodes);
-
 
   Ptr<ListPositionAllocator> PositionAllocator = CreateObject<ListPositionAllocator>(); //Goes in order from node 0 to node n
   //positive y points down (positive distance)
@@ -212,10 +204,19 @@ int main(int argc, char* argv[])
   PositionAllocator->Add(Vector3D(2*DISTANCE, 3*DISTANCE, 0)); //node 10
   PositionAllocator->Add(Vector3D(2*DISTANCE, 4*DISTANCE, 0)); //node 11 src
   
+
+  
   MobilityHelper mobility;
   mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
   mobility.SetPositionAllocator(PositionAllocator);
   mobility.Install(nodes);
+
+  //vbp
+  InternetStackHelper stack;
+  VanetBroadcastHelper vbp; 
+  stack.SetRoutingHelper(vbp);
+  stack.Install(nodes);
+
 
   // Create channel of constant propagation speed and Friis loss. Enable Radiotap link
   // layer information. Configure the wifi MAC layer in Ad Hoc mode. Use the 802.11b
@@ -292,9 +293,10 @@ int main(int argc, char* argv[])
 
 
   // Set IP addresses on wifi devices
+  //assigns second interface, first interface is by default. First interface is for myself
   Ipv4AddressHelper address;
   address.SetBase(NET_ADDRESS, NET_MASK_ADDRESS);
-  Ipv4InterfaceContainer interfaces = address.Assign(devices);
+  Ipv4InterfaceContainer interfaces = address.Assign(devices); //notify methods (called from this line) will allow us to access interface to tx hello-packets
 
   // WRITE YOUR CODE HERE:
   // Create and bind the socket on the destination node. Set the receive
@@ -345,35 +347,3 @@ int main(int argc, char* argv[])
   // Success
   return 0;
 }
-// TODO:
-//Class example on packet sniffing. (Increase RX Gain unrealistically high so it can listen to all transmissions from every node. TX Gain =0 = -INF dB. )
-// Add a node that can hear everything, but can not transmit to anyone. Do packet sniffing on this node to collect
-//all transmissions on this network. Like an eavesdropper. No one knows it is listening. 
-
-// Switch out aodv for rip. Confirm it works with rip, then use my-rip.
-//Verify packets reach destination from trace generated from eavesdropper. Use wireshark to track all UDP packets
-// delivered to the destination node, n0. 
-
-//Wireshark confirms aodv/rip delivers packet to destination. 
-
-
-
-
-//Implement custom aodv
-//simple routing protocol, select one of the one-hop neighbors randomly. Modify aodv file to do this
-///access list of one hop neighbors and randomly select one of them.
-//rreq route request packets in aodv.
-
-//if can't get aodv work on custom rip
-
-
-
-//Confirm import statements from custom aodv library
-//use aodv-neighbor and aodv-routing-protocol and other files to
-  //1. find neighbors, update neighbors, choose neighbors
-
-
-//how the packets are created and transmitted (rreq). Will need nodes to transmit hello messages. Replicate what aodv does to create and transmit for rreq messages.
-// each node in Roberto's code transmit hello 10 times per second (gps,speed,other params)
-//begin creation of class that replicates rreq class functionality. Mine should transmit messages 10 times per second
-//When node receives rreq packet, we need to update our list of neighbors.
