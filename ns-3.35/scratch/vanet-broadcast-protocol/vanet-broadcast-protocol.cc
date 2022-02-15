@@ -140,7 +140,6 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
 
   int32_t iif = m_ipv4->GetInterfaceForDevice (idev);
 
-
   Ipv4Address dst = header.GetDestination ();
   //Ipv4Address origin = header.GetSource ();
 
@@ -294,8 +293,7 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
     }
 
   // Create a socket to listen only on this interface
-  Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (),
-                                             UdpSocketFactory::GetTypeId ());
+  Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (),UdpSocketFactory::GetTypeId ());
   NS_ASSERT (socket != 0);
   socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvVbp, this));
   socket->BindToNetDevice (l3->GetNetDevice (interface));
@@ -304,9 +302,8 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
   socket->SetIpRecvTtl (true);
   m_socketAddresses.insert (std::make_pair (socket, iface));
 
-  // create also a subnet broadcast socket
-  socket = Socket::CreateSocket (GetObject<Node> (),
-                                 UdpSocketFactory::GetTypeId ());
+  //create also a subnet broadcast socket
+  socket = Socket::CreateSocket (GetObject<Node> (), UdpSocketFactory::GetTypeId ());
   NS_ASSERT (socket != 0);
   socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvVbp, this));
   socket->BindToNetDevice (l3->GetNetDevice (interface));
@@ -351,20 +348,25 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
     Address sourceAddress;
     std::cout << "SOURCE ADDRESS ---" << sourceAddress << std::endl;
     Ptr<Packet> packet = socket->RecvFrom (sourceAddress);
+    std::cout << "SOURCE ADDRESS After " << sourceAddress << std::endl;
     InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom (sourceAddress);
     Ipv4Address sender = inetSourceAddr.GetIpv4 ();
     Ipv4Address receiver;
+    std::cout << "Sender " << sender << std::endl;
 
-    // if (m_socketAddresses.find (socket) != m_socketAddresses.end ())
-    //   {
-    //     receiver = m_socketAddresses[socket].GetLocal ();
-    //   }
-    // else
-    //   {
-    //     NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
-    //   }
-    NS_LOG_DEBUG ("AODV node " << this << " received a AODV packet from " << sender << " to " << receiver);
-
+    if (m_socketAddresses.find (socket) != m_socketAddresses.end ())
+        {
+          receiver = m_socketAddresses[socket].GetLocal ();
+        }
+      else if (m_socketSubnetBroadcastAddresses.find (socket) != m_socketSubnetBroadcastAddresses.end ())
+        {
+          receiver = m_socketSubnetBroadcastAddresses[socket].GetLocal ();
+        }
+      else
+        {
+          NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
+        }
+    std::cout << "receiver " << receiver << std::endl;
     std::cout << "---Received Transmission--- " << std::endl;
   }
 

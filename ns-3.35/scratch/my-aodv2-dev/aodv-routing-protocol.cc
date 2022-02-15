@@ -703,7 +703,7 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t i)
   Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (),
                                              UdpSocketFactory::GetTypeId ());
   NS_ASSERT (socket != 0);
-  //socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvAodv, this));
+  socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvAodv, this));
   socket->BindToNetDevice (l3->GetNetDevice (i));
   socket->Bind (InetSocketAddress (iface.GetLocal (), AODV_PORT));
   socket->SetAllowBroadcast (true);
