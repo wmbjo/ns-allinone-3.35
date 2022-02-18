@@ -23,6 +23,7 @@
 #include "ns3/ipv4-route.h"
 #include "ns3/output-stream-wrapper.h"
 #include "ns3/ipv4-routing-table-entry.h"
+#include "vbp-packet.h"
 
 
 namespace ns3 {
@@ -343,6 +344,7 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress a
 void 
 RoutingProtocol::RecvVbp (Ptr<Socket> socket)
   {
+    //write code to convert array of 4 bytes (ip address) to Ipv4Address 
     std::cout << "RecvVbp"  << std::endl;
     NS_LOG_FUNCTION (this << socket);
     Address sourceAddress;
@@ -392,9 +394,57 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
   std::cout << "---PRT--- " <<  std::endl;
 }
 
+// void
+// RoutingProtocol::SendHello ()
+// {
+//   //In this version of SendHello I fill SetData with dummy values to see if I can print out getters. This works
+//   for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+//     {
+
+//       Ptr<Socket> socket = j->first;
+//       Ipv4InterfaceAddress iface = j->second;
+//       std::cout << "---Interface Info--- " << iface << std::endl;
+//       Ptr<Packet> packet = Create<Packet> ();
+//       //create header here
+//       periodicPacketHeader HelloHeader;
+//       //set dummy values to header setData (pass hardcoded values)
+//       HelloHeader.SetData(0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+//       // add header to packet
+//       packet->AddHeader (HelloHeader);
+//       // print the content of my packet on the standard output.
+//       packet->Print (std::cout);
+//       std::cout << std::endl;
+//       // remove the header from the packet:
+//       periodicPacketHeader destinationHeader;
+//       packet->RemoveHeader (destinationHeader);
+//       std::cout << destinationHeader.GetSpeedX() << std::endl;
+   
+
+//       // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
+//       Ipv4Address destination;
+//       if (iface.GetMask () == Ipv4Mask::GetOnes ())
+//         {
+//           destination = Ipv4Address ("255.255.255.255");
+//           std::cout << "---Test 1--- " << destination << std::endl;
+//         }
+//       else
+//         {
+//           destination = iface.GetBroadcast ();
+//           std::cout << "---Test 2--- " << destination << std::endl;
+//         }
+//       Time jitter = Time (MilliSeconds (Period_HelloTx + m_uniformRandomVariable->GetInteger (0, Jitter_HelloTx)));
+//       Simulator::Schedule (jitter, &RoutingProtocol::SendHello, this);
+//       SendTo(socket,packet,destination);
+//     }
+//   std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send Hello " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
+
+// }
+
+
 void
 RoutingProtocol::SendHello ()
 {
+  //In this version of SendHello I fill SetData with real values. This is a work in progress
   for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
     {
 
@@ -402,6 +452,42 @@ RoutingProtocol::SendHello ()
       Ipv4InterfaceAddress iface = j->second;
       std::cout << "---Interface Info--- " << iface << std::endl;
       Ptr<Packet> packet = Create<Packet> ();
+      //create header here
+      periodicPacketHeader HelloHeader;
+
+      // get info needed in packet from sockets
+    Vector pos = (m_socketptr->GetNode())->GetObject<MobilityModel>()->GetPosition (); // Get position
+    Vector vel = (m_socketptr->GetNode())->GetObject<MobilityModel>()->GetVelocity(); // Get velocity
+    neighbors* neighbor1Hop = &((m_socketptr->GetNode())->GetObject<car>()->m_neighbors);
+        // Determine node furthest ahead downstream and furthest behind upstream
+    Vector furthestAhead = Vector3D(NaN,NaN,0);
+    int furthestIdxAhead = neighbor1Hop->GetNeighborFurthestAheadByIndex(pos);
+    if (furthestIdxAhead >= 0) {
+        furthestAhead = Vector3D(neighbor1Hop->GetNeighborPositionX(furthestIdxAhead)
+                            , neighbor1Hop->GetNeighborPositionY(furthestIdxAhead),0);
+    }
+    Vector furthestBehind = Vector3D(NaN,NaN,0); 
+    int furthestIdxBehind = neighbor1Hop->GetNeighborFurthestBehindByIndex(pos);
+    if (furthestIdxBehind >= 0) {
+        furthestBehind = Vector3D(neighbor1Hop->GetNeighborPositionX(furthestIdxBehind)
+                            , neighbor1Hop->GetNeighborPositionY(furthestIdxBehind),0);
+    }
+      //set dummy values to header setData (pass hardcoded values)
+      HelloHeader.SetData(PERIODIC_PACKET_TYPE, (m_socketptr->GetNode())->GetId(), pos.x, pos.y, vel.x, vel.y
+            , neighbor1Hop->Get1HopNumNeighborsAhead(), neighbor1Hop->Get1HopNumNeighborsBehind()
+            , furthestAhead.x, furthestAhead.y, furthestBehind.x, furthestBehind.y, neighbor1Hop->GetAvgSpeedNeighborX(vel.x)
+            , neighbor1Hop->GetAvgSpeedNeighborY(vel.y)); 
+      // add header to packet
+      packet->AddHeader (HelloHeader);
+      // print the content of my packet on the standard output.
+      packet->Print (std::cout);
+      std::cout << std::endl;
+      // remove the header from the packet:
+      periodicPacketHeader destinationHeader;
+      packet->RemoveHeader (destinationHeader);
+      std::cout << destinationHeader.GetSpeedX() << std::endl;
+   
+
       // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
       Ipv4Address destination;
       if (iface.GetMask () == Ipv4Mask::GetOnes ())
@@ -421,6 +507,7 @@ RoutingProtocol::SendHello ()
   std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send Hello " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
 
 }
+
 
 void
 RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)

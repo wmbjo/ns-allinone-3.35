@@ -73,6 +73,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   Ptr<UniformRandomVariable> m_uniformRandomVariable;
 };
 
+
 } //namespace vbp
 } //namespace ns3
 
