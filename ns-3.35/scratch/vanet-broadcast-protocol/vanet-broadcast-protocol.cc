@@ -88,7 +88,7 @@ RoutingProtocol::GetTypeId (void)
 
 
 RoutingProtocol::RoutingProtocol ()
-  : m_helloPacketType (48) 
+  : m_helloPacketType (104) //104 is an 'h' in ascii 
 {
 
 }
