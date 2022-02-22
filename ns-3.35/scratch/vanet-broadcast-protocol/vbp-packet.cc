@@ -25,14 +25,11 @@ namespace vbp {
  }
  
  void periodicPacketHeader::Print (std::ostream &os) const {
-   // This method is invoked by the packet printing
-   // routines to print the content of my header.
-   os << "data=" << m_nodeId << std::endl;
  }
 
  uint32_t periodicPacketHeader::GetSerializedSize (void) const {
    // we reserve bytes for our header.
-   uint32_t totalSize = sizeof(m_packetType) + sizeof(m_nodeId) + sizeof(m_neighborsAhead) + sizeof(m_neighborsBehind)
+   uint32_t totalSize = sizeof(m_packetType) + sizeof(m_neighborsAhead) + sizeof(m_neighborsBehind)
                             + sizeof(m_positionX) + sizeof(m_positionY) + sizeof(m_speedX) + sizeof(m_speedY)
                             + sizeof(m_neighborFurthestAheadX) + sizeof(m_neighborFurthestAheadY)
                             + sizeof(m_neighborFurthestBehindX) + sizeof(m_neighborFurthestBehindY) + sizeof(m_avgSpeedX) 
@@ -44,17 +41,15 @@ namespace vbp {
  void periodicPacketHeader::Serialize (Buffer::Iterator start) const {
    // we write them in network byte order.
    start.WriteU8 (m_packetType); 
-   start.WriteHtonU16 (m_nodeId);  
+  
    start.WriteHtonU16 (m_neighborsAhead);
    start.WriteHtonU16 (m_neighborsBehind);
    // use for loop to move 8 bits at a time to store each float
     // for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {  
     //         start.WriteU8(m_ipaddr[byteNum]);
     // }
-    std::cout << "test 123" <<std::endl;
    for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {  
         start.WriteU8(m_positionX[byteNum]);
-        std::cout << "nmx " << m_positionX[byteNum] <<std::endl;
    }
    for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {
         start.WriteU8(m_positionY[byteNum]);
@@ -88,7 +83,6 @@ namespace vbp {
  uint32_t periodicPacketHeader::Deserialize (Buffer::Iterator start) {
    // we read them in network byte order and store them
    m_packetType = start.ReadU8 ();
-   m_nodeId = start.ReadNtohU16 ();
    m_neighborsAhead = start.ReadNtohU16 ();
    m_neighborsBehind =start.ReadNtohU16 ();
    // use for loop to move 8 bits at a time to read each float
@@ -129,12 +123,11 @@ namespace vbp {
    return GetSerializedSize();
  }
  
- void periodicPacketHeader::SetData (uint8_t packetType, uint16_t id, float posX, float posY, float speedX, float speedY
+ void periodicPacketHeader::SetData (uint8_t packetType, float posX, float posY, float speedX, float speedY
                     , uint16_t neighborsAhead, uint16_t neighborsBehind, float neighborFurthestAheadX
                     , float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY
                     , float avgSpeedX, float avgSpeedY) {
    m_packetType = packetType;
-   m_nodeId = id;
    m_neighborsAhead = neighborsAhead;
    m_neighborsBehind = neighborsBehind;
    // use for loop to move 8 bits at a time to store float into 4 bytes
@@ -192,11 +185,6 @@ uint16_t periodicPacketHeader::GetNumNeighborsBehind (void) const {
    return m_neighborsBehind;
  }
 
-uint16_t periodicPacketHeader::GetNodeId (void) const {
-   return m_nodeId;
-      std::cout << "Set Data" << std::endl;
- }
-
  float periodicPacketHeader::GetPositionX (void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
@@ -218,7 +206,6 @@ uint16_t periodicPacketHeader::GetNodeId (void) const {
  }
 
 float periodicPacketHeader::GetSpeedX(void) const {
-       std::cout << "Hello Get Speed" << std::endl;
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;

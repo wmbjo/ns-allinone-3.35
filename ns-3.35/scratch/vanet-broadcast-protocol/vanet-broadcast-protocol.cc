@@ -1,31 +1,6 @@
 #include "vanet-broadcast-protocol.h"
-#include "ns3/ipv4-interface.h"
-#include "ns3/ipv4-l3-protocol.h"
-#include "ns3/log.h"
-#include "ns3/boolean.h"
-#include "ns3/random-variable-stream.h"
-#include "ns3/inet-socket-address.h"
-#include "ns3/trace-source-accessor.h"  
-#include "ns3/udp-l4-protocol.h"
-#include "ns3/udp-header.h"
-#include "ns3/wifi-net-device.h"
-#include "ns3/adhoc-wifi-mac.h"
-#include "ns3/wifi-mac-queue-item.h"
-#include "ns3/string.h"
-#include "ns3/pointer.h"
-#include <algorithm>
-#include <limits>
-#include "ns3/ipv4-routing-protocol.h"
-#include "ns3/names.h"
-#include "ns3/packet.h"
-#include "ns3/node.h"
-#include "ns3/simulator.h"
-#include "ns3/ipv4-route.h"
-#include "ns3/output-stream-wrapper.h"
-#include "ns3/ipv4-routing-table-entry.h"
-#include "vbp-packet.h"
-
-
+#include <vector>
+#include "ns3/mobility-model.h"
 namespace ns3 {
 NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
 
@@ -113,6 +88,7 @@ RoutingProtocol::GetTypeId (void)
 
 
 RoutingProtocol::RoutingProtocol ()
+  : m_helloPacketType (0) 
 {
 
 }
@@ -143,17 +119,6 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
 
   Ipv4Address dst = header.GetDestination ();
   //Ipv4Address origin = header.GetSource ();
-
-  // // Deferred route request
-  // if (idev == m_lo)
-  //   {
-  //     DeferredRouteOutputTag tag;
-  //     if (p->PeekPacketTag (tag))
-  //       {
-  //         DeferredRouteOutput (p, header, ucb, ecb);
-  //         return true;
-  //       }
-  //   }
 
   // // Duplicate of own packet
   // if (IsMyOwnAddress (origin))
@@ -248,18 +213,13 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
       //   }
       if (lcb.IsNull () == false)
         {
-          std::cout << "AAA" << std::endl;
-          NS_LOG_LOGIC ("Unicast local delivery to " << dst);
-          std::cout << "BBB" << std::endl;
           lcb (p, header, iif);
-          std::cout << "CCC" << std::endl;
         }
       // else
       //   {
       //     NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
       //     ecb (p, header, Socket::ERROR_NOROUTETOHOST);
       //   }
-      std::cout << "DDD" << std::endl;
       return true;
     }
 
@@ -368,8 +328,18 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
         {
           NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
         }
-    std::cout << "receiver " << receiver << std::endl;
-    std::cout << "---Received Transmission--- " << std::endl;
+    // remove the header from the packet:
+    periodicPacketHeader destinationHeader;
+    packet->RemoveHeader (destinationHeader);
+    std::cout << "---Received Transmission from --- " << receiver << std::endl;
+    std::cout << "---Begin Header Information --- "  << std::endl;
+    std::cout << destinationHeader.GetPacketType() << std::endl;
+    std::cout << destinationHeader.GetPositionX() << std::endl;
+    std::cout << destinationHeader.GetPositionY() << std::endl;
+    std::cout << destinationHeader.GetSpeedX() << std::endl;
+    std::cout << destinationHeader.GetSpeedY() << std::endl;
+    std::cout << "---End Header Information --- "  << std::endl;
+
   }
 
 void
@@ -414,10 +384,6 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 //       // print the content of my packet on the standard output.
 //       packet->Print (std::cout);
 //       std::cout << std::endl;
-//       // remove the header from the packet:
-//       periodicPacketHeader destinationHeader;
-//       packet->RemoveHeader (destinationHeader);
-//       std::cout << destinationHeader.GetSpeedX() << std::endl;
    
 
 //       // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
@@ -456,36 +422,19 @@ RoutingProtocol::SendHello ()
       periodicPacketHeader HelloHeader;
 
       // get info needed in packet from sockets
-    Vector pos = (m_socketptr->GetNode())->GetObject<MobilityModel>()->GetPosition (); // Get position
-    Vector vel = (m_socketptr->GetNode())->GetObject<MobilityModel>()->GetVelocity(); // Get velocity
-    neighbors* neighbor1Hop = &((m_socketptr->GetNode())->GetObject<car>()->m_neighbors);
-        // Determine node furthest ahead downstream and furthest behind upstream
-    Vector furthestAhead = Vector3D(NaN,NaN,0);
-    int furthestIdxAhead = neighbor1Hop->GetNeighborFurthestAheadByIndex(pos);
-    if (furthestIdxAhead >= 0) {
-        furthestAhead = Vector3D(neighbor1Hop->GetNeighborPositionX(furthestIdxAhead)
-                            , neighbor1Hop->GetNeighborPositionY(furthestIdxAhead),0);
-    }
-    Vector furthestBehind = Vector3D(NaN,NaN,0); 
-    int furthestIdxBehind = neighbor1Hop->GetNeighborFurthestBehindByIndex(pos);
-    if (furthestIdxBehind >= 0) {
-        furthestBehind = Vector3D(neighbor1Hop->GetNeighborPositionX(furthestIdxBehind)
-                            , neighbor1Hop->GetNeighborPositionY(furthestIdxBehind),0);
-    }
+      Ptr<MobilityModel> mob = (socket->GetNode())->GetObject<MobilityModel>();
+      double posx = mob->GetPosition().x;
+      double posy = mob->GetPosition().y;
+      double velx = mob->GetVelocity().x;
+      double vely = mob->GetVelocity().y;
       //set dummy values to header setData (pass hardcoded values)
-      HelloHeader.SetData(PERIODIC_PACKET_TYPE, (m_socketptr->GetNode())->GetId(), pos.x, pos.y, vel.x, vel.y
-            , neighbor1Hop->Get1HopNumNeighborsAhead(), neighbor1Hop->Get1HopNumNeighborsBehind()
-            , furthestAhead.x, furthestAhead.y, furthestBehind.x, furthestBehind.y, neighbor1Hop->GetAvgSpeedNeighborX(vel.x)
-            , neighbor1Hop->GetAvgSpeedNeighborY(vel.y)); 
+      std::cout << "Hello Packet Type: " << m_helloPacketType << std::endl;
+      HelloHeader.SetData(1, posx, posy, velx, vely , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
       // add header to packet
       packet->AddHeader (HelloHeader);
       // print the content of my packet on the standard output.
       packet->Print (std::cout);
-      std::cout << std::endl;
-      // remove the header from the packet:
-      periodicPacketHeader destinationHeader;
-      packet->RemoveHeader (destinationHeader);
-      std::cout << destinationHeader.GetSpeedX() << std::endl;
+
    
 
       // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise

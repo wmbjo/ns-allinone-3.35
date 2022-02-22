@@ -1,10 +1,5 @@
-// #include "ns3/node.h"
 #include "vanet-broadcast-helper.h"
 #include "vanet-broadcast-protocol.h"
-#include "ns3/node-list.h"
-#include "ns3/names.h"
-// #include "ns3/ptr.h"
-#include "ns3/ipv4-list-routing.h"
 
 namespace ns3 {
 VanetBroadcastHelper::~VanetBroadcastHelper ()

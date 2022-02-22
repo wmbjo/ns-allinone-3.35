@@ -7,26 +7,12 @@
 #include "ns3/log.h"
 #include "ns3/boolean.h"
 #include "ns3/random-variable-stream.h"
-#include "ns3/inet-socket-address.h"
-#include "ns3/trace-source-accessor.h"
 #include "ns3/udp-socket-factory.h"
-#include "ns3/udp-l4-protocol.h"
 #include "ns3/udp-header.h"
-#include "ns3/wifi-net-device.h"
-#include "ns3/adhoc-wifi-mac.h"
-#include "ns3/wifi-mac-queue-item.h"
-#include "ns3/string.h"
-#include "ns3/pointer.h"
-#include <algorithm>
-#include <limits>
-#include "ns3/ipv4-routing-protocol.h"
-#include "ns3/names.h"
 #include "ns3/packet.h"
 #include "ns3/node.h"
-#include "ns3/simulator.h"
-#include "ns3/ipv4-route.h"
-#include "ns3/output-stream-wrapper.h"
-#include "ns3/ipv4-routing-table-entry.h"
+#include "vbp-packet.h"
+#include "vbp-neighbor.h"
 
 namespace ns3{
 
@@ -54,8 +40,9 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   void StartHelloTx(void);
 
   private:
-    Time m_activeRouteTimeout;
- Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;
+  uint8_t m_helloPacketType;
+  Time m_activeRouteTimeout;
+  Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;
   void SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
   // IP protocol
   Ptr<Ipv4> m_ipv4;

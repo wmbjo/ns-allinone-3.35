@@ -14,15 +14,14 @@ namespace vbp {
     class periodicPacketHeader : public Header {
  public:
  
-   periodicPacketHeader ();
+   periodicPacketHeader (); //change name from periodicPacketHeader to helloPacketHeader
    virtual ~periodicPacketHeader ();
  
-   void SetData (uint8_t packetType, uint16_t id, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead
+   void SetData (uint8_t packetType, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead
                     , uint16_t neighborsBehind, float neighborFurthestAheadX, float neighborFurthestAheadY
                     , float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY);
             // called when storing information to send in periodic packet
    uint8_t  GetPacketType(void) const;              // periodic packet is type 0
-   uint16_t GetNodeId (void) const;                 // id of forwarding node
    uint16_t GetNumNeighborsAhead (void) const;      // number of 1 hop neighbors downstream
    uint16_t GetNumNeighborsBehind (void) const;     // number of 1 hop neighbors upstream
    float GetPositionX  (void) const;                // location of forwarding node
@@ -35,7 +34,7 @@ namespace vbp {
    float GetNeighborFurthestBehindY (void) const;
    float GetAvgSpeedX (void) const;                 // current average or speed of 1 hop neighbors of forwarding node
    float GetAvgSpeedY (void) const;
-
+  //below is inherited from Header. Need to implement or else errors
    static TypeId GetTypeId (void);
    virtual TypeId GetInstanceTypeId (void) const;
    virtual void Print (std::ostream &os) const;
@@ -44,8 +43,7 @@ namespace vbp {
    virtual uint32_t GetSerializedSize (void) const;
    
  private:
-   uint8_t  m_packetType; 
-   uint16_t m_nodeId; //nodeid is equivalent to ip address. Change to ip address (source ip address that transmitted hello packet)
+   uint8_t  m_packetType;
    uint16_t m_neighborsAhead;
    uint16_t m_neighborsBehind;
    //uint8_t* m_ipaddr = new uint8_t[4];
