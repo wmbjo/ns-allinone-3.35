@@ -174,6 +174,7 @@ namespace vbp {
  }
 
  uint8_t periodicPacketHeader::GetPacketType (void) const {
+   //std::cout << unsigned(m_packetType) << std::endl;
    return m_packetType;
  }
  

@@ -88,7 +88,7 @@ RoutingProtocol::GetTypeId (void)
 
 
 RoutingProtocol::RoutingProtocol ()
-  : m_helloPacketType (0) 
+  : m_helloPacketType (48) 
 {
 
 }
@@ -333,11 +333,11 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
     packet->RemoveHeader (destinationHeader);
     std::cout << "---Received Transmission from --- " << receiver << std::endl;
     std::cout << "---Begin Header Information --- "  << std::endl;
-    std::cout << destinationHeader.GetPacketType() << std::endl;
-    std::cout << destinationHeader.GetPositionX() << std::endl;
-    std::cout << destinationHeader.GetPositionY() << std::endl;
-    std::cout << destinationHeader.GetSpeedX() << std::endl;
-    std::cout << destinationHeader.GetSpeedY() << std::endl;
+    std::cout << "Packet Type: " << destinationHeader.GetPacketType() << std::endl;
+    std::cout << "Position X: "  << destinationHeader.GetPositionX() << std::endl;
+    std::cout << "Position Y: "  << destinationHeader.GetPositionY() << std::endl;
+    std::cout << "Speed X: " << destinationHeader.GetSpeedX() << std::endl;
+    std::cout << "Speed Y: "<< destinationHeader.GetSpeedY() << std::endl;
     std::cout << "---End Header Information --- "  << std::endl;
 
   }
@@ -429,7 +429,8 @@ RoutingProtocol::SendHello ()
       double vely = mob->GetVelocity().y;
       //set dummy values to header setData (pass hardcoded values)
       std::cout << "Hello Packet Type: " << m_helloPacketType << std::endl;
-      HelloHeader.SetData(1, posx, posy, velx, vely , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+      HelloHeader.SetData(m_helloPacketType, posx, posy, velx, vely , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+      std::cout << "*****: " << HelloHeader.GetPacketType() << std::endl;
       // add header to packet
       packet->AddHeader (HelloHeader);
       // print the content of my packet on the standard output.
