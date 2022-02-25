@@ -41,9 +41,7 @@ VanetBroadcastHelper::Create (Ptr<Node> node) const
 void 
 VanetBroadcastHelper::Set (std::string name, const AttributeValue &value)
 {
-  std::cout << "NOP" << std::endl;
   m_agentFactory.Set (name, value);
-  std::cout << "QRS" << std::endl;
 }
 
 

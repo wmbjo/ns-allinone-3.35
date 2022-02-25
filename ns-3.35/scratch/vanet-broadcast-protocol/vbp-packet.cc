@@ -5,29 +5,29 @@ namespace vbp {
 
 
 
- periodicPacketHeader::periodicPacketHeader () {
+ helloPacketHeader::helloPacketHeader () {
    // we must provide a public default constructor, 
    // implicit or explicit, but never private.
  }
 
- periodicPacketHeader::~periodicPacketHeader () {
+ helloPacketHeader::~helloPacketHeader () {
  }
  
- TypeId periodicPacketHeader::GetTypeId (void) {
-   static TypeId tid = TypeId ("ns3::vbp::periodicPacketHeader")
+ TypeId helloPacketHeader::GetTypeId (void) {
+   static TypeId tid = TypeId ("ns3::vbp::helloPacketHeader")
      .SetParent<Header> ()
-     .AddConstructor<periodicPacketHeader> ();
+     .AddConstructor<helloPacketHeader> ();
    return tid;
  }
 
- TypeId periodicPacketHeader::GetInstanceTypeId (void) const {
+ TypeId helloPacketHeader::GetInstanceTypeId (void) const {
    return GetTypeId ();
  }
  
- void periodicPacketHeader::Print (std::ostream &os) const {
+ void helloPacketHeader::Print (std::ostream &os) const {
  }
 
- uint32_t periodicPacketHeader::GetSerializedSize (void) const {
+ uint32_t helloPacketHeader::GetSerializedSize (void) const {
    // we reserve bytes for our header.
    uint32_t totalSize = sizeof(m_packetType) + sizeof(m_neighborsAhead) + sizeof(m_neighborsBehind)
                             + sizeof(m_positionX) + sizeof(m_positionY) + sizeof(m_speedX) + sizeof(m_speedY)
@@ -38,7 +38,7 @@ namespace vbp {
    return totalSize;
  }
 
- void periodicPacketHeader::Serialize (Buffer::Iterator start) const {
+ void helloPacketHeader::Serialize (Buffer::Iterator start) const {
    // we write them in network byte order.
    start.WriteU8 (m_packetType); 
   
@@ -80,7 +80,7 @@ namespace vbp {
    }
  }
 
- uint32_t periodicPacketHeader::Deserialize (Buffer::Iterator start) {
+ uint32_t helloPacketHeader::Deserialize (Buffer::Iterator start) {
    // we read them in network byte order and store them
    m_packetType = start.ReadU8 ();
    m_neighborsAhead = start.ReadNtohU16 ();
@@ -123,7 +123,7 @@ namespace vbp {
    return GetSerializedSize();
  }
  
- void periodicPacketHeader::SetData (uint8_t packetType, float posX, float posY, float speedX, float speedY
+ void helloPacketHeader::SetData (uint8_t packetType, float posX, float posY, float speedX, float speedY
                     , uint16_t neighborsAhead, uint16_t neighborsBehind, float neighborFurthestAheadX
                     , float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY
                     , float avgSpeedX, float avgSpeedY) {
@@ -173,20 +173,20 @@ namespace vbp {
    }
  }
 
- uint8_t periodicPacketHeader::GetPacketType (void) const {
+ uint8_t helloPacketHeader::GetPacketType (void) const {
    //std::cout << unsigned(m_packetType) << std::endl;
    return m_packetType;
  }
  
- uint16_t periodicPacketHeader::GetNumNeighborsAhead (void) const {
+ uint16_t helloPacketHeader::GetNumNeighborsAhead (void) const {
    return m_neighborsAhead;
  }
 
-uint16_t periodicPacketHeader::GetNumNeighborsBehind (void) const {
+uint16_t helloPacketHeader::GetNumNeighborsBehind (void) const {
    return m_neighborsBehind;
  }
 
- float periodicPacketHeader::GetPositionX (void) const {
+ float helloPacketHeader::GetPositionX (void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -196,7 +196,7 @@ uint16_t periodicPacketHeader::GetNumNeighborsBehind (void) const {
    return temp;
  }
 
- float periodicPacketHeader::GetPositionY (void) const {
+ float helloPacketHeader::GetPositionY (void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -206,7 +206,7 @@ uint16_t periodicPacketHeader::GetNumNeighborsBehind (void) const {
    return temp;
  }
 
-float periodicPacketHeader::GetSpeedX(void) const {
+float helloPacketHeader::GetSpeedX(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -216,7 +216,7 @@ float periodicPacketHeader::GetSpeedX(void) const {
    return temp;
  }
 
-float periodicPacketHeader::GetSpeedY(void) const {
+float helloPacketHeader::GetSpeedY(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -226,7 +226,7 @@ float periodicPacketHeader::GetSpeedY(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetNeighborFurthestAheadX(void) const {
+float helloPacketHeader::GetNeighborFurthestAheadX(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -236,7 +236,7 @@ float periodicPacketHeader::GetNeighborFurthestAheadX(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetNeighborFurthestAheadY(void) const {
+float helloPacketHeader::GetNeighborFurthestAheadY(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -246,7 +246,7 @@ float periodicPacketHeader::GetNeighborFurthestAheadY(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetNeighborFurthestBehindX(void) const {
+float helloPacketHeader::GetNeighborFurthestBehindX(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -256,7 +256,7 @@ float periodicPacketHeader::GetNeighborFurthestBehindX(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetNeighborFurthestBehindY(void) const {
+float helloPacketHeader::GetNeighborFurthestBehindY(void) const {
    //use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -266,7 +266,7 @@ float periodicPacketHeader::GetNeighborFurthestBehindY(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetAvgSpeedX(void) const {
+float helloPacketHeader::GetAvgSpeedX(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;
@@ -276,7 +276,7 @@ float periodicPacketHeader::GetAvgSpeedX(void) const {
    return temp;
 }
 
-float periodicPacketHeader::GetAvgSpeedY(void) const {
+float helloPacketHeader::GetAvgSpeedY(void) const {
    // use for loop to move 8 bits at a time to store 4 bytes into a float
    float temp;
    uint8_t* asByte = (uint8_t*) &temp;

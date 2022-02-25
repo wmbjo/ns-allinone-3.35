@@ -1,7 +1,8 @@
 #ifndef RoutingProtocol_H
 #define RoutingProtocol_H
 
-
+#include <vector>
+#include "ns3/mobility-model.h"
 #include "ns3/ipv4-interface.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/log.h"
@@ -38,8 +39,11 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
   void SendHello (void);
   void StartHelloTx(void);
+  //int RecvNeighbor(Ptr<Socket> socket);
+  //vbpneighbors neighborList;
 
   private:
+
   uint8_t m_helloPacketType;
   Time m_activeRouteTimeout;
   Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;

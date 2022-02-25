@@ -1,239 +1,762 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/*
- * Copyright (c) 2009 IITP RAS
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Based on
- *      NS-2 AODV model developed by the CMU/MONARCH group and optimized and
- *      tuned by Samir Das and Mahesh Marina, University of Cincinnati;
- *
- *      AODV-UU implementation by Erik Nordström of Uppsala University
- *      http://core.it.uu.se/core/index.php/AODV-UU
- *
- * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
- *          Pavel Boyko <boyko@iitp.ru>
- */
-#include <iostream> 
-#include <algorithm>
-#include "ns3/log.h"
-#include "ns3/wifi-mac-header.h"
 #include "vbp-neighbor.h"
 
+
 namespace ns3 {
-
-
-NS_LOG_COMPONENT_DEFINE ("VbpNeighbors");
-
 namespace vbp {
-Neighbors::Neighbors (Time delay)
-  : m_ntimer (Timer::CANCEL_ON_DESTROY)
-{
-  m_ntimer.SetDelay (delay);
-  m_ntimer.SetFunction (&Neighbors::Purge, this);
-  m_txErrorCallback = MakeCallback (&Neighbors::ProcessTxError, this);
-}
 
-bool
-Neighbors::IsNeighbor (Ipv4Address addr)
-{
-  std::cout << "IsNeighbor" << std::endl;
-  Purge ();
-  for (std::vector<Neighbor>::const_iterator i = m_nb.begin ();
-       i != m_nb.end (); ++i)
-    {
-      if (i->m_neighborAddress == addr)
-        {
-          return true;
-        }
-    }
-  return false;
-  //NS_LOG_LOGIC ("IS NEIGHBOR" << addr);
-}
+ vbpneighbors::vbpneighbors () {
+   // we must provide a public default constructor, 
+   // implicit or explicit, but never private.
+ }
 
-Time
-Neighbors::GetExpireTime (Ipv4Address addr)
-{
-  std::cout << "GetExpireTime" << std::endl;
-  Purge ();
-  for (std::vector<Neighbor>::const_iterator i = m_nb.begin (); i
-       != m_nb.end (); ++i)
-    {
-      if (i->m_neighborAddress == addr)
-        {
-          return (i->m_expireTime - Simulator::Now ());
-        }
-    }
-  return Seconds (0);
-}
+ vbpneighbors::~vbpneighbors () {
+ }
+ 
+ TypeId vbpneighbors::GetTypeId (void) {
+   static TypeId tid = TypeId ("ns3::vbp::vbpNeighbors")
+     .SetParent<Object> ()
+     .AddConstructor<vbpneighbors> ();
+   return tid;
+ }
 
-void Neighbors::Printn()
-{
-  std::cout << "Printn" << std::endl;
-  for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
-  { 
-    Ipv4Address addr = i->m_neighborAddress;
-    std::ofstream nextMessageOut; 
-    nextMessageOut.open("tempMessage.txt");
-    //nextMessage = "xxxxxxxxx";
-    addr.Print(nextMessageOut);
-    nextMessageOut.close();
-    std::ifstream nextMessageIn;
-    nextMessageIn.open("tempMessage.txt");
-    std::string addrs;
-    getline(nextMessageIn, addrs);
-    //std::cout << nextMessage <<'\n';
-    NS_LOG_LOGIC ("Address ----> " << addrs);
-  }
-}
+ TypeId vbpneighbors::GetInstanceTypeId (void) const {
+   return GetTypeId ();
+ }
+ 
+ void vbpneighbors::Print (std::ostream &os) const {
+ }
 
 
-// void Neighbors::Printv(Ptr<OutputStreamWrapper> stream)const
-//  {
-//     //for (int i = 0; i < stream.size(); i++) {
-//         //std::cout << input.at(i) << ' ';
-//         //std::cout << typeid(stream) << '\n';
-//     //}
-//    } 
-
-void
-Neighbors::Update (Ipv4Address addr, Time expire)
-{
-  std::cout << "Update" << std::endl;
-  for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
-    {
-      
-      if (i->m_neighborAddress == addr)
-        {
-          // std::cout << "*******" << addr;
-          i->m_expireTime
-            = std::max (expire + Simulator::Now (), i->m_expireTime);
-            
-          if (i->m_hardwareAddress == Mac48Address ())
-            {
-              i->m_hardwareAddress = LookupMacAddress (i->m_neighborAddress);
-            }
-          return;
-        }
-    }
-  //NS_LOG_LOGIC ("************** " << std::vector<Neighbor>::iterator i = m_nb.begin ());
-  NS_LOG_LOGIC ("Open link to " << addr);
-  NS_LOG_LOGIC ("expire time " << expire << typeid(expire).name());
-  Neighbor neighbor (addr, LookupMacAddress (addr), expire + Simulator::Now ());
-  m_nb.push_back (neighbor);
-  Purge ();
-}
-
-/**
- * \brief CloseNeighbor structure
- */
-struct CloseNeighbor
-{
-  /**
-   * Check if the entry is expired
-   *
-   * \param nb Neighbors::Neighbor entry
-   * \return true if expired, false otherwise
-   */
-  bool operator() (const Neighbors::Neighbor & nb) const
+void 
+vbpneighbors::AppendNeighbor (Ipv4Address neighborAddress)
   {
-    return ((nb.m_expireTime < Simulator::Now ()) || nb.close);
+  std::cout << "Neighbor Address " << neighborAddress << std::endl;
+  //RoutingProtocol RecvNeighbor;
+
   }
-};
 
-void
-Neighbors::Purge ()
-{
-  std::cout << "Purge" << std::endl;
-  if (m_nb.empty ())
-    {
-      return;
-    }
 
-  CloseNeighbor pred;
-  if (!m_handleLinkFailure.IsNull ())
-    {
-      for (std::vector<Neighbor>::iterator j = m_nb.begin (); j != m_nb.end (); ++j)
-        {
-          if (pred (*j))
-            {
-              NS_LOG_LOGIC ("Close link to " << j->m_neighborAddress);
-              m_handleLinkFailure (j->m_neighborAddress);
-            }
-        }
-    }
-  m_nb.erase (std::remove_if (m_nb.begin (), m_nb.end (), pred), m_nb.end ());
-  m_ntimer.Cancel ();
-  m_ntimer.Schedule ();
+// int vbpneighbors::FindNeighbor (uint16_t nodeId) {
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; ++idx) {
+//         if (m_1HopNeighborIDs[idx] == nodeId) {
+//             // if find value to add is already here, then stop
+//             return idx; // will end function before adding new entry
+//         }
+//     }
+//     return -1; // if not found
+// }
+
+// void vbpneighbors::AddNeighbor (uint16_t nodeId) {
+//     m_1HopNeighborIDs.push_back(nodeId); // neighbors identified by nodeId
+// }
+
+// void vbpneighbors::AddDirection (uint16_t direction, uint16_t nodeId) {
+//     m_1HopNeighborDirection.push_back(direction);
+//     if (direction) { // true if 1, which is ahead
+//         m_1HopNumNeighborsAhead++;
+//         m_1HopNeighborIDAhead.push_back(nodeId);
+//     } else {
+//         m_1HopNumNeighborsBehind++;
+//         m_1HopNeighborIDBehind.push_back(nodeId);
+//     }
+// }
+
+// void vbpneighbors::AddNumNeighborsAhead (uint16_t numAhead) {
+//     m_1HopNumNeighborAhead.push_back(numAhead); 
+// }
+
+// void vbpneighbors::AddNumNeighborsBehind (uint16_t numBehind) {
+//     m_1HopNumNeighborBehind.push_back(numBehind); 
+// }
+
+// void vbpneighbors::AddLocation (float posX, float posY) {
+//     m_1HopPositionX.push_back(posX);
+//     m_1HopPositionY.push_back(posY);
+// }
+
+// void vbpneighbors::AddSpeed(float speedX, float speedY) {
+//     m_1HopNeighborSpeedX.push_back(speedX); 
+//     m_1HopNeighborSpeedY.push_back(speedY); 
+// }
+// void vbpneighbors::AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY) {
+//     m_neighborFurthestAheadX.push_back(neighborFurthestAheadX);
+//     m_neighborFurthestAheadY.push_back(neighborFurthestAheadY);
+// }
+
+// void vbpneighbors::AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY) {
+//     m_neighborFurthestBehindX.push_back(neighborFurthestBehindX);
+//     m_neighborFurthestBehindY.push_back(neighborFurthestBehindY);
+// }
+
+// void vbpneighbors::AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY) {
+//     m_neighborAvgSpeedX.push_back(neighborAvgSpeedX);
+//     m_neighborAvgSpeedY.push_back(neighborAvgSpeedY);
+// }
+        
+// void vbpneighbors::AddNode (uint16_t nodeId, uint16_t direction, uint16_t neighborsAhead, uint16_t neighborsBehind
+//                             , float posX, float posY, float speedX, float speedY, float neighborFurthestAheadX
+//                             , float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY
+//                             , float avgSpeedX, float avgSpeedY) {
+//    int idx = FindNeighbor(nodeId);
+//    if (idx < 0) { // if added the neighbor, add to list
+//         AddNeighbor(nodeId);
+//         AddDirection(direction, nodeId);
+//         AddNumNeighborsAhead(neighborsAhead);
+//         AddNumNeighborsBehind(neighborsBehind);
+//         AddLocation(posX, posY);
+//         AddSpeed(speedX, speedY);
+//         m_1HopNeighborLastTime.push_back(Simulator::Now());
+//         m_1HopNumNeighbors++; // update number of neighbors by one
+//         AddNeighborFurthestAhead (neighborFurthestAheadX, neighborFurthestAheadY);  // will add entry to m_neighborFurthestAheadX
+//         AddNeighborFurthestBehind (neighborFurthestBehindX, neighborFurthestBehindY);  // will add entry to m_neighborFurthestBehindX
+//         AddNeighborAvgSpeed (avgSpeedX, avgSpeedY);  // will add entry to m_neighborAvgSpeedX
+//         // start with header first then this part!!!
+//         //need to add x,y furthest and FurthestAhead (4) and average speed
+//         // when this is complete, in routing compute LOS, the value used in LOS is not accurate since average of averages
+//         // average will be skewed to vehicles in the middle
+//    }
+//    else {
+//         // update vectors if not adding a new neighbor
+//         m_1HopNeighborDirection[idx] = direction;
+//         UpdateNeighborIDAheadBehind(nodeId, direction);
+//         m_1HopNumNeighborAhead[idx] = neighborsAhead;
+//         m_1HopNumNeighborBehind[idx] = neighborsBehind;
+//         m_1HopPositionX[idx] = posX; 
+//         m_1HopPositionY[idx] = posY; 
+//         m_1HopNeighborSpeedX[idx] = speedX;
+//         m_1HopNeighborSpeedY[idx] = speedY;
+//         m_1HopNeighborLastTime[idx] = Simulator::Now(); 
+//         m_neighborFurthestAheadX[idx] = neighborFurthestAheadX;
+//         m_neighborFurthestAheadY[idx] = neighborFurthestAheadY;
+//         m_neighborFurthestBehindX[idx] = neighborFurthestBehindX;
+//         m_neighborFurthestBehindY[idx] = neighborFurthestBehindY;
+//         m_neighborAvgSpeedX[idx] = avgSpeedX;
+//         m_neighborAvgSpeedY[idx] = avgSpeedY;
+//    }
+// }
+
+// void vbpneighbors::CheckForNeighborRemoval () {
+//     // delete neighbor if no response in TIMEOUT seconds
+//     if (m_1HopNumNeighbors==0) {
+//         return; // nothing to remove
+//     }
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; ++idx) {    
+//          if ((Simulator::Now()-m_1HopNeighborLastTime[idx]) >= Time(NEIGHBOR_TIMEOUT)) {  //check seconds since last response
+//             // if find value to delete
+//             EraseNeighborIDAheadBehind (m_1HopNeighborIDs[idx], m_1HopNeighborDirection[idx]);
+//             m_1HopNeighborIDs.erase(m_1HopNeighborIDs.begin()+idx);  
+//             m_1HopNeighborDirection.erase(m_1HopNeighborDirection.begin()+idx);   
+//             m_1HopNumNeighborAhead.erase(m_1HopNumNeighborAhead.begin()+idx);
+//             m_1HopNumNeighborBehind.erase(m_1HopNumNeighborBehind.begin()+idx);
+//             m_1HopPositionX.erase(m_1HopPositionX.begin()+idx);  
+//             m_1HopPositionY.erase(m_1HopPositionY.begin()+idx);  
+//             m_1HopNeighborSpeedX.erase(m_1HopNeighborSpeedX.begin()+idx); // can't use same iterator for all since different types
+//             m_1HopNeighborSpeedY.erase(m_1HopNeighborSpeedY.begin()+idx); 
+//             m_1HopNeighborLastTime.erase(m_1HopNeighborLastTime.begin()+idx); 
+//             m_neighborFurthestAheadX.erase(m_neighborFurthestAheadX.begin()+idx);
+//             m_neighborFurthestAheadY.erase(m_neighborFurthestAheadY.begin()+idx);
+//             m_neighborFurthestBehindX.erase(m_neighborFurthestBehindX.begin()+idx);
+//             m_neighborFurthestBehindY.erase(m_neighborFurthestBehindY.begin()+idx);
+//             m_neighborAvgSpeedX.erase(m_neighborAvgSpeedX.begin()+idx);
+//             m_neighborAvgSpeedY.erase(m_neighborAvgSpeedY.begin()+idx);
+//             m_1HopNumNeighbors--; // decrease neighborSize count
+//         }
+//     }
+// }
+
+// void vbpneighbors::ScheduleNeighborRemoval () {
+//     CheckForNeighborRemoval ();
+//     Simulator::Schedule(Seconds(NEIGHBOR_REMOVAL_PERIOD), &vbpneighbors::ScheduleNeighborRemoval, this);
+// }
+
+// void vbpneighbors::EraseNeighborIDAheadBehind (uint16_t nodeId, uint16_t direction) {
+//     if (direction) { // means remove from neighbor ahead
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighborsAhead; ++idx) {
+//             if (m_1HopNeighborIDAhead[idx] == nodeId) {
+//                 m_1HopNeighborIDAhead.erase(m_1HopNeighborIDAhead.begin()+idx);
+//             }
+//         }
+//         m_1HopNumNeighborsAhead--;
+//     }
+//     else { //means remove from neighbor behind
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighborsBehind; ++idx) {
+//             if (m_1HopNeighborIDBehind[idx] == nodeId) {
+//                 m_1HopNeighborIDBehind.erase(m_1HopNeighborIDBehind.begin()+idx);
+//             }
+//         }
+//         m_1HopNumNeighborsBehind--;
+//     }   
+// }
+
+// void vbpneighbors::UpdateNeighborIDAheadBehind (uint16_t nodeId, uint16_t direction) {
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighborsAhead; ++idx) {
+//         if (m_1HopNeighborIDAhead[idx] == nodeId) {
+//             // if find nodeId check if direction changed
+//             if (direction) {
+//                 return; // direction stayed the same so no changes
+//             }
+//             else { //means direction changed
+//                 m_1HopNumNeighborsAhead--;
+//                 m_1HopNumNeighborsBehind++;
+//                 m_1HopNeighborIDAhead.erase(m_1HopNeighborIDAhead.begin()+idx);
+//                 m_1HopNeighborIDBehind.push_back(nodeId);
+//                 return;
+//             }
+//         }
+//     }
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighborsBehind; ++idx) {
+//         if (m_1HopNeighborIDBehind[idx] == nodeId) {
+//             // if find nodeId check if direction changed
+//             if (!direction) {
+//                 return; // direction stayed the same so no changes
+//             }
+//             else { //means direction changed
+//                 m_1HopNumNeighborsAhead++;
+//                 m_1HopNumNeighborsBehind--;
+//                 m_1HopNeighborIDAhead.push_back(nodeId);
+//                 m_1HopNeighborIDBehind.erase(m_1HopNeighborIDBehind.begin()+idx);
+//                 return;
+//             }
+//         }
+//     } 
+// }
+
+// uint16_t vbpneighbors::Get1HopNumNeighbors () {
+//     return m_1HopNumNeighbors;
+// }
+
+// uint16_t vbpneighbors::Get1HopNumNeighborsAhead () {
+//     return m_1HopNumNeighborsAhead;
+// }
+
+// uint16_t vbpneighbors::Get1HopNumNeighborsBehind () {
+//     return m_1HopNumNeighborsBehind;
+// }
+
+// uint16_t vbpneighbors::Get1HopNeighborIDAhead (uint16_t index) {
+//     return m_1HopNeighborIDAhead[index];
+// }
+
+// uint16_t vbpneighbors::Get1HopNeighborIDBehind (uint16_t index) {
+//     return m_1HopNeighborIDBehind[index];
+// }
+
+// uint16_t vbpneighbors::Get1HopDirectionById (uint16_t nodeId) {
+//     int idx = FindNeighbor (nodeId); 
+//     if (idx >= 0) {
+//  	return m_1HopNeighborDirection[idx];
+//     }
+//     else {
+//         return 0;
+//     }
+// }
+
+// uint16_t vbpneighbors::Get1HopDirection (uint16_t index) {
+//  	return m_1HopNeighborDirection[index];
+// }
+
+// uint16_t vbpneighbors::Get1HopNumberOfNodesAheadOfNeighbor (uint16_t index) {
+//  	return m_1HopNumNeighborAhead[index];
+// }
+
+// uint16_t vbpneighbors::Get1HopNumberOfNodesBehindOfNeighbor (uint16_t index) {
+//  	return m_1HopNumNeighborBehind[index];
+// }
+
+// uint16_t vbpneighbors::Get1HopNeighborId (uint16_t index) {
+//     return m_1HopNeighborIDs[index];
+// }
+
+// float vbpneighbors::GetNeighborPositionX (uint16_t index) {
+//  	return m_1HopPositionX[index];
+// }
+
+// float vbpneighbors::GetNeighborPositionY (uint16_t index) {
+//  	return m_1HopPositionY[index];
+// }
+
+// float vbpneighbors::GetNeighborSpeedX (uint16_t index) {
+//  	return m_1HopNeighborSpeedX[index];
+// }
+
+// float vbpneighbors::GetNeighborSpeedY (uint16_t index) {
+//  	return m_1HopNeighborSpeedY[index];
+// }
+
+// std::vector<float> vbpneighbors::Get1HopNeighborLocationsX () {
+//     return m_1HopPositionX;
+// }
+
+// std::vector<float> vbpneighbors::Get1HopNeighborLocationsY () {
+//     return m_1HopPositionY;
+// }
+
+// std::vector<float> vbpneighbors::Get1HopNeighborSpeedX () {
+//     return m_1HopNeighborSpeedX;
+// }
+
+// std::vector<float> vbpneighbors::Get1HopNeighborSpeedY () {
+//     return m_1HopNeighborSpeedY;
+// }
+
+// float vbpneighbors::GetNeighborFurthestAheadX(uint16_t index) {
+//    return m_neighborFurthestAheadX[index];
+// }
+
+// float vbpneighbors::GetNeighborFurthestAheadY(uint16_t index) {
+//    return m_neighborFurthestAheadY[index];
+// }
+
+// float vbpneighbors::GetNeighborFurthestBehindX(uint16_t index) {
+//    return m_neighborFurthestBehindX[index];
+// }
+
+// float vbpneighbors::GetNeighborFurthestBehindY(uint16_t index) {
+//    return m_neighborFurthestBehindY[index];
+// }
+
+// float vbpneighbors::GetNeighborAvgSpeedX(uint16_t index) {
+//     return m_neighborAvgSpeedX[index];
+// }
+
+// float vbpneighbors::GetNeighborAvgSpeedY(uint16_t index) {
+//     return m_neighborAvgSpeedY[index];
+// }
+
+// float vbpneighbors::GetAvgSpeedNeighborX(float speedReferenceX) {
+//     float avgSpeedX = speedReferenceX;
+//     if (m_1HopNumNeighbors > 0) {
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             avgSpeedX += m_1HopNeighborSpeedX[idx];
+//         }
+//         avgSpeedX = avgSpeedX/(m_1HopNumNeighbors+1);
+//     }
+//     return avgSpeedX;
+// }
+
+// float vbpneighbors::GetAvgSpeedNeighborY(float speedReferenceY) {
+//     float avgSpeedY = speedReferenceY;
+//     if (m_1HopNumNeighbors > 0) {
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             avgSpeedY += m_1HopNeighborSpeedY[idx];
+//         }
+//         avgSpeedY = avgSpeedY/(m_1HopNumNeighbors+1);
+//     }
+//     return avgSpeedY;
+// }
+
+// int vbpneighbors::GetNeighborFurthestAheadByIndex(std::vector<int> reference) {
+//     int furthestIdx = -1;
+//     if (m_1HopNumNeighborsAhead > 0) {
+//         std::vector<std::vector<std::vector<int>>> Vector3D;
+//         furthestIdx = FindNeighbor(m_1HopNeighborIDAhead[0]); // in case only has one neighbor ahead
+//         std::vector<int> neighborPos = Vector3D(m_1HopPositionX[furthestIdx], m_1HopPositionY[furthestIdx],0);
+//         float distFurthestAhead = CalculateDistance(neighborPos, refe); // car more ahead  
+//         float neighborDist;
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             if (!(m_1HopNeighborDirection[idx])) { // car is behind, then skip
+//                 continue;
+//             }
+//             neighborPos = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//             neighborDist = CalculateDistance(neighborPos, refe);
+//             if (neighborDist > distFurthestAhead) { // car most head 
+//                 distFurthestAhead = neighborDist;
+//                 furthestIdx = idx;
+//             }                                           
+//         }                 
+//     }
+//     return furthestIdx;
+// }
+
+// int vbpneighbors::GetNeighborFurthestBehindByIndex(Vector reference) {
+//     int furthestIdx = -1;
+//     if (m_1HopNumNeighborsBehind > 0) {
+//         furthestIdx = FindNeighbor(m_1HopNeighborIDBehind[0]); // in case only has one neighbor behind
+//         Vector neighborPos = Vector3D(m_1HopPositionX[furthestIdx], m_1HopPositionY[furthestIdx],0);
+//         float distFurthestBehind = CalculateDistance(neighborPos, reference); // car more ahead  
+//         float neighborDist;
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             if (m_1HopNeighborDirection[idx]) { // car is ahead, then skip
+//                 continue;
+//             }
+//             neighborPos = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//             neighborDist = CalculateDistance(neighborPos, reference);
+//             if (neighborDist > distFurthestBehind) {  //car most behind
+//                 distFurthestBehind = neighborDist;
+//                 furthestIdx = idx;
+//             }                                           
+//         }                 
+//     }
+//     return furthestIdx;
+// }
+
+// int vbpneighbors::Get2HopDistFurthestAheadByIndex(Vector reference) {
+//     int furthestIndex = -1;
+//     float furthestDist = 0;
+//     if (m_1HopNumNeighborsAhead > 0) {
+//         uint16_t index = FindNeighbor(m_1HopNeighborIDAhead[0]);
+//         Vector neighborFurthestAhead = Vector3D(m_neighborFurthestAheadX[index], m_neighborFurthestAheadY[index],0);        
+//         if (!isnan(neighborFurthestAhead.x)) { //only need to check x because x and y will be nan
+//             furthestDist = CalculateDistance(reference, neighborFurthestAhead); // Dist ahead
+//             furthestIndex = index; // in case only has one neighbor
+//         }
+//         float neighborDist; 
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             if (!(m_1HopNeighborDirection[idx])) { // car is behind, then skip
+//                 continue;
+//             }
+//             neighborFurthestAhead = Vector3D(m_neighborFurthestAheadX[idx], m_neighborFurthestAheadY[idx],0);
+//             if (isnan(neighborFurthestAhead.x)) { //only need to check x because x and y will be nan
+//                 continue; // go to next entry
+//             }
+//             neighborDist = CalculateDistance(reference, neighborFurthestAhead); // Dist ahead
+//             if (neighborDist > furthestDist) { // car and car furthest head total distance
+//                 furthestDist = neighborDist;
+//                 furthestIndex = idx;
+//             }   //consider when the vector is not a number, check if nan                                  
+//         }                 
+//     } // index of 1 hop neighbor that reaches furthest ahead
+//     return furthestIndex; // -1 when no 2 hop neighbor ahead or no 1 hop neighbors ahead
+// }
+
+// int vbpneighbors::Get2HopDistFurthestBehindByIndex(Vector reference) {
+//     int furthestIndex = -1;
+//     float furthestDist = 0;
+//     if (m_1HopNumNeighborsBehind > 0) {
+//         uint16_t index = FindNeighbor(m_1HopNeighborIDBehind[0]);
+//         Vector neighborFurthestBehind = Vector3D(m_neighborFurthestBehindX[index], m_neighborFurthestBehindY[index],0);
+//         if (!isnan(neighborFurthestBehind.x)) { //only need to check x because x and y will be nan
+//             furthestDist = CalculateDistance(reference, neighborFurthestBehind);  // dist behind
+//             furthestIndex = index; // in case only has one neighbor
+//         }
+//         float neighborDist; 
+//         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//             if (m_1HopNeighborDirection[idx]) { // car is ahead, then skip
+//                 continue;
+//             }
+//             neighborFurthestBehind = Vector3D(m_neighborFurthestBehindX[idx], m_neighborFurthestBehindY[idx],0);
+//             if (isnan(neighborFurthestBehind.x)) { //only need to check x because x and y will be nan
+//                 continue; // go to next entry
+//             }
+//             neighborDist = CalculateDistance(reference, neighborFurthestBehind);  // dist behind
+//             if (neighborDist > furthestDist) {  // car and car furthest behind total distance
+//                 furthestDist = neighborDist;
+//                 furthestIndex = idx;
+//             }                                           
+//         }                 
+//     } // index of 1 hop neighbor that reaches furthest behind
+//     return furthestIndex; // -1 when no 2 hop neighbor behind or no 1 hop neighbors behind
+// }
+ 
+// uint16_t vbpneighbors::Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBehindIndex, Vector reference) {
+//         // 3 regions, cars ahead of 2hopFurthestAheadIdx, cars behind 2hopFurthestBehindIdx, and cars between those 2 Ids
+//     uint16_t totalCount = m_1HopNumNeighborAhead[twoHopFurthestAheadIndex];
+//     totalCount += m_1HopNumNeighborBehind[twoHopFurthestBehindIndex]; // first two regions
+//     Vector furthestAhead = Vector3D(m_1HopPositionX[twoHopFurthestAheadIndex], m_1HopPositionY[twoHopFurthestAheadIndex],0);
+//     float furthestAheadDist = CalculateDistance(furthestAhead, reference);
+//     Vector furthestBehind = Vector3D(m_1HopPositionX[twoHopFurthestBehindIndex], m_1HopPositionY[twoHopFurthestBehindIndex],0);
+//     float furthestBehindDist = CalculateDistance(furthestBehind, reference);
+//     Vector neighborPos; 
+//     float neighborDist;
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
+//         neighborPos = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//         neighborDist = CalculateDistance(neighborPos, reference);
+//         if (m_1HopNeighborDirection[idx]) { // car is ahead
+//             if (neighborDist <= furthestAheadDist) {
+//                 totalCount++;
+//             }
+//         }
+//         else { // then behind
+//             if (neighborDist <= furthestBehindDist) {
+//                 totalCount++;
+//             }
+//         }                
+//     }
+//     totalCount += 1; //need to add one to account current node
+//     return totalCount; 
+// }
+
+// uint16_t vbpneighbors::Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector reference) {
+//         // 3 regions, vehicles behind reference, vehicles in front furthest ahead, vehicles between reference and furthest ahead
+//     uint16_t totalCount = m_1HopNumNeighborsBehind; 
+//     totalCount += m_1HopNumNeighborAhead[twoHopFurthestAheadIndex];
+//     Vector furthestAhead = Vector3D(m_1HopPositionX[twoHopFurthestAheadIndex], m_1HopPositionY[twoHopFurthestAheadIndex],0);
+//     float furthestAheadDist = CalculateDistance(furthestAhead, reference);
+//     Vector neighborPos; 
+//     float neighborDist;
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) {  // also check if 1hopneighbors>0 first
+//         if (!(m_1HopNeighborDirection[idx])) { // car is behind, then skip
+//             continue;
+//         }
+//         neighborPos = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//         neighborDist  = CalculateDistance(neighborPos, reference);
+//         if (neighborDist <= furthestAheadDist) {
+//             totalCount++;
+//         }               
+//     }
+//     totalCount += 1; //need to add one to account current node
+//     return totalCount; 
+// }
+
+// uint16_t vbpneighbors::Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference) {
+//         // 3 regions, vehicles ahead reference, vehicles behind furthest behind, vehicles between reference and furthest behind
+//     uint16_t totalCount = m_1HopNumNeighborsAhead;
+//     totalCount += m_1HopNumNeighborBehind[twoHopFurthestBehindIndex]; // first two regions
+//     Vector furthestBehind = Vector3D(m_1HopPositionX[twoHopFurthestBehindIndex], m_1HopPositionY[twoHopFurthestBehindIndex],0);
+//     float furthestBehindDist = CalculateDistance(furthestBehind, reference);
+//     Vector neighborPos; 
+//     float neighborDist;   
+//     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) {  // also check if 1hopneighbors>0 first
+//         if ((m_1HopNeighborDirection[idx])) { // car is ahead, then skip
+//             continue;
+//         }
+//         neighborPos = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//         neighborDist  = CalculateDistance(neighborPos, reference);
+//         if (neighborDist <= furthestBehindDist) {
+//             totalCount++;
+//         }               
+//     }
+//     totalCount += 1; //need to add one to account current node
+//     return totalCount; 
+// }
+
+// float vbpneighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
+//     Vector furthestAhead = Vector3D(NaN,NaN,0);
+//     Vector furthestBehind = Vector3D(NaN,NaN,0);
+//     float avgSpeedX = referenceVel.x; // in case needed
+//     float avgSpeedY = referenceVel.y;
+//     int furthestAheadIndex = Get2HopDistFurthestAheadByIndex(referencePos);
+//     int furthestBehindIndex = Get2HopDistFurthestBehindByIndex(referencePos);
+//     float dist = std::numeric_limits<float>::infinity(); // to make volume go to zero, if only 1 vehicle
+//     uint16_t totalCount = 1;  
+//     int idx;
+//     Vector temp = referencePos; // will change if needed
+//     if ( (furthestAheadIndex >= 0) && (furthestBehindIndex >= 0) ) {
+//         furthestAhead = Vector3D(m_neighborFurthestAheadX[furthestAheadIndex], m_neighborFurthestAheadY[furthestAheadIndex],0);
+//         furthestBehind = Vector3D(m_neighborFurthestBehindX[furthestBehindIndex], m_neighborFurthestBehindY[furthestBehindIndex],0);
+//         dist = CalculateDistance(furthestBehind, furthestAhead);
+//         avgSpeedX = m_neighborAvgSpeedX[furthestAheadIndex] + m_neighborAvgSpeedX[furthestBehindIndex];
+//         avgSpeedY = m_neighborAvgSpeedY[furthestAheadIndex] + m_neighborAvgSpeedY[furthestBehindIndex];
+//         avgSpeedX = avgSpeedX/2; // since added 2 values
+//         avgSpeedY = avgSpeedY/2;
+//         totalCount = Get2HopCarCount(furthestAheadIndex, furthestBehindIndex, referencePos);
+//     } 
+//     else if ( (furthestAheadIndex >= 0) && (furthestBehindIndex < 0) ) {
+//         furthestAhead = Vector3D(m_neighborFurthestAheadX[furthestAheadIndex], m_neighborFurthestAheadY[furthestAheadIndex],0);
+//         idx = GetNeighborFurthestBehindByIndex(referencePos);
+//         if (idx >= 0) {
+//             temp = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//         }   
+//         dist = CalculateDistance(temp, furthestAhead);
+//         avgSpeedX = m_neighborAvgSpeedX[furthestAheadIndex];
+//         avgSpeedY = m_neighborAvgSpeedY[furthestAheadIndex];     
+//         totalCount = Get2HopCarCountSelfAhead(furthestAheadIndex, referencePos); // make changes
+//     }
+//     else if ( (furthestAheadIndex < 0) && (furthestBehindIndex >= 0) ) {
+//         furthestBehind = Vector3D(m_neighborFurthestBehindX[furthestBehindIndex], m_neighborFurthestBehindY[furthestBehindIndex],0);
+//         idx = GetNeighborFurthestAheadByIndex(referencePos);
+//         if (idx >= 0) {
+//             temp = Vector3D(m_1HopPositionX[idx], m_1HopPositionY[idx],0);
+//         } 
+//         dist = CalculateDistance(temp, furthestBehind);
+//         avgSpeedX = m_neighborAvgSpeedX[furthestBehindIndex];
+//         avgSpeedY = m_neighborAvgSpeedY[furthestBehindIndex];    
+//         totalCount = Get2HopCarCountSelfBehind(furthestBehindIndex, referencePos);
+//     } // 4th case where both are less than zero will utilize initialized values
+//     float time = dist/((Vector3D(avgSpeedX, avgSpeedY,0).GetLength()));
+//     float volume = totalCount/time;
+//     float LOS = volume/(CAPACITY_PER_LANE*NUM_LANES);
+//     /*
+//     std::cout << "\ntotal number of vehicles " << totalCount;
+//     std::cout << "\ntime " << time;
+//     std::cout << "\ndist " << dist;
+//     std::cout << "\nvolume " << volume;
+//     std::cout << "\ncapacity " << CAPACITY_PER_LANE*NUM_LANES;
+//     std::cout << "\nfurthestAhead " << furthestAheadIndex;
+//     std::cout << "\nfurthestBehind " << furthestBehindIndex << std::endl;
+//     */
+//     return LOS;
+// }
+
+// void vbpneighbors::PrintNeighbors () {
+//     std::cout << "My neighbor list is now: ";
+//     std::cout << '[';
+//     if (m_1HopNumNeighbors > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
+//         	std::cout << m_1HopNeighborIDs.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNeighborIDs.at(m_1HopNumNeighbors-1) << ']';
+//     }
+//     else {
+//         std::cout << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintNeighborsAhead () {
+//     std::cout << "My neighbor's ahead are: ";
+//     std::cout << '[';
+//     if (m_1HopNumNeighborsAhead > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighborsAhead-1; i++) {
+//         	std::cout << m_1HopNeighborIDAhead.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNeighborIDAhead.at(m_1HopNumNeighborsAhead-1) << ']';
+//     }
+//     else {
+//         std::cout << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintNeighborsBehind () {
+//     std::cout << "My neighbor's behind are: ";
+//     std::cout << '[';
+//     if (m_1HopNumNeighborsBehind > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighborsBehind-1; i++) {
+//         	std::cout << m_1HopNeighborIDBehind.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNeighborIDBehind.at(m_1HopNumNeighborsBehind-1) << ']';
+//     }
+//     else {
+//         std::cout << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintDirections () {
+//     std::cout << "My neighbor's directions are (+1=ahead, 0=behind): ";
+//     std::cout << '[';
+//     if (m_1HopNumNeighbors > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
+//         	std::cout << m_1HopNeighborDirection.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNeighborDirection.at(m_1HopNumNeighbors-1) << ']';
+//     }
+//     else {
+//         std::cout << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintNeighborDirections () {
+//     std::cout << "My neighbor's have this many cars ahead of them: [";
+//     if (m_1HopNumNeighbors > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
+//         	std::cout << m_1HopNumNeighborAhead.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNumNeighborAhead.at(m_1HopNumNeighbors-1) << ']' << std::endl;
+//         std::cout << "My neighbor's have this many cars behind them: [";
+//         for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
+//         	std::cout << m_1HopNumNeighborBehind.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNumNeighborBehind.at(m_1HopNumNeighbors-1) << ']';
+//     }
+//     else {
+//         std::cout << ']'<< std::endl;
+//         std::cout << "My neighbor's have this many cars behind them: []";
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintNumNeighborsAheadBehind () {
+//     std::cout << "There are: " << Get1HopNumNeighborsAhead () << " ahead and " << Get1HopNumNeighborsBehind () << " behind me" << std::endl;
+// }
+
+// void vbpneighbors::PrintLocations () {
+//     std::cout << "My neighbor's locations are: ";
+//     if (m_1HopNumNeighbors > 0) {
+// 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
+//         	std::cout << '[' << m_1HopPositionX.at(i) << ", " << m_1HopPositionY.at(i) << ']' << ' ';
+//         }
+//     }
+//     else {
+//         std::cout << '[' << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintSpeeds () {
+//     std::cout << "My neighbor's speeds are: ";
+//     if (m_1HopNumNeighbors > 0) {
+// 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
+//         	std::cout << '[' << m_1HopNeighborSpeedX.at(i) << ", " << m_1HopNeighborSpeedY.at(i) << ']' << ' ';
+//         }
+//     }
+//     else {
+//         std::cout << '[' << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::Print1hopFurthestAhead () {
+//     std::cout << "My neighbor's FurthestAhead Pos are: ";
+//     if (m_1HopNumNeighbors > 0) {
+// 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
+//         	std::cout << '[' << m_neighborFurthestAheadX.at(i) << ", " << m_neighborFurthestAheadY.at(i) << ']' << ' ';
+//         }
+//     }
+//     else {
+//         std::cout << '[' << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::Print1hopFurthestBehind () {
+//     std::cout << "My neighbor's FurthestBehind are: ";
+//     if (m_1HopNumNeighbors > 0) {
+// 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
+//         	std::cout << '[' << m_neighborFurthestBehindX.at(i) << ", " << m_neighborFurthestBehindY.at(i) << ']' << ' ';
+//         }
+//     }
+//     else {
+//         std::cout << '[' << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintAvgSpeeds () {
+//     std::cout << "My neighbor's avg speeds are: ";
+//     if (m_1HopNumNeighbors > 0) {
+// 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
+//         	std::cout << '[' << m_neighborAvgSpeedX.at(i) << ", " << m_neighborAvgSpeedY.at(i) << ']' << ' ';
+//         }
+//     }
+//     else {
+//         std::cout << '[' << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintTimes () {
+//     std::cout << "My neighbor's last updates were at: [";
+//     if (m_1HopNumNeighbors > 0) {
+//     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
+//         	std::cout << m_1HopNeighborLastTime.at(i) << ", ";
+//     	}
+//     	std::cout << m_1HopNeighborLastTime.at(m_1HopNumNeighbors-1) << ']';
+//     }
+//     else {
+//         std::cout << ']';
+//     }
+//     std::cout << std::endl; // to end line after printing everything out horizontally
+// }
+
+// void vbpneighbors::PrintNeighborState() {
+//     std::cout << "current time: " << Simulator::Now() << std::endl;
+//     PrintNeighbors();
+//     //PrintTimes ();
+//     PrintDirections();
+//     PrintNeighborsAhead();
+//     PrintNeighborsBehind();
+//     PrintNumNeighborsAheadBehind ();
+//     PrintNeighborDirections();
+//     Print1hopFurthestAhead ();
+//     Print1hopFurthestBehind ();
+//     PrintAvgSpeeds ();
+//     std::cout << std::endl;  // put space between this and next printout 
+// }
+
+}
 }
 
-void
-Neighbors::ScheduleTimer ()
-{
-  std::cout << "ScheduleTimer" << std::endl;
-  m_ntimer.Cancel ();
-  m_ntimer.Schedule ();
-}
-
-void
-Neighbors::AddArpCache (Ptr<ArpCache> a)
-{
-  std::cout << "AddArpCache" << std::endl;
-  m_arp.push_back (a);
-}
-
-void
-Neighbors::DelArpCache (Ptr<ArpCache> a)
-{
-  std::cout << "DelArpCache" << std::endl;
-  m_arp.erase (std::remove (m_arp.begin (), m_arp.end (), a), m_arp.end ());
-}
-
-Mac48Address
-Neighbors::LookupMacAddress (Ipv4Address addr)
-{
-  std::cout << "LookupMacAddress" << std::endl;
-  Mac48Address hwaddr;
-  for (std::vector<Ptr<ArpCache> >::const_iterator i = m_arp.begin ();
-       i != m_arp.end (); ++i)
-    {
-      ArpCache::Entry * entry = (*i)->Lookup (addr);
-      if (entry != 0 && (entry->IsAlive () || entry->IsPermanent ()) && !entry->IsExpired ())
-        {
-          hwaddr = Mac48Address::ConvertFrom (entry->GetMacAddress ());
-          break;
-        }
-    }
-  return hwaddr;
-}
-
-void
-Neighbors::ProcessTxError (WifiMacHeader const & hdr)
-{
-  std::cout << "ProcessTxError" << std::endl;
-  Mac48Address addr = hdr.GetAddr1 ();
-
-  for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
-    {
-      if (i->m_hardwareAddress == addr)
-        {
-          i->close = true;
-        }
-    }
-  Purge ();
-}
-
-}  // namespace vbp
-}  // namespace ns3
 

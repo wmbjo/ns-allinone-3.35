@@ -11,11 +11,11 @@
 namespace ns3 {
 namespace vbp {
 // rename class to HelloHeader
-    class periodicPacketHeader : public Header {
+    class helloPacketHeader : public Header {
  public:
  
-   periodicPacketHeader (); //change name from periodicPacketHeader to helloPacketHeader
-   virtual ~periodicPacketHeader ();
+   helloPacketHeader (); //change name from helloPacketHeader to helloPacketHeader
+   virtual ~helloPacketHeader ();
  
    void SetData (uint8_t packetType, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead
                     , uint16_t neighborsBehind, float neighborFurthestAheadX, float neighborFurthestAheadY

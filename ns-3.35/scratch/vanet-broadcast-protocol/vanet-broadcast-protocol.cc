@@ -1,6 +1,6 @@
 #include "vanet-broadcast-protocol.h"
-#include <vector>
-#include "ns3/mobility-model.h"
+
+
 namespace ns3 {
 NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
 
@@ -89,8 +89,10 @@ RoutingProtocol::GetTypeId (void)
 
 RoutingProtocol::RoutingProtocol ()
   : m_helloPacketType (104) //104 is an 'h' in ascii 
-{
 
+{
+  //  Time delay;
+  //   neighborList(delay);
 }
 
 RoutingProtocol::~RoutingProtocol ()
@@ -329,9 +331,9 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
           NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
         }
     // remove the header from the packet:
-    periodicPacketHeader destinationHeader;
+    helloPacketHeader destinationHeader;
     packet->RemoveHeader (destinationHeader);
-    std::cout << "---Received Transmission from --- " << receiver << std::endl;
+    std::cout << "---Tx To --- " << receiver << std::endl;
     std::cout << "---Begin Header Information --- "  << std::endl;
     std::cout << "Packet Type: " << destinationHeader.GetPacketType() << std::endl;
     std::cout << "Position X: "  << destinationHeader.GetPositionX() << std::endl;
@@ -339,8 +341,37 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
     std::cout << "Speed X: " << destinationHeader.GetSpeedX() << std::endl;
     std::cout << "Speed Y: "<< destinationHeader.GetSpeedY() << std::endl;
     std::cout << "---End Header Information --- "  << std::endl;
+    vbpneighbors neighborList;
+    neighborList.AppendNeighbor(sender);
 
   }
+
+// int 
+// RoutingProtocol::RecvNeighbor (Ptr<Socket> socket)
+//   {
+//     //write code to convert array of 4 bytes (ip address) to Ipv4Address 
+//     std::cout << "RecvNeighbor"  << std::endl;
+//     Address sourceAddress;
+//     Ptr<Packet> packet = socket->RecvFrom (sourceAddress);
+//     InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom (sourceAddress);
+//     Ipv4Address sender = inetSourceAddr.GetIpv4 ();
+//     Ipv4Address receiver;
+
+//     if (m_socketAddresses.find (socket) != m_socketAddresses.end ())
+//         {
+//           receiver = m_socketAddresses[socket].GetLocal ();
+//         }
+//       else if (m_socketSubnetBroadcastAddresses.find (socket) != m_socketSubnetBroadcastAddresses.end ())
+//         {
+//           receiver = m_socketSubnetBroadcastAddresses[socket].GetLocal ();
+//         }
+//       else
+//         {
+//           NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
+//         }
+//   return receiver;
+
+//   }
 
 void
 RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
@@ -376,7 +407,7 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
 //       std::cout << "---Interface Info--- " << iface << std::endl;
 //       Ptr<Packet> packet = Create<Packet> ();
 //       //create header here
-//       periodicPacketHeader HelloHeader;
+//       helloPacketHeader HelloHeader;
 //       //set dummy values to header setData (pass hardcoded values)
 //       HelloHeader.SetData(0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
 //       // add header to packet
@@ -419,7 +450,7 @@ RoutingProtocol::SendHello ()
       std::cout << "---Interface Info--- " << iface << std::endl;
       Ptr<Packet> packet = Create<Packet> ();
       //create header here
-      periodicPacketHeader HelloHeader;
+      helloPacketHeader HelloHeader;
 
       // get info needed in packet from sockets
       Ptr<MobilityModel> mob = (socket->GetNode())->GetObject<MobilityModel>();
