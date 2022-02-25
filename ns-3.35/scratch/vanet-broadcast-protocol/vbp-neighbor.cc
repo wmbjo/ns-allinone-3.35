@@ -1,5 +1,5 @@
 #include "vbp-neighbor.h"
-
+#include <fstream>
 
 namespace ns3 {
 namespace vbp {
@@ -30,9 +30,13 @@ namespace vbp {
 void 
 vbpneighbors::AppendNeighbor (Ipv4Address neighborAddress)
   {
-  std::cout << "Neighbor Address " << neighborAddress << std::endl;
-  //RoutingProtocol RecvNeighbor;
-
+    std::cout << Simulator::Now().GetSeconds() << " Seconds --- Neighbor Address " << neighborAddress << std::endl;
+    std::fstream log;
+    log.open("AppendLog.txt", std::fstream::app);
+    std::ofstream nextMessageOut; 
+    log << Simulator::Now().GetSeconds() << " Seconds --- Neighbor Address " << neighborAddress << std::endl;
+    //fix issue where file is just appended. Need to only write once per run.
+  //create new method to remove duplicates and stuff after 30 secs
   }
 
 
