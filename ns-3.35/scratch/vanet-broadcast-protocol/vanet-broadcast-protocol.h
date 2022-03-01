@@ -43,7 +43,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   //vbpneighbors neighborList;
 
   private:
-
+  Ptr<Object> m_neighborsListPointer = CreateObject<Object> ();
   uint8_t m_helloPacketType;
   Time m_activeRouteTimeout;
   Ptr<Socket> FindSocketWithInterfaceAddress (Ipv4InterfaceAddress iface) const;

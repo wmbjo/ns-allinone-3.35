@@ -1,5 +1,5 @@
 #include "vanet-broadcast-protocol.h"
-
+#include "vbp-neighbor.h"
 
 namespace ns3 {
 NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
@@ -13,7 +13,7 @@ const uint32_t Period_HelloTx = 95;
 const uint32_t Jitter_HelloTx = 10;
 
 
-/// Tag used by DSDV implementation
+/// Tag used by vbp implementation
 struct DeferredRouteOutputTag : public Tag
 {
   /// Positive if output device is fixed in RouteOutput
@@ -91,8 +91,15 @@ RoutingProtocol::RoutingProtocol ()
   : m_helloPacketType (104) //104 is an 'h' in ascii 
 
 {
-  //  Time delay;
-  //   neighborList(delay);
+//vbpneighbors myNeighborsList;
+//m_neighborsListPointer = &myNeighborsList;
+
+Ptr<vbpneighbors> m_neighborsListPointer2 = CreateObject<vbpneighbors> ();
+m_neighborsListPointer->AggregateObject(m_neighborsListPointer2);
+m_neighborsListPointer->GetObject<vbpneighbors>()->PrintHello();
+//m_neighborsListPointer = m_neighborsListPointer2;
+//m_neighborsListPointer->PrintHello();
+// m_neighborsListPointer2 =  &myNeighborsList;
 }
 
 RoutingProtocol::~RoutingProtocol ()
@@ -307,6 +314,10 @@ void
 RoutingProtocol::RecvVbp (Ptr<Socket> socket)
   {
     //write code to convert array of 4 bytes (ip address) to Ipv4Address 
+      std::fstream log;
+    log.open("AppendNeighborsLog.txt", std::fstream::app);
+    std::ofstream nextMessageOut; 
+    log << "----------- Receive Start ---------" << std::endl;
     std::cout << "RecvVbp"  << std::endl;
     NS_LOG_FUNCTION (this << socket);
     Address sourceAddress;
@@ -341,8 +352,11 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
     std::cout << "Speed X: " << destinationHeader.GetSpeedX() << std::endl;
     std::cout << "Speed Y: "<< destinationHeader.GetSpeedY() << std::endl;
     std::cout << "---End Header Information --- "  << std::endl;
-    vbpneighbors neighborList;
-    neighborList.AppendNeighbor(sender);
+
+    m_neighborsListPointer->GetObject<vbpneighbors>()->PrintHello();
+    m_neighborsListPointer->GetObject<vbpneighbors>()->AppendNeighbor(sender);
+    m_neighborsListPointer->GetObject<vbpneighbors>()->PrintNeighbors();
+    log << "----------- Receive End ---------" << std::endl;
 
   }
 
@@ -454,13 +468,35 @@ RoutingProtocol::SendHello ()
 
       // get info needed in packet from sockets
       Ptr<MobilityModel> mob = (socket->GetNode())->GetObject<MobilityModel>();
-      double posx = mob->GetPosition().x;
-      double posy = mob->GetPosition().y;
-      double velx = mob->GetVelocity().x;
-      double vely = mob->GetVelocity().y;
+      // double posx = mob->GetPosition().x;
+      // double posy = mob->GetPosition().y;
+      // double velx = mob->GetVelocity().x;
+      // double vely = mob->GetVelocity().y;
       //set dummy values to header setData (pass hardcoded values)
       std::cout << "Hello Packet Type: " << m_helloPacketType << std::endl;
-      HelloHeader.SetData(m_helloPacketType, posx, posy, velx, vely , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+      //HelloHeader.SetData(m_helloPacketType, posx, posy, velx, vely , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+
+      //Determine node furthest ahead downstream and furthest behind upstream
+      Vector pos = mob->GetPosition(); // Get position
+      Vector vel = mob->GetVelocity(); // Get velocity
+      Vector furthestAhead = Vector3D(NAN,NAN,0);
+      // int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
+      // if (furthestIdxAhead >= 0) {
+      //     furthestAhead = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxAhead)
+      //                         , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxAhead),0);
+      // }
+      // Vector furthestBehind = Vector3D(NAN,NAN,0); 
+      // int furthestIdxBehind = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestBehindByIndex(pos);
+      // if (furthestIdxBehind >= 0) {
+      //     furthestBehind = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxBehind)
+      //                         , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxBehind),0);
+      // }
+
+      HelloHeader.SetData(m_helloPacketType, pos.x, pos.y, vel.x, vel.y, 0, 0
+            , 0.0, 0.0, 0.0, 0.0, 0.0
+            , 0.0);
+     
+
       std::cout << "*****: " << HelloHeader.GetPacketType() << std::endl;
       // add header to packet
       packet->AddHeader (HelloHeader);
