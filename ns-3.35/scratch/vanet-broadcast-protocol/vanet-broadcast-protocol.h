@@ -39,10 +39,9 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
   void SendHello (void);
   void StartHelloTx(void);
-  //int RecvNeighbor(Ptr<Socket> socket);
-  //vbpneighbors neighborList;
 
   private:
+  Ptr<Node> m_thisNode;
   Ptr<Object> m_neighborsListPointer = CreateObject<Object> ();
   uint8_t m_helloPacketType;
   Time m_activeRouteTimeout;
@@ -59,6 +58,8 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketAddresses;
 
   void RecvVbp(Ptr<Socket> socket);
+  void RecvHello(Ptr<Socket> socket, Ptr<Packet> packet,Ipv4Address receiver,Ipv4Address sender);
+  
 
   /// Provides uniform random variables.
   Ptr<UniformRandomVariable> m_uniformRandomVariable;

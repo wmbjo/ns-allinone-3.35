@@ -88,7 +88,7 @@ class vbpneighbors : public Object {
         uint16_t m_1HopNumNeighbors;        // total number of neighbors
         uint16_t m_1HopNumNeighborsBehind;  // number of neighbors behind
         std::vector<Ipv4Address> m_1HopNeighborIPs;       // store all 1 hop neighborIPs
-        std::vector<Ipv4Address> m_1HopNeighborIPBehind;  // store each neighborID of neighbors behind
+        std::vector<Ipv4Address> m_1HopNeighborIPBehind;  // store each neighborIP of neighbors behind
         uint16_t m_1HopNumNeighborsAhead;   // number of neighbors ahead
         std::vector<Ipv4Address> m_1HopNeighborIPAhead;   // store each neighborIP of neighbors ahead
         std::vector<uint16_t> m_1HopNeighborDirection; // store if neighbor is ahead=+1 or behind=0
