@@ -184,8 +184,8 @@ int main(int argc, char* argv[])
 
     for(int i = 0; i < int(NumNodes); i++)
   {
-    nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector((float) i*DISTANCE, 0, 0));
-    nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector((float) SPEED, 0, 0));
+    nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector((float) DISTANCE, 0, 0));
+    nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector((float) 0.1*i, 0, 0)); //0.1*i because vehicles will lose neighbors about 50 seconds into simulation. SPEED is original variable here.
   }
 
 
