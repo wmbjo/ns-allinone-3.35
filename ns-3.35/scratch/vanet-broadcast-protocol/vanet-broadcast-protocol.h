@@ -58,7 +58,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
   std::map< Ptr<Socket>, Ipv4InterfaceAddress > m_socketAddresses;
 
   void RecvVbp(Ptr<Socket> socket);
-  void RecvHello(Ptr<Socket> socket, Ptr<Packet> packet,Ipv4Address receiver,Ipv4Address sender);
+  void RecvHello(Ptr<Packet> p,Ipv4Address receiver,Ipv4Address sender);
   
 
   /// Provides uniform random variables.

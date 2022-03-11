@@ -45,9 +45,6 @@ namespace vbp {
    start.WriteHtonU16 (m_neighborsAhead);
    start.WriteHtonU16 (m_neighborsBehind);
    // use for loop to move 8 bits at a time to store each float
-    // for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {  
-    //         start.WriteU8(m_ipaddr[byteNum]);
-    // }
    for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {  
         start.WriteU8(m_positionX[byteNum]);
    }
@@ -86,9 +83,6 @@ namespace vbp {
    m_neighborsAhead = start.ReadNtohU16 ();
    m_neighborsBehind =start.ReadNtohU16 ();
    // use for loop to move 8 bits at a time to read each float
-//    for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {
-//         m_ipaddr[byteNum] = start.ReadU8 ();
-//    }
    for (uint32_t byteNum = 0; byteNum < sizeof(float); byteNum++) {
         m_positionX[byteNum] = start.ReadU8 ();
    }

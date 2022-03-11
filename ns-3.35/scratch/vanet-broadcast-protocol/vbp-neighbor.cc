@@ -5,8 +5,15 @@ namespace ns3 {
 namespace vbp {
 
  vbpneighbors::vbpneighbors ()
+    : m_neighborRemovalPeriod (0.5),
+      m_1HopNumNeighbors (0) ,
+      m_1HopNumNeighborsBehind (0),
+      m_1HopNumNeighborsAhead (0)
+
+
   {
-    //ScheduleNeighborRemoval ();
+    ScheduleNeighborRemoval ();
+    
   }
 
  vbpneighbors::~vbpneighbors () {
@@ -26,29 +33,11 @@ namespace vbp {
  void vbpneighbors::Print (std::ostream &os) const {
  }
 
-// int 
-// vbpneighbors::FindNeighbor (Ipv4Address address) {
-//   std::cout << "FindNeighbor " << std::endl;
-//   for (std::vector<Ipv4Address>::iterator i = m_1HopNeighborIPs.begin (); i != m_1HopNeighborIPs.end (); ++i)
-//   { 
-//     Ipv4Address addr;
-//     addr = *i;
-//     std::cout << "Neighbors " << addr << std::endl;
-//     if (addr == address) { //look at ns3 doc to see how to compare ip addresses
-//             // if find value to add is already here, then stop
-//             return GetObject<Node> ()->GetId (); // will end function before adding new entry
-//   }
-//   }
-//     return -1; // if not found
-
-// }
-
 int 
 vbpneighbors::FindNeighbor (Ipv4Address address) {
     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; ++idx) {
         if (m_1HopNeighborIPs[idx] == address) {
             // if find value to add is already here, then stop
-            std::cout << m_1HopNeighborIPs[idx] << " COMPARE " << address << " IDX " << idx << std::endl;
             return idx; // what index needs to be used for this ip address
         }
     }
@@ -64,7 +53,6 @@ vbpneighbors::PrintHello()
 void 
 vbpneighbors::PrintNeighbors()
 {
-  std::cout << "PrintNeighbors" << std::endl;
   for (std::vector<Ipv4Address>::iterator i = m_1HopNeighborIPs.begin (); i != m_1HopNeighborIPs.end (); ++i)
   { 
     Ipv4Address addr;
@@ -136,7 +124,6 @@ vbpneighbors::AddNode (Ipv4Address address, uint16_t direction, uint16_t neighbo
                             , float posX, float posY, float speedX, float speedY, float neighborFurthestAheadX
                             , float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY
                             , float avgSpeedX, float avgSpeedY) {
-   std::cout << "Add Node" << std::endl;
    int idx = FindNeighbor(address);
    if (idx < 0) { // if added the neighbor, add to list
         AppendNeighbor(address);
@@ -180,7 +167,6 @@ void
 vbpneighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction) {
     for(uint16_t idx = 0; idx < m_1HopNumNeighborsAhead; ++idx) {
         if (m_1HopNeighborIPAhead[idx] == address) {
-          std::cout << m_1HopNeighborIPAhead[idx] << " COMPARE22 " << address << " IDX " << idx << std::endl;
             // if find address check if direction changed
             if (direction) {
                 return; // direction stayed the same so no changes
@@ -188,6 +174,7 @@ vbpneighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t directi
             else { //means direction changed
                 m_1HopNumNeighborsAhead--;
                 m_1HopNumNeighborsBehind++;
+                //std::cout << "M 1 Hop Neighbor Ahead" << m_1HopNeighborIPAhead.begin() << std::endl;
                 m_1HopNeighborIPAhead.erase(m_1HopNeighborIPAhead.begin()+idx);
                 m_1HopNeighborIPBehind.push_back(address);
                 return;
@@ -195,6 +182,7 @@ vbpneighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t directi
         }
     }
     for(uint16_t idx = 0; idx < m_1HopNumNeighborsBehind; ++idx) {
+
         if (m_1HopNeighborIPBehind[idx] == address) {
             // if find address check if direction changed
             if (!direction) {
@@ -244,7 +232,7 @@ vbpneighbors::CheckForNeighborRemoval () {
 void 
 vbpneighbors::ScheduleNeighborRemoval () {
     CheckForNeighborRemoval ();
-    Simulator::Schedule(Seconds(NEIGHBOR_REMOVAL_PERIOD), &vbpneighbors::ScheduleNeighborRemoval, this);
+    Simulator::Schedule(Seconds(m_neighborRemovalPeriod), &vbpneighbors::ScheduleNeighborRemoval, this);
 }
 
 void 
@@ -421,8 +409,9 @@ int
 vbpneighbors::GetNeighborFurthestAheadByIndex(Vector reference) {
     int furthestIdx = -1;
     if (m_1HopNumNeighborsAhead > 0) {
+  std::cout << "VECTOR " << typeid(m_1HopNeighborIPAhead[0]).name() << std::endl;
   std::cout << "GetNeighborFurthestAheadByIndex " << m_1HopNumNeighborsAhead << std::endl;
-  std::cout << "GetNeighborFurthestAheadByIndex 2" << FindNeighbor(m_1HopNeighborIPAhead[0]) << std::endl;
+  //std::cout << "GetNeighborFurthestAheadByIndex 2" << int(m_1HopNeighborIPAhead[0]) << std::endl;
         furthestIdx = FindNeighbor(m_1HopNeighborIPAhead[0]); // in case only has one neighbor ahead
         Vector neighborPos = Vector3D(m_1HopPositionX[furthestIdx], m_1HopPositionY[furthestIdx],0);
         float distFurthestAhead = CalculateDistance(neighborPos, reference); // car more ahead  

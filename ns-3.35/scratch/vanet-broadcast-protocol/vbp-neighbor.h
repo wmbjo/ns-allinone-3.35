@@ -85,6 +85,7 @@ class vbpneighbors : public Object {
         void Print1hopFurthestBehind ();      // will display position of neighbor furthest behind
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
+        float m_neighborRemovalPeriod; // seconds
         uint16_t m_1HopNumNeighbors;        // total number of neighbors
         uint16_t m_1HopNumNeighborsBehind;  // number of neighbors behind
         std::vector<Ipv4Address> m_1HopNeighborIPs;       // store all 1 hop neighborIPs
@@ -92,18 +93,18 @@ class vbpneighbors : public Object {
         uint16_t m_1HopNumNeighborsAhead;   // number of neighbors ahead
         std::vector<Ipv4Address> m_1HopNeighborIPAhead;   // store each neighborIP of neighbors ahead
         std::vector<uint16_t> m_1HopNeighborDirection; // store if neighbor is ahead=+1 or behind=0
-        std::vector<uint16_t> m_1HopNumNeighborAhead;  // store num of neighbors ahead for each neighborID
-        std::vector<uint16_t> m_1HopNumNeighborBehind; // store num of neighbors behind for each neighborID
+        std::vector<uint16_t> m_1HopNumNeighborAhead;  // store num of neighbors ahead for each neighborIP
+        std::vector<uint16_t> m_1HopNumNeighborBehind; // store num of neighbors behind for each neighborIP
         std::vector<float> m_1HopPositionX;            // store X of all neighbors
         std::vector<float> m_1HopPositionY;            // store Y of all neighbors
         std::vector<float> m_1HopNeighborSpeedX;       // store speed in X direction of all neighbors
         std::vector<float> m_1HopNeighborSpeedY;       // store speed in Y direction of all neighbors
-        std::vector<float> m_neighborFurthestAheadX;   // store X of furthest ahead neighbor for each ID
-        std::vector<float> m_neighborFurthestAheadY;   // store Y of furthest ahead neighbor for each ID
-        std::vector<float> m_neighborFurthestBehindX;  // store X of furthest behind neighbor for each ID
-        std::vector<float> m_neighborFurthestBehindY;  // store Y of furthest behind neighbor for each ID
-        std::vector<float> m_neighborAvgSpeedX;        // store average speed in X direction for each ID
-        std::vector<float> m_neighborAvgSpeedY;        // store average speed in Y direction for each ID
+        std::vector<float> m_neighborFurthestAheadX;   // store X of furthest ahead neighbor for each IP
+        std::vector<float> m_neighborFurthestAheadY;   // store Y of furthest ahead neighbor for each IP
+        std::vector<float> m_neighborFurthestBehindX;  // store X of furthest behind neighbor for each IP
+        std::vector<float> m_neighborFurthestBehindY;  // store Y of furthest behind neighbor for each IP
+        std::vector<float> m_neighborAvgSpeedX;        // store average speed in X direction for each IP
+        std::vector<float> m_neighborAvgSpeedY;        // store average speed in Y direction for each IP
         std::vector<Time> m_1HopNeighborLastTime;      // store last time of communication with all neighbors 
         void ScheduleNeighborRemoval ();  // creates call to CheckForNeighborRemoval periodically, specified by NEIGHBOR_REMOVAL_PERIOD in simulationConfiguration.h
         void CheckForNeighborRemoval ();
@@ -122,7 +123,6 @@ class vbpneighbors : public Object {
         void EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction);  // erase ID and direction from stored data
 };
 #define NEIGHBOR_TIMEOUT 2000000000 // nanoseconds, 2 seconds
-#define NEIGHBOR_REMOVAL_PERIOD 0.5 // seconds
 #define CAPACITY_PER_LANE 0.388888 // vehicles per second per lane, 2800 vehicles per hour on 2 lane highway
 #define NUM_LANES 2
 
