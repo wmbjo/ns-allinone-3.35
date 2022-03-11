@@ -86,6 +86,9 @@ class vbpneighbors : public Object {
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
         float m_neighborRemovalPeriod; // seconds
+        int m_neighborTimeout;
+        float m_capacityPerLane;
+        int m_numLanes;
         uint16_t m_1HopNumNeighbors;        // total number of neighbors
         uint16_t m_1HopNumNeighborsBehind;  // number of neighbors behind
         std::vector<Ipv4Address> m_1HopNeighborIPs;       // store all 1 hop neighborIPs
@@ -122,9 +125,6 @@ class vbpneighbors : public Object {
         void UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction); // given ID and direction, check entry is correct
         void EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction);  // erase ID and direction from stored data
 };
-#define NEIGHBOR_TIMEOUT 2000000000 // nanoseconds, 2 seconds
-#define CAPACITY_PER_LANE 0.388888 // vehicles per second per lane, 2800 vehicles per hour on 2 lane highway
-#define NUM_LANES 2
 
 }
 }

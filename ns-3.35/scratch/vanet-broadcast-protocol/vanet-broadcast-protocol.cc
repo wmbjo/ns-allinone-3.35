@@ -219,10 +219,10 @@ void
 RoutingProtocol::RecvVbp (Ptr<Socket> socket)
   {
     //write code to convert array of 4 bytes (ip address) to Ipv4Address 
-    std::fstream log;
-    log.open("AppendNeighborsLog.txt", std::fstream::app);
-    std::ofstream nextMessageOut; 
-    log << "----------- Receive Start ---------" << std::endl;
+    // std::fstream log;
+    // log.open("AppendNeighborsLog.txt", std::fstream::app);
+    // std::ofstream nextMessageOut; 
+    //log << "----------- Receive Start ---------" << std::endl;
     NS_LOG_FUNCTION (this << socket);
     Address sourceAddress;
     //std::cout << "SOURCE ADDRESS ---" << sourceAddress << std::endl;
@@ -260,7 +260,7 @@ RoutingProtocol::RecvVbp (Ptr<Socket> socket)
     //m_neighborsListPointer->GetObject<vbpneighbors>()->AppendNeighbor(sender);
     m_neighborsListPointer->GetObject<vbpneighbors>()->PrintNeighbors();
     //m_neighborsListPointer->GetObject<vbpneighbors>()->FindNeighbor(sender);
-    log << "----------- Receive End ---------" << std::endl;
+    //log << "----------- Receive End ---------" << std::endl;
 
     if (destinationHeader.GetPacketType() == m_helloPacketType)
     {
@@ -383,23 +383,32 @@ RoutingProtocol::SendHello ()
       Vector pos = (socket->GetNode())->GetObject<MobilityModel>()->GetPosition();
       Vector vel = (socket->GetNode())->GetObject<MobilityModel>()->GetVelocity();
       //set dummy values to header setData (pass hardcoded values)
-      //std::cout << "Hello Packet Type: " << m_helloPacketType << std::endl;
-      HelloHeader.SetData(m_helloPacketType, pos.x, pos.y, vel.x, vel.y , 0, 0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
-      //Vector furthestAhead = Vector3D(NAN,NAN,0);
-      //int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
-      //std::cout << "furthestIdxAhead: " << furthestIdxAhead << std::endl;
-      // if (furthestIdxAhead >= 0) {
-      // furthestAhead = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxAhead)
-      //                        , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxAhead),0);
-      // }
-      // Vector furthestBehind = Vector3D(NAN,NAN,0); 
-      // int furthestIdxBehind = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestBehindByIndex(pos);
-      // if (furthestIdxBehind >= 0) {
-      //     furthestBehind = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxBehind)
-      //                         , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxBehind),0);
-      // }
-      //std::cout << int(furthestAhead.x) << " FURTHEST AHEAD: " << pos.x << " " << pos.y << " " << vel.x << " " << vel.y << std::endl;
-      //HelloHeader.SetData(m_helloPacketType, 0, 0, 0, 0, m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsAhead (), m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsBehind(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+      Vector furthestAhead = Vector3D(NAN,NAN,0);
+      int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
+      std::cout << "furthestIdxAhead: " << furthestIdxAhead << std::endl;
+      if (furthestIdxAhead >= 0) {
+      furthestAhead = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxAhead)
+                             , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxAhead),0);
+      }
+      Vector furthestBehind = Vector3D(NAN,NAN,0); 
+      int furthestIdxBehind = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestBehindByIndex(pos);
+      if (furthestIdxBehind >= 0) {
+          furthestBehind = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxBehind)
+                              , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxBehind),0);
+      }
+      HelloHeader.SetData(m_helloPacketType, 
+                          pos.x, 
+                          pos.y, 
+                          vel.x, 
+                          vel.y, 
+                          m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsAhead (), 
+                          m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsBehind(), 
+                          furthestAhead.x,
+                          furthestAhead.y,
+                          furthestBehind.x,
+                          furthestBehind.y,  
+                          m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborX(vel.x), 
+                          m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborX(vel.y));
      
 
       // add header to packet

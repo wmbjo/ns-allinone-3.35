@@ -6,6 +6,9 @@ namespace vbp {
 
  vbpneighbors::vbpneighbors ()
     : m_neighborRemovalPeriod (0.5),
+      m_neighborTimeout(2000000000),
+      m_capacityPerLane(0.388888),
+      m_numLanes(2),
       m_1HopNumNeighbors (0) ,
       m_1HopNumNeighborsBehind (0),
       m_1HopNumNeighborsAhead (0)
@@ -206,7 +209,7 @@ vbpneighbors::CheckForNeighborRemoval () {
         return; // nothing to remove
     }
     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; ++idx) {    
-         if ((Simulator::Now()-m_1HopNeighborLastTime[idx]) >= Time(NEIGHBOR_TIMEOUT)) {  //check seconds since last response
+         if ((Simulator::Now()-m_1HopNeighborLastTime[idx]) >= Time(m_neighborTimeout)) {  //check seconds since last response
             // if find value to delete
             EraseNeighborIPAheadBehind (m_1HopNeighborIPs[idx], m_1HopNeighborDirection[idx]);
             m_1HopNeighborIPs.erase(m_1HopNeighborIPs.begin()+idx);  
@@ -635,7 +638,7 @@ vbpneighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
     } // 4th case where both are less than zero will utilize initialized values
     float time = dist/((Vector3D(avgSpeedX, avgSpeedY,0).GetLength()));
     float volume = totalCount/time;
-    float LOS = volume/(CAPACITY_PER_LANE*NUM_LANES);
+    float LOS = volume/(m_capacityPerLane*m_numLanes);
     /*
     std::cout << "\ntotal number of vehicles " << totalCount;
     std::cout << "\ntime " << time;
