@@ -90,6 +90,7 @@ namespace ns3
     Ptr<Packet> packetptr = Create<Packet>(m_packetSize);
     m_socketptr->Send(packetptr);
     ScheduleTx();
+    std::cout << "Data Packet Tx" << std::endl;
   }
 
   void MyRandomExpTrafficApp::ScheduleTx()

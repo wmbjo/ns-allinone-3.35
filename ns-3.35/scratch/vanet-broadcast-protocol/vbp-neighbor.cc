@@ -47,12 +47,6 @@ vbpneighbors::FindNeighbor (Ipv4Address address) {
     return -1; // if not found
 }
 
-void
-vbpneighbors::PrintHello()
-{
-  std::cout << "Print Hello World" << std::endl;
-}
-
 void 
 vbpneighbors::PrintNeighbors()
 {
@@ -412,9 +406,6 @@ int
 vbpneighbors::GetNeighborFurthestAheadByIndex(Vector reference) {
     int furthestIdx = -1;
     if (m_1HopNumNeighborsAhead > 0) {
-  std::cout << "VECTOR " << typeid(m_1HopNeighborIPAhead[0]).name() << std::endl;
-  std::cout << "GetNeighborFurthestAheadByIndex " << m_1HopNumNeighborsAhead << std::endl;
-  //std::cout << "GetNeighborFurthestAheadByIndex 2" << int(m_1HopNeighborIPAhead[0]) << std::endl;
         furthestIdx = FindNeighbor(m_1HopNeighborIPAhead[0]); // in case only has one neighbor ahead
         Vector neighborPos = Vector3D(m_1HopPositionX[furthestIdx], m_1HopPositionY[furthestIdx],0);
         float distFurthestAhead = CalculateDistance(neighborPos, reference); // car more ahead  
@@ -771,7 +762,7 @@ vbpneighbors::PrintSpeeds () {
 
 void 
 vbpneighbors::Print1hopFurthestAhead () {
-    std::cout << "My neighbor's FurthestAhead Pos are: ";
+    std::cout << "My neighbor's FurthestAhead Pos [x,y] are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
         	std::cout << '[' << m_neighborFurthestAheadX.at(i) << ", " << m_neighborFurthestAheadY.at(i) << ']' << ' ';
@@ -785,7 +776,7 @@ vbpneighbors::Print1hopFurthestAhead () {
 
 void 
 vbpneighbors::Print1hopFurthestBehind () {
-    std::cout << "My neighbor's FurthestBehind are: ";
+    std::cout << "My neighbor's FurthestBehind Pos [x,y] are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
         	std::cout << '[' << m_neighborFurthestBehindX.at(i) << ", " << m_neighborFurthestBehindY.at(i) << ']' << ' ';

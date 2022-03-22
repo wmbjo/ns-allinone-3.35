@@ -561,7 +561,7 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
   //Unicast local delivery
   if (m_ipv4->IsDestinationAddress (dst, iif))
     {
-      // std::cout << "AAA" << std::endl;
+      std::cout << "DST " << dst << std::endl;
       // UpdateRouteLifeTime (origin, m_activeRouteTimeout);
       // std::cout << "BBB" << std::endl;
       // RoutingTableEntry toOrigin;

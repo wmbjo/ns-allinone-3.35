@@ -1,12 +1,5 @@
-
-
-
-
-
-
 #ifndef VBPNEIGHBOR_H
 #define VBPNEIGHBOR_H
-
 #include <vector>
 #include "ns3/simulator.h"
 #include "ns3/timer.h"
@@ -30,11 +23,21 @@ class vbpneighbors : public Object {
         virtual TypeId GetInstanceTypeId (void) const;
         virtual void Print (std::ostream &os) const;
         void AppendNeighbor(Ipv4Address neighborAddress);
-        
-        int FindNeighbor (Ipv4Address address); // returns index for specified nodeId, returns -1 if new nodeId
-        void AddNode (Ipv4Address address, uint16_t direction, uint16_t neighborsAhead, uint16_t neighborsBehind
-                , float posX, float posY, float speedX, float speedY, float neighborFurthestAheadX, float neighborFurthestAheadY
-                , float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY);
+        int FindNeighbor (Ipv4Address address); // returns index for specified nodeIP, returns -1 if new nodeIP
+        void AddNode (Ipv4Address address,
+                      uint16_t direction,
+                      uint16_t neighborsAhead,
+                      uint16_t neighborsBehind,
+                      float posX,
+                      float posY,
+                      float speedX, 
+                      float speedY, 
+                      float neighborFurthestAheadX, 
+                      float neighborFurthestAheadY,
+                      float neighborFurthestBehindX, 
+                      float neighborFurthestBehindY, 
+                      float avgSpeedX, 
+                      float avgSpeedY);
         uint16_t Get1HopNumNeighbors ();       // total number of 1 hop neighbors
         uint16_t Get1HopNumNeighborsAhead ();  // number of neighbors ahead of 1 hop neighbor
         uint16_t Get1HopNumNeighborsBehind (); // number of neighbors behind 1 hop neighbor
@@ -70,7 +73,6 @@ class vbpneighbors : public Object {
         uint16_t Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference);
         float GetLosCalculation(Vector referencePos, Vector referenceVel);
         void PrintNeighborState ();               // will display different info
-        void PrintHello();
         void PrintNeighbors();
         void PrintNeighbors2();
         void PrintDirections ();              // will display entries in m_1HopNeighborIDs
@@ -116,12 +118,9 @@ class vbpneighbors : public Object {
         void AddNumNeighborsBehind (uint16_t numBehind); // will add entry to m_1HopNumNeighborBehind
         void AddLocation (float posX, float posY);    // will add entry to m_positionX and m_positionY
         void AddSpeed (float speedX, float speedY);   // will add entry to m_neighborSpeedX and m_neighborSpeedY
-        void AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY);
-                  // will add entry to m_neighborFurthestAheadX
-        void AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY);
-                  // will add entry to m_neighborFurthestBehindX
-        void AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY);
-                  // will add entry to m_neighborFurthestBehindX
+        void AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY);   // will add entry to m_neighborFurthestAheadX
+        void AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY);    // will add entry to m_neighborFurthestBehindX
+        void AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY);  // adds entry to m_neighborFurthestBehindX
         void UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction); // given ID and direction, check entry is correct
         void EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction);  // erase ID and direction from stored data
 };
