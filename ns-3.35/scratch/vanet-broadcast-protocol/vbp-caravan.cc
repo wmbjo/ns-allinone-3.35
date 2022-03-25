@@ -6,6 +6,7 @@
 #include "ns3/ssid.h"
 #include "ns3/netanim-module.h"
 #include "ns3/vector.h"
+//#include "ns3/aodv-module.h"
 #include "ns3/v4ping-helper.h"
 #include "vanet-broadcast-helper.h"
 #include "ns3/constant-velocity-mobility-model.h"
@@ -116,7 +117,7 @@ int main(int argc, char *argv[])
 
     // vbp
     InternetStackHelper stack;
-    VanetBroadcastHelper vbp;
+    VanetBroadcastHelper vbp; //VanetBroadcastHelper
     stack.SetRoutingHelper(vbp);
     stack.Install(nodes);
 
@@ -196,10 +197,10 @@ int main(int argc, char *argv[])
 
     // Application SRC
     Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
-    Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
+    Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 2), UdpSocketFactory::GetTypeId());
     Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
     udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
-    nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
+    nodes.Get(NumNodes - 2)->AddApplication(udpSourceAppPtr);
 
     // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
     wifiPhyHelper.EnablePcap("vbp-caravan.pcap", nodes.Get(0)->GetDevice(1), false, true);

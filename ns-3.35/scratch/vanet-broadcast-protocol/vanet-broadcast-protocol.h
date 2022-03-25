@@ -57,7 +57,6 @@ namespace ns3
     private:
       /// Routing table
       RoutingTable m_routingTable;
-
       //Protocol parameters
       uint8_t m_helloPacketType; ///< Set packet type to hello 'h'
       Time m_activeRouteTimeout; ///< Period of time during which the route is considered to be valid.

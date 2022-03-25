@@ -101,11 +101,29 @@ namespace ns3
     Ptr<Ipv4Route>
     RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
+      Ipv4Address dst = header.GetDestination(); // SetDestination 
+      std::cout << "RO dst: " << dst << std::endl; 
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
+      std::cout << "Next Hop: " << nextHop << std::endl;
+ 
+      
+      //SetSource
+      //TODO: Include a check that there is only one interface. Find code in aodv or olsr that does this. Include this check in NOtifyInterfaceUP
+      std::cout << "Local Address: " << m_socketAddresses.begin()->second << std::endl;
+      //SetOutputDevice
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+      std::cout << "Dev: " << dev << std::endl;
+      //create routing table entry using these four parameters
       RoutingTableEntry rt;
-      rt.SetNextHop(m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0));
-
+      //look at vbp-rtable to set destination
+      //Return route from GetRoute()
+      rt.SetDestination()
+      rt.SetNextHop(m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0)); //not needed, going to pass parameter
       Ptr<Ipv4Route> rtentry;
       return rtentry;
+      //Return route from GetRoute()
+      //confirm data packet transmitted in NetAnim
     }
     bool
     RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
@@ -122,6 +140,7 @@ namespace ns3
       int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
 
       Ipv4Address dst = header.GetDestination();
+      std::cout << "RI dst: " << dst << std::endl;
       Ipv4Address origin = header.GetSource();
       helloPacketHeader destinationHeader;
       p->PeekHeader(destinationHeader);
@@ -209,7 +228,7 @@ namespace ns3
       {
         return;
       }
-
+      //include check that m_socketaddresses is empty and m_socketSubnetBroadcastAddresses is empty. Print out message only one interface is allowed if check fails
       // Create a socket to listen only on this interface
       Ptr<Socket> socket = Socket::CreateSocket(GetObject<Node>(), UdpSocketFactory::GetTypeId());
       NS_ASSERT(socket != 0);
@@ -292,6 +311,7 @@ namespace ns3
       {
         NS_ASSERT_MSG(false, "Received a packet from an unknown socket");
       }
+      std::cout << "Receiver " << receiver << std::endl;
       // remove the header from the packet:
       helloPacketHeader destinationHeader;
       packet->PeekHeader(destinationHeader);
@@ -388,6 +408,7 @@ namespace ns3
       NS_ASSERT(m_ipv4->GetNInterfaces() == 1 && m_ipv4->GetAddress(0, 0).GetLocal() == Ipv4Address("127.0.0.1"));
       m_lo = m_ipv4->GetNetDevice(0);
       NS_ASSERT(m_lo != 0);
+
       std::cout << Simulator::Now().GetSeconds() << " Seconds --- "
                 << "Set Ipv4 "
                 << "--- " << m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
@@ -415,7 +436,7 @@ namespace ns3
 
         Ptr<Socket> socket = j->first;
         Ipv4InterfaceAddress iface = j->second;
-        std::cout << "---Interface Info--- " << iface << std::endl;
+        std::cout << "---Interface Info---2 " << iface << std::endl;
         Ptr<Packet> packet = Create<Packet>();
         // create header here
         helloPacketHeader HelloHeader;

@@ -82,6 +82,7 @@
         "memory_resource": "cpp",
         "stop_token": "cpp",
         "filesystem": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "variant": "cpp"
     }
 }
