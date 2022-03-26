@@ -105,26 +105,24 @@ namespace ns3
       std::cout << "RO dst: " << dst << std::endl; 
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
       std::cout << "Next Hop: " << nextHop << std::endl;
- 
-      
-      //SetSource
       //TODO: Include a check that there is only one interface. Find code in aodv or olsr that does this. Include this check in NOtifyInterfaceUP
       std::cout << "Local Address: " << m_socketAddresses.begin()->second << std::endl;
-      //SetOutputDevice
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       std::cout << "Dev: " << dev << std::endl;
       //create routing table entry using these four parameters
       RoutingTableEntry rt;
       //look at vbp-rtable to set destination
-      //Return route from GetRoute()
-      rt.SetDestination()
       rt.SetNextHop(m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0)); //not needed, going to pass parameter
+      rt.SetOutputDevice(dev);
+      rt.SetInterface(iface);
+      std::cout << "GET ROUTE " << rt.GetRoute() << std::endl;
       Ptr<Ipv4Route> rtentry;
-      return rtentry;
+      return rt.GetRoute();
       //Return route from GetRoute()
       //confirm data packet transmitted in NetAnim
     }
+    
     bool
     RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
                                 Ptr<const NetDevice> idev, UnicastForwardCallback ucb,

@@ -23,6 +23,22 @@ namespace ns3
 
   namespace vbp
   {
+
+//     struct RoutingTableEntry
+// {
+//   Ipv4Address destAddr; //!< Address of the destination node.
+//   Ipv4Address nextAddr; //!< Address of the next hop.
+//   uint32_t interface; //!< Interface index
+//   uint32_t distance; //!< Distance in hops to the destination.
+
+//   RoutingTableEntry (void) : // default values
+//     destAddr (), nextAddr (),
+//     interface (0), distance (0)
+//   {
+//   }
+// };
+
+
     class RoutingProtocol : public Ipv4RoutingProtocol
     {
     public:
