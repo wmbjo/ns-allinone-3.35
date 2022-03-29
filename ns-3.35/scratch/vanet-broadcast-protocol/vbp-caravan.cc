@@ -48,7 +48,7 @@ NS_LOG_COMPONENT_DEFINE("wireless-grid");
 void ReceivePacket(Ptr<Socket> socket)
 {
     while (Ptr<Packet> packet = socket->Recv())
-        NS_LOG_INFO("Application Layer:" << packet->GetSize() << " bytes received");
+        std::cout << "Application Layer:" << packet->GetSize() << " bytes received" << std::endl;
 }
 
 // Function called to schedule the transmission of the next datagram from the source sockets

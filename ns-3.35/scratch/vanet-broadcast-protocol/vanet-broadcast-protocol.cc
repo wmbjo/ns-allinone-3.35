@@ -105,7 +105,6 @@ namespace ns3
       std::cout << "RO dst: " << dst << std::endl; 
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
       std::cout << "Next Hop: " << nextHop << std::endl;
-      //TODO: Include a check that there is only one interface. Find code in aodv or olsr that does this. Include this check in NOtifyInterfaceUP
       std::cout << "Local Address: " << m_socketAddresses.begin()->second << std::endl;
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
@@ -113,7 +112,7 @@ namespace ns3
       //create routing table entry using these four parameters
       RoutingTableEntry rt;
       //look at vbp-rtable to set destination
-      rt.SetNextHop(m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0)); //not needed, going to pass parameter
+      rt.SetNextHop(nextHop); //not needed, going to pass parameter
       rt.SetOutputDevice(dev);
       rt.SetInterface(iface);
       std::cout << "GET ROUTE " << rt.GetRoute() << std::endl;
@@ -169,52 +168,31 @@ namespace ns3
       }
 
       // Forwarding
-      // return Forwarding (p, header, ucb, ecb);
-
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
+      std::cout << "RI Next Hop: " << nextHop << std::endl;
+      std::cout << "RI Local Address: " << m_socketAddresses.begin()->second << std::endl;
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+      std::cout << "RI Dev: " << dev << std::endl;
+      //create routing table entry using these four parameters
+      RoutingTableEntry rt;
+      //look at vbp-rtable to set destination
+      rt.SetNextHop(nextHop); //not needed, going to pass parameter
+      rt.SetOutputDevice(dev);
+      rt.SetInterface(iface);
+      std::cout << "RI GET ROUTE " << rt.GetRoute() << std::endl;
+      ucb(rt.GetRoute(),p,header);
       return true;
     }
-
-    // bool
-    // RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
-    //                              UnicastForwardCallback ucb, ErrorCallback ecb)
-    // {
-    //   NS_LOG_FUNCTION (this);
-    //   Ipv4Address dst = header.GetDestination ();
-    //   Ipv4Address origin = header.GetSource ();
-    //   m_routingTable.Purge ();
-    //   RoutingTableEntry toDst;
-    //     std::cout << "FORWARDING" << dst << " Destination " << origin << std::endl;
-    //   if (m_routingTable.LookupRoute (dst, toDst))
-    //     {
-    //       if (toDst.GetFlag () == VALID)
-    //         {
-    //           Ptr<Ipv4Route> route = toDst.GetRoute ();
-    //           NS_LOG_LOGIC (route->GetSource () << " forwarding to " << dst << " from " << origin << " packet " << p->GetUid ());
-
-    //           RoutingTableEntry toOrigin;
-    //           m_routingTable.LookupRoute (origin, toOrigin);
-
-    //           ucb (route, p, header);
-    //           return true;
-    //         }
-    //       else
-    //         {
-    //           if (toDst.GetValidSeqNo ())
-    //             {
-    //               NS_LOG_DEBUG ("Drop packet " << p->GetUid () << " because no route to forward it.");
-    //               return false;
-    //             }
-    //         }
-    //     }
-    //   NS_LOG_LOGIC ("route not found to " << dst << ". Send RERR message.");
-    //   NS_LOG_DEBUG ("Drop packet " << p->GetUid () << " because no route to forward it.");
-    //   return false;
-    // }
 
     void
     RoutingProtocol::NotifyInterfaceUp(uint32_t interface)
     {
-      std::cout << "Notify Interface UP VBP OBJECT" << std::endl;
+      std::cout << "Notify Interface UP VBP OBJECT " << std::endl;
+      if (interface > 1)
+      {
+        NS_LOG_WARN("VBP does not work with more then one interface.");
+      }
       NS_LOG_FUNCTION(this << m_ipv4->GetAddress(interface, 0).GetLocal());
       Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
       if (l3->GetNAddresses(interface) > 1)
