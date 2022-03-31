@@ -212,11 +212,11 @@ int main(int argc, char *argv[])
     udpSourceAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
     Simulator::Stop(Seconds(SimulationTime));
 
-    if (printRoutes)
-    {
-        Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper>("vbp.routes", std::ios::out);
-        vbp.PrintRoutingTableAllAt(Seconds(20), routingStream);
-    }
+    // if (printRoutes)
+    // {
+    //     Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper>("vbp.routes", std::ios::out);
+    //     vbp.PrintRoutingTableAllAt(Seconds(20), routingStream);
+    // }
 
     // Execute simulation
     Simulator::Run();

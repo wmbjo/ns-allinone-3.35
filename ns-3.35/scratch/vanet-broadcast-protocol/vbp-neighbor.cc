@@ -54,7 +54,6 @@ vbpneighbors::PrintNeighbors()
   { 
     Ipv4Address addr;
     addr = *i;
-    std::cout << "Neighbors " << addr << std::endl;
   }
 }
 
@@ -819,18 +818,18 @@ vbpneighbors::PrintTimes () {
 
 void 
 vbpneighbors::PrintNeighborState() {
-    std::cout << "current time: " << Simulator::Now() << std::endl;
-    PrintNeighbors2();
-    //PrintTimes ();
-    PrintDirections();
-    PrintNeighborsAhead();
-    PrintNeighborsBehind();
-    PrintNumNeighborsAheadBehind ();
-    PrintNeighborDirections();
-    Print1hopFurthestAhead ();
-    Print1hopFurthestBehind ();
-    PrintAvgSpeeds ();
-    std::cout << std::endl;  // put space between this and next printout 
+    // std::cout << "current time: " << Simulator::Now() << std::endl;
+    // PrintNeighbors2();
+    // //PrintTimes ();
+    // PrintDirections();
+    // PrintNeighborsAhead();
+    // PrintNeighborsBehind();
+    // PrintNumNeighborsAheadBehind ();
+    // PrintNeighborDirections();
+    // Print1hopFurthestAhead ();
+    // Print1hopFurthestBehind ();
+    // PrintAvgSpeeds ();
+    // std::cout << std::endl;  // put space between this and next printout 
 }
 
 

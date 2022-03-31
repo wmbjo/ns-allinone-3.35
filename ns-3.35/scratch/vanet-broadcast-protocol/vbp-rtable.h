@@ -50,39 +50,6 @@ public:
 
   ~RoutingTableEntry ();
 
-  ///\name Precursors management
-  //\{
-  /**
-   * Insert precursor in precursor list if it doesn't yet exist in the list
-   * \param id precursor address
-   * \return true on success
-   */
-  bool InsertPrecursor (Ipv4Address id);
-  /**
-   * Lookup precursor by address
-   * \param id precursor address
-   * \return true on success
-   */
-  bool LookupPrecursor (Ipv4Address id);
-  /**
-   * \brief Delete precursor
-   * \param id precursor address
-   * \return true on success
-   */
-  bool DeletePrecursor (Ipv4Address id);
-  /// Delete all precursors
-  void DeleteAllPrecursors ();
-  /**
-   * Check that precursor list is empty
-   * \return true if precursor list is empty
-   */
-  bool IsPrecursorListEmpty () const;
-  /**
-   * Inserts precursors in output parameter prec if they do not yet exist in vector
-   * \param prec vector of precursor addresses
-   */
-  void GetPrecursors (std::vector<Ipv4Address> & prec) const;
-  //\}
 
   /**
    * Mark entry as "down" (i.e. disable it)
@@ -140,22 +107,6 @@ public:
     m_ipv4Route->SetOutputDevice (dev);
   }
   /**
-   * Get output device
-   * \returns the output device
-   */
-  Ptr<NetDevice> GetOutputDevice () const
-  {
-    return m_ipv4Route->GetOutputDevice ();
-  }
-  /**
-   * Get the Ipv4InterfaceAddress
-   * \returns the Ipv4InterfaceAddress
-   */
-  Ipv4InterfaceAddress GetInterface () const
-  {
-    return m_iface;
-  }
-  /**
    * Set the Ipv4InterfaceAddress
    * \param iface The Ipv4InterfaceAddress
    */
@@ -163,62 +114,7 @@ public:
   {
     m_iface = iface;
   }
-  /**
-   * Set the valid sequence number
-   * \param s the sequence number
-   */
-  void SetValidSeqNo (bool s)
-  {
-    m_validSeqNo = s;
-  }
-  /**
-   * Get the valid sequence number
-   * \returns the valid sequence number
-   */
-  bool GetValidSeqNo () const
-  {
-    return m_validSeqNo;
-  }
-  /**
-   * Set the sequence number
-   * \param sn the sequence number
-   */
-  void SetSeqNo (uint32_t sn)
-  {
-    m_seqNo = sn;
-  }
-  /**
-   * Get the sequence number
-   * \returns the sequence number
-   */
-  uint32_t GetSeqNo () const
-  {
-    return m_seqNo;
-  }
-  /**
-   * Set the number of hops
-   * \param hop the number of hops
-   */
-  void SetHop (uint16_t hop)
-  {
-    m_hops = hop;
-  }
-  /**
-   * Get the number of hops
-   * \returns the number of hops
-   */
-  uint16_t GetHop () const
-  {
-    return m_hops;
-  }
-  /**
-   * Set the lifetime
-   * \param lt The lifetime
-   */
-  void SetLifeTime (Time lt)
-  {
-    m_lifeTime = lt + Simulator::Now ();
-  }
+
   /**
    * Get the lifetime
    * \returns the lifetime
@@ -243,61 +139,7 @@ public:
   {
     return m_flag;
   }
-  /**
-   * Set the RREQ count
-   * \param n the RREQ count
-   */
-  void SetRreqCnt (uint8_t n)
-  {
-    m_reqCount = n;
-  }
-  /**
-   * Get the RREQ count
-   * \returns the RREQ count
-   */
-  uint8_t GetRreqCnt () const
-  {
-    return m_reqCount;
-  }
-  /**
-   * Increment the RREQ count
-   */
-  void IncrementRreqCnt ()
-  {
-    m_reqCount++;
-  }
-  /**
-   * Set the unidirectional flag
-   * \param u the uni directional flag
-   */
-  void SetUnidirectional (bool u)
-  {
-    m_blackListState = u;
-  }
-  /**
-   * Get the unidirectional flag
-   * \returns the unidirectional flag
-   */
-  bool IsUnidirectional () const
-  {
-    return m_blackListState;
-  }
-  /**
-   * Set the blacklist timeout
-   * \param t the blacklist timeout value
-   */
-  void SetBlacklistTimeout (Time t)
-  {
-    m_blackListTimeout = t;
-  }
-  /**
-   * Get the blacklist timeout value
-   * \returns the blacklist timeout value
-   */
-  Time GetBlacklistTimeout () const
-  {
-    return m_blackListTimeout;
-  }
+
   /// RREP_ACK timer
   Timer m_ackTimer;
 
@@ -318,10 +160,6 @@ public:
   void Print (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
 
 private:
-  /// Valid Destination Sequence Number flag
-  bool m_validSeqNo;
-  /// Destination Sequence Number, if m_validSeqNo = true
-  uint32_t m_seqNo;
   /// Hop Count (number of hops needed to reach destination)
   uint16_t m_hops;
   /**
@@ -349,8 +187,6 @@ private:
   Time m_routeRequestTimout;
   /// Number of route requests
   uint8_t m_reqCount;
-  /// Indicate if this entry is in "blacklist"
-  bool m_blackListState;
   /// Time for which the node is put into the blacklist
   Time m_blackListTimeout;
 };
@@ -388,66 +224,8 @@ public:
     m_badLinkLifetime = t;
   }
   //\}
-  /**
-   * Add routing table entry if it doesn't yet exist in routing table
-   * \param r routing table entry
-   * \return true in success
-   */
-  bool AddRoute (RoutingTableEntry & r);
-  /**
-   * Delete routing table entry with destination address dst, if it exists.
-   * \param dst destination address
-   * \return true on success
-   */
-  bool DeleteRoute (Ipv4Address dst);
-  /**
-   * Lookup routing table entry with destination address dst
-   * \param dst destination address
-   * \param rt entry with destination address dst, if exists
-   * \return true on success
-   */
-  bool LookupRoute (Ipv4Address dst, RoutingTableEntry & rt);
-  /**
-   * Lookup route in VALID state
-   * \param dst destination address
-   * \param rt entry with destination address dst, if exists
-   * \return true on success
-   */
-  bool LookupValidRoute (Ipv4Address dst, RoutingTableEntry & rt);
-  /**
-   * Update routing table
-   * \param rt entry with destination address dst, if exists
-   * \return true on success
-   */
-  bool Update (RoutingTableEntry & rt);
-  /**
-   * Set routing table entry flags
-   * \param dst destination address
-   * \param state the routing flags
-   * \return true on success
-   */
-  bool SetEntryState (Ipv4Address dst, RouteFlags state);
-  /**
-   * Lookup routing entries with next hop Address dst and not empty list of precursors.
-   *
-   * \param nextHop the next hop IP address
-   * \param unreachable
-   */
-  void GetListOfDestinationWithNextHop (Ipv4Address nextHop, std::map<Ipv4Address, uint32_t> & unreachable);
-  /**
-   *   Update routing entries with this destination as follows:
-   *  1. The destination sequence number of this routing entry, if it
-   *     exists and is valid, is incremented.
-   *  2. The entry is invalidated by marking the route entry as invalid
-   *  3. The Lifetime field is updated to current time plus DELETE_PERIOD.
-   *  \param unreachable routes to invalidate
-   */
-  void InvalidateRoutesWithDst (std::map<Ipv4Address, uint32_t> const & unreachable);
-  /**
-   * Delete all route from interface with address iface
-   * \param iface the interface IP address
-   */
-  void DeleteAllRoutesFromInterface (Ipv4InterfaceAddress iface);
+
+
   /// Delete all entries from routing table
   void Clear ()
   {
@@ -455,12 +233,7 @@ public:
   }
   /// Delete all outdated entries and invalidate valid entry if Lifetime is expired
   void Purge ();
-  /** Mark entry as unidirectional (e.g. add this neighbor to "blacklist" for blacklistTimeout period)
-   * \param neighbor - neighbor address link to which assumed to be unidirectional
-   * \param blacklistTimeout - time for which the neighboring node is put into the blacklist
-   * \return true on success
-   */
-  bool MarkLinkAsUnidirectional (Ipv4Address neighbor, Time blacklistTimeout);
+
   /**
    * Print routing table
    * \param stream the output stream
