@@ -71,7 +71,10 @@ class vbpneighbors : public Object {
         uint16_t Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBehindIndex, Vector reference);
         uint16_t Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector reference);
         uint16_t Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference);
+        float GetNeighborHoodSpeedMeanX(); // get average from sampled values in m_mostRecentNeighborHoodNSpeedX
+	    float GetNeighborHoodSpeedMeanY(); // get average from sampled values in m_mostRecentNeighborHoodNSpeedY
         float GetLosCalculation(Vector referencePos, Vector referenceVel);
+        void SetThisNode(Ptr<Node> n);
         void PrintNeighborState ();               // will display different info
         void PrintNeighbors();
         void PrintNeighbors2();
@@ -87,6 +90,11 @@ class vbpneighbors : public Object {
         void Print1hopFurthestBehind ();      // will display position of neighbor furthest behind
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
+        bool m_filledFirstTime;
+        int m_currentIdx;
+        int m_NSamples;
+        Ptr<Node> m_thisNode;
+        int m_speedLogPeriod;
         float m_neighborRemovalPeriod; // seconds
         int m_neighborTimeout;
         float m_capacityPerLane;
@@ -110,7 +118,14 @@ class vbpneighbors : public Object {
         std::vector<float> m_neighborFurthestBehindY;  // store Y of furthest behind neighbor for each IP
         std::vector<float> m_neighborAvgSpeedX;        // store average speed in X direction for each IP
         std::vector<float> m_neighborAvgSpeedY;        // store average speed in Y direction for each IP
-        std::vector<Time> m_1HopNeighborLastTime;      // store last time of communication with all neighbors 
+        std::vector<Time> m_1HopNeighborLastTime;      // store last time of communication with all neighbors
+        std::vector<float> m_mostRecentIndividualNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
+	    std::vector<float> m_mostRecentIndividualNSpeedY = std::vector<float>(m_NSamples,0);
+	    std::vector<float> m_mostRecentNeighborHoodNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
+	    std::vector<float> m_mostRecentNeighborHoodNSpeedY = std::vector<float>(m_NSamples,0);  
+        void ScheduleSpeedLogUpdate ();  
+        void GetSpeedValue ();
+        void AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY);
         void ScheduleNeighborRemoval ();  // creates call to CheckForNeighborRemoval periodically, specified by NEIGHBOR_REMOVAL_PERIOD in simulationConfiguration.h
         void CheckForNeighborRemoval ();
         void AddDirection (uint16_t direction, Ipv4Address address);       // will add entry to m_neighborDirection

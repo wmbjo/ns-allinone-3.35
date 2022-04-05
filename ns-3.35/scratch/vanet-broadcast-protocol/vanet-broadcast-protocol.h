@@ -12,11 +12,12 @@
 #include "ns3/udp-header.h"
 #include "ns3/packet.h"
 #include "ns3/node.h"
-#include "vbp-packet.h"
+#include "vbp-hello-packet-header.h"
 #include "vbp-neighbor.h"
 #include "vbp-rtable.h"
 #include "ns3/ipv4-routing-table-entry.h"
 #include "ns3/ipv4-route.h"
+#include "vbp-data-packet-header.h"
 
 namespace ns3
 {
@@ -61,6 +62,8 @@ namespace ns3
                       LocalDeliverCallback lcb,
                       ErrorCallback ecb);
       virtual void SetIpv4(Ptr<Ipv4> ipv4);
+      void SetBroadcastArea(std::vector<float> broadcastArea);
+      std::vector<float> GetBroadcastArea();
       virtual void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
       virtual void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address);
       virtual void NotifyInterfaceDown(uint32_t interface);
@@ -71,10 +74,13 @@ namespace ns3
       void StartHelloTx(void);
 
     private:
+      int m_BroadcastTime;
       /// Routing table
       RoutingTable m_routingTable;
       //Protocol parameters
       uint8_t m_helloPacketType; ///< Set packet type to hello 'h'
+      uint8_t m_dataPacketType;
+
       Time m_activeRouteTimeout; ///< Period of time during which the route is considered to be valid.
       // Loopback device used to defer RREQ until packet will be fully formed
       Ptr<NetDevice> m_lo;
@@ -84,6 +90,7 @@ namespace ns3
       Ptr<Ipv4> m_ipv4;
       Ptr<Node> m_thisNode;
       Ptr<Object> m_neighborsListPointer = CreateObject<Object>();
+      std::vector<float> m_broadcastArea = std::vector<float>(4,0);
       // Raw subnet directed broadcast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketSubnetBroadcastAddresses;
       /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
@@ -98,6 +105,7 @@ namespace ns3
        */
       void SendTo(Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
 
+      Ipv4Address FindNextHop();
       /**
        * Receive and process packets
        * \param socket input socket
@@ -110,6 +118,7 @@ namespace ns3
        * \param sender is supposed to be IP address of my neighbor.
        */
       void RecvHello(Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender);
+
     };
 
   } // namespace vbp

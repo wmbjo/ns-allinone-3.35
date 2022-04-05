@@ -2,10 +2,16 @@
 #include <fstream>
 
 namespace ns3 {
+    NS_LOG_COMPONENT_DEFINE("VbpNeighbor");
 namespace vbp {
 
  vbpneighbors::vbpneighbors ()
-    : m_neighborRemovalPeriod (0.5),
+    : m_filledFirstTime(false),
+      m_currentIdx(0),
+      m_NSamples(100),
+      m_thisNode(NULL), 
+      m_speedLogPeriod(1),
+      m_neighborRemovalPeriod (0.5),
       m_neighborTimeout(2000000000),
       m_capacityPerLane(0.388888),
       m_numLanes(2),
@@ -16,6 +22,7 @@ namespace vbp {
 
   {
     ScheduleNeighborRemoval ();
+    ScheduleSpeedLogUpdate();
     
   }
 
@@ -35,6 +42,12 @@ namespace vbp {
  
  void vbpneighbors::Print (std::ostream &os) const {
  }
+
+void
+vbpneighbors::SetThisNode(Ptr<Node> n)
+{
+    m_thisNode = n;
+}
 
 int 
 vbpneighbors::FindNeighbor (Ipv4Address address) {
@@ -222,6 +235,38 @@ vbpneighbors::CheckForNeighborRemoval () {
             m_neighborAvgSpeedY.erase(m_neighborAvgSpeedY.begin()+idx);
             m_1HopNumNeighbors--; // decrease neighborSize count
         }
+    }
+}
+
+void 
+vbpneighbors::ScheduleSpeedLogUpdate () { 
+    // to schedule getSpeedValue every SPEED_LOG_PERIOD seconds
+    Simulator::Schedule(Seconds(m_speedLogPeriod), &vbpneighbors::GetSpeedValue, this);
+}
+
+void 
+vbpneighbors::GetSpeedValue () {
+    // sample for individual speed to store in m_mostRecentIndividualNSpeedX 
+        // and sample of current average for speed of 1 hop neighbors to store in m_mostRecentNeighborHoodNSpeedX
+        // done for x and y direction
+    Vector speed = Vector3D(m_thisNode->GetObject<MobilityModel>()->GetVelocity()); 
+    AddSpeedSample(speed.x, speed.y, GetAvgSpeedNeighborX(speed.x), GetAvgSpeedNeighborY(speed.y));
+    ScheduleSpeedLogUpdate (); // to schedule this method again in SPEED_LOG_PERIOD seconds
+}
+
+void 
+vbpneighbors::AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY) {
+    // store new speed sample for individual speed to store in m_mostRecentIndividualNSpeedX 
+        // and store sample of current average for speed of 1 hop neighbors to store in m_mostRecentNeighborHoodNSpeedX
+        // done for x and y direction
+    m_mostRecentIndividualNSpeedX[m_currentIdx] = speedX;
+    m_mostRecentIndividualNSpeedY[m_currentIdx] = speedY;
+    m_mostRecentNeighborHoodNSpeedX[m_currentIdx] = neighborhoodSpeedX;
+    m_mostRecentNeighborHoodNSpeedY[m_currentIdx] = neighborhoodSpeedY;
+    m_currentIdx++; // increase by one for next time it is used
+    if (m_currentIdx == m_NSamples) {
+	    m_currentIdx = 0; // rewrite first index since it is now the oldest
+	    m_filledFirstTime = true;
     }
 }
 
@@ -641,10 +686,39 @@ vbpneighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
     return LOS;
 }
 
+float 
+vbpneighbors::GetNeighborHoodSpeedMeanX() {
+    // get average speed from vector of sampled values in m_mostRecentNeighborHoodNSpeedX
+    float mean = 0;
+	int max = m_currentIdx;
+	if (m_filledFirstTime) { // if reached N_SAMPLES in vector, must change to be the max
+		max = m_NSamples;
+	}
+	for(int idx = 0; idx < max; idx++) {
+		mean += m_mostRecentNeighborHoodNSpeedX[idx];
+	}
+	mean = mean/max;
+	return mean;
+}
+
+float 
+vbpneighbors::GetNeighborHoodSpeedMeanY() {
+    // get average speed from vector of sampled values in m_mostRecentNeighborHoodNSpeedY
+	float mean = 0;
+	int max = m_currentIdx;
+	if (m_filledFirstTime) { // if reached N_SAMPLES in vector, must change to be the max
+		max = m_NSamples;
+	}
+	for(int idx = 0; idx < max; idx++) {
+		mean += m_mostRecentNeighborHoodNSpeedY[idx];
+	}
+	mean = mean/max;
+	return mean;
+}
+
 void 
 vbpneighbors::PrintNeighbors2 () {
-    std::cout << "My neighbor list is now: ";
-    std::cout << '[';
+    std::cout << "My neighbor list is now: [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
         	std::cout << m_1HopNeighborIPs.at(i) << ", ";
@@ -659,8 +733,7 @@ vbpneighbors::PrintNeighbors2 () {
 
 void 
 vbpneighbors::PrintNeighborsAhead () {
-    std::cout << "My neighbor's ahead are: ";
-    std::cout << '[';
+    std::cout << "My neighbor's ahead are: [";
     if (m_1HopNumNeighborsAhead > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighborsAhead-1; i++) {
         	std::cout << m_1HopNeighborIPAhead.at(i) << ", ";
@@ -675,8 +748,7 @@ vbpneighbors::PrintNeighborsAhead () {
 
 void 
 vbpneighbors::PrintNeighborsBehind () {
-    std::cout << "My neighbor's behind are: ";
-    std::cout << '[';
+    std::cout << "My neighbor's behind are: [";
     if (m_1HopNumNeighborsBehind > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighborsBehind-1; i++) {
         	std::cout << m_1HopNeighborIPBehind.at(i) << ", ";
@@ -691,8 +763,7 @@ vbpneighbors::PrintNeighborsBehind () {
 
 void 
 vbpneighbors::PrintDirections () {
-    std::cout << "My neighbor's directions are (+1=ahead, 0=behind): ";
-    std::cout << '[';
+    std::cout << "My neighbor's directions are (+1=ahead, 0=behind): [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
         	std::cout << m_1HopNeighborDirection.at(i) << ", ";
@@ -818,8 +889,8 @@ vbpneighbors::PrintTimes () {
 
 void 
 vbpneighbors::PrintNeighborState() {
-    // std::cout << "current time: " << Simulator::Now() << std::endl;
-    // PrintNeighbors2();
+    // NS_LOG_LOGIC("current time: " << Simulator::Now());
+    //PrintNeighbors2();
     // //PrintTimes ();
     // PrintDirections();
     // PrintNeighborsAhead();

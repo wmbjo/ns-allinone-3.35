@@ -38,7 +38,6 @@ RoutingTableEntry::~RoutingTableEntry ()
 void
 RoutingTableEntry::Invalidate (Time badLinkLifetime)
 {
-    std::cout << "Invalidate Routing Table" << std::endl;
   NS_LOG_FUNCTION (this << badLinkLifetime.As (Time::S));
   if (m_flag == INVALID)
     {
@@ -52,7 +51,6 @@ RoutingTableEntry::Invalidate (Time badLinkLifetime)
 void
 RoutingTableEntry::Print (Ptr<OutputStreamWrapper> stream, Time::Unit unit /* = Time::S */) const
 {
-    std::cout << "Print Routing Table 2"  << std::endl;
   std::ostream* os = stream->GetStream ();
   // Copy the current ostream state
   std::ios oldState (nullptr);
@@ -109,7 +107,6 @@ RoutingTable::RoutingTable (Time t)
 void
 RoutingTable::Purge ()
 {
-    std::cout << "Purge Routing Table" << std::endl;
   NS_LOG_FUNCTION (this);
   if (m_ipv4AddressEntry.empty ())
     {
@@ -147,7 +144,6 @@ RoutingTable::Purge ()
 void
 RoutingTable::Purge (std::map<Ipv4Address, RoutingTableEntry> &table) const
 {
-    std::cout << "Purge Routing Table" << std::endl;
   NS_LOG_FUNCTION (this);
   if (table.empty ())
     {
@@ -185,7 +181,7 @@ RoutingTable::Purge (std::map<Ipv4Address, RoutingTableEntry> &table) const
 void
 RoutingTable::Print (Ptr<OutputStreamWrapper> stream, Time::Unit unit /* = Time::S */) const
 {
-  std::cout << "Print Routing Table ff" << Simulator::Now().GetSeconds() << " Seconds"<< std::endl;
+
   std::map<Ipv4Address, RoutingTableEntry> table = m_ipv4AddressEntry;
   Purge (table);
   std::ostream* os = stream->GetStream ();

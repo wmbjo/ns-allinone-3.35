@@ -35,9 +35,13 @@ namespace ns3
      */
     void Set(std::string name, const AttributeValue &value);
 
+    void SetBroadcastArea(std::vector<float> broadcastArea);
+    std::vector<float> GetBroadcastArea();
+
   private:
     /** the factory to create VBP routing object */
     ObjectFactory m_agentFactory;
+    std::vector<float> m_broadcastArea = std::vector<float>(4,0);
   };
 
 } // namespace ns3

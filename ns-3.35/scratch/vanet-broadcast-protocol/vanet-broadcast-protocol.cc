@@ -86,12 +86,17 @@ namespace ns3
     }
 
     RoutingProtocol::RoutingProtocol()
-        : m_routingTable(Time(5)),
-          m_helloPacketType('h') // 104 is an 'h' in ascii
-
+        : m_BroadcastTime(500),
+          m_routingTable(Time(5)),
+          m_helloPacketType('h'),
+          m_dataPacketType('d')
     {
       Ptr<vbpneighbors> m_neighborsListPointer2 = CreateObject<vbpneighbors>();
       m_neighborsListPointer->AggregateObject(m_neighborsListPointer2);
+      m_broadcastArea[0] = NAN;
+      m_broadcastArea[1] = NAN;
+      m_broadcastArea[2] = NAN;
+      m_broadcastArea[3] = NAN;
     }
 
     RoutingProtocol::~RoutingProtocol()
@@ -109,7 +114,13 @@ namespace ns3
           Ptr<Ipv4Route> route;
           return route;
         }
-      sockerr = Socket::ERROR_NOTERROR;  
+      sockerr = Socket::ERROR_NOTERROR;
+      dataPacketHeader dataHeader;
+      dataHeader.SetData(m_dataPacketType, m_broadcastArea[0],m_broadcastArea[1],m_broadcastArea[2],m_broadcastArea[3],m_BroadcastTime);
+      p->AddHeader(dataHeader);
+      p->PeekHeader(dataHeader);  
+      float pos = dataHeader.GetPosition2X();
+      std::cout << "POS " << pos << std::endl;  
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
@@ -150,7 +161,7 @@ namespace ns3
       // VBP is not a multicast routing protocol
       if (dst.IsMulticast())
       {
-        std::cout << "Multicast Return False" << std::endl;
+        NS_LOG_LOGIC("Multicast Return False");
         return false;
       }
 
@@ -229,7 +240,9 @@ namespace ns3
 
       m_thisNode = socket->GetNode();
       NS_LOG_FUNCTION("This Node: " << m_thisNode->GetObject<MobilityModel>()->GetPosition());
+      m_neighborsListPointer->GetObject<vbpneighbors>()->SetThisNode(m_thisNode);
     }
+
     void
     RoutingProtocol::NotifyInterfaceDown(uint32_t interface)
     {
@@ -394,8 +407,8 @@ namespace ns3
         helloPacketHeader HelloHeader;
 
         // get info needed in packet from sockets
-        Vector pos = (socket->GetNode())->GetObject<MobilityModel>()->GetPosition();
-        Vector vel = (socket->GetNode())->GetObject<MobilityModel>()->GetVelocity();
+        Vector pos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+        Vector vel = m_thisNode->GetObject<MobilityModel>()->GetVelocity(); 
         // set dummy values to header setData (pass hardcoded values)
         Vector furthestAhead = Vector3D(NAN, NAN, 0);
         int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
@@ -451,12 +464,29 @@ namespace ns3
       socket->SendTo(packet, 0, InetSocketAddress(destination, VBP_PORT));
     }
 
-    void RoutingProtocol::StartHelloTx()
+    void 
+    RoutingProtocol::StartHelloTx()
     {
       m_uniformRandomVariable = CreateObject<UniformRandomVariable>();
       Time jitter = Time(MilliSeconds(Period_HelloTx + m_uniformRandomVariable->GetInteger(0, Jitter_HelloTx)));
       Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
     }
+
+    std::vector<float> 
+    RoutingProtocol::GetBroadcastArea()
+    {
+        return m_broadcastArea;
+    }
+
+    void
+    RoutingProtocol::SetBroadcastArea(std::vector<float> broadcastArea)
+    {
+        m_broadcastArea[0] = broadcastArea[0];
+        m_broadcastArea[1] = broadcastArea[1];
+        m_broadcastArea[2] = broadcastArea[2];
+        m_broadcastArea[3] = broadcastArea[3];
+    }
+
 
   } // namespace vbp
 } // namespace ns3

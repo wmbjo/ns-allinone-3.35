@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     double PrimaryTxGain = TX_GAIN;     // dBm
     double InterferingTxGain = TX_GAIN; // dBm
     double TimeToInterfere = 0;         // uS
-    double SimulationTime = 100;        // seconds
+    double SimulationTime = 20;        // seconds
     uint32_t PrimaryPktSize = 1024;     // bytes
     uint32_t InterferingPktSize = 1024; // bytes
     uint32_t PacketSize = 512;          // bytes
@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
     // vbp
     InternetStackHelper stack;
     VanetBroadcastHelper vbp; //VanetBroadcastHelper
+    vbp.SetBroadcastArea({20, 30, 40, 50});
     stack.SetRoutingHelper(vbp);
     stack.Install(nodes);
 

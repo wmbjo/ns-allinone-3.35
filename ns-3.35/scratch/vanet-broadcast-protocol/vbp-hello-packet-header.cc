@@ -1,4 +1,4 @@
-#include "vbp-packet.h"
+#include "vbp-hello-packet-header.h"
 
 namespace ns3
 {
