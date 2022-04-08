@@ -5,7 +5,7 @@ namespace ns3 {
     NS_LOG_COMPONENT_DEFINE("VbpNeighbor");
 namespace vbp {
 
- vbpneighbors::vbpneighbors ()
+ VbpNeighbors::VbpNeighbors ()
     : m_filledFirstTime(false),
       m_currentIdx(0),
       m_NSamples(100),
@@ -26,31 +26,31 @@ namespace vbp {
     
   }
 
- vbpneighbors::~vbpneighbors () {
+ VbpNeighbors::~VbpNeighbors () {
  }
  
- TypeId vbpneighbors::GetTypeId (void) {
-   static TypeId tid = TypeId ("ns3::vbp::vbpNeighbors")
+ TypeId VbpNeighbors::GetTypeId (void) {
+   static TypeId tid = TypeId ("ns3::vbp::VbpNeighbors")
      .SetParent<Object> ()
-     .AddConstructor<vbpneighbors> ();
+     .AddConstructor<VbpNeighbors> ();
    return tid;
  }
 
- TypeId vbpneighbors::GetInstanceTypeId (void) const {
+ TypeId VbpNeighbors::GetInstanceTypeId (void) const {
    return GetTypeId ();
  }
  
- void vbpneighbors::Print (std::ostream &os) const {
+ void VbpNeighbors::Print (std::ostream &os) const {
  }
 
 void
-vbpneighbors::SetThisNode(Ptr<Node> n)
+VbpNeighbors::SetThisNode(Ptr<Node> n)
 {
     m_thisNode = n;
 }
 
 int 
-vbpneighbors::FindNeighbor (Ipv4Address address) {
+VbpNeighbors::FindNeighbor (Ipv4Address address) {
     for(uint16_t idx = 0; idx < m_1HopNumNeighbors; ++idx) {
         if (m_1HopNeighborIPs[idx] == address) {
             // if find value to add is already here, then stop
@@ -61,7 +61,7 @@ vbpneighbors::FindNeighbor (Ipv4Address address) {
 }
 
 void 
-vbpneighbors::PrintNeighbors()
+VbpNeighbors::PrintNeighbors()
 {
   for (std::vector<Ipv4Address>::iterator i = m_1HopNeighborIPs.begin (); i != m_1HopNeighborIPs.end (); ++i)
   { 
@@ -71,13 +71,13 @@ vbpneighbors::PrintNeighbors()
 }
 
 void 
-vbpneighbors::AppendNeighbor (Ipv4Address neighborAddress)
+VbpNeighbors::AppendNeighbor (Ipv4Address neighborAddress)
   {
      m_1HopNeighborIPs.push_back(neighborAddress); // neighbors identified by address
   }
 
 void 
-vbpneighbors::AddDirection (uint16_t direction, Ipv4Address address) {
+VbpNeighbors::AddDirection (uint16_t direction, Ipv4Address address) {
     m_1HopNeighborDirection.push_back(direction);
     if (direction) { // true if 1, which is ahead
         m_1HopNumNeighborsAhead++;
@@ -89,47 +89,47 @@ vbpneighbors::AddDirection (uint16_t direction, Ipv4Address address) {
 }
 
 void 
-vbpneighbors::AddNumNeighborsAhead (uint16_t numAhead) {
+VbpNeighbors::AddNumNeighborsAhead (uint16_t numAhead) {
     m_1HopNumNeighborAhead.push_back(numAhead); 
 }
 
 void 
-vbpneighbors::AddNumNeighborsBehind (uint16_t numBehind) {
+VbpNeighbors::AddNumNeighborsBehind (uint16_t numBehind) {
     m_1HopNumNeighborBehind.push_back(numBehind); 
 }
 
 void 
-vbpneighbors::AddLocation (float posX, float posY) {
+VbpNeighbors::AddLocation (float posX, float posY) {
     m_1HopPositionX.push_back(posX);
     m_1HopPositionY.push_back(posY);
 }
 
 void 
-vbpneighbors::AddSpeed(float speedX, float speedY) {
+VbpNeighbors::AddSpeed(float speedX, float speedY) {
     m_1HopNeighborSpeedX.push_back(speedX); 
     m_1HopNeighborSpeedY.push_back(speedY); 
 }
 
 void 
-vbpneighbors::AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY) {
+VbpNeighbors::AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY) {
     m_neighborFurthestAheadX.push_back(neighborFurthestAheadX);
     m_neighborFurthestAheadY.push_back(neighborFurthestAheadY);
 }
 
 void 
-vbpneighbors::AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY) {
+VbpNeighbors::AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY) {
     m_neighborFurthestBehindX.push_back(neighborFurthestBehindX);
     m_neighborFurthestBehindY.push_back(neighborFurthestBehindY);
 }
 
 void 
-vbpneighbors::AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY) {
+VbpNeighbors::AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY) {
     m_neighborAvgSpeedX.push_back(neighborAvgSpeedX);
     m_neighborAvgSpeedY.push_back(neighborAvgSpeedY);
 }
 
 void 
-vbpneighbors::AddNode (Ipv4Address address, uint16_t direction, uint16_t neighborsAhead, uint16_t neighborsBehind
+VbpNeighbors::AddNode (Ipv4Address address, uint16_t direction, uint16_t neighborsAhead, uint16_t neighborsBehind
                             , float posX, float posY, float speedX, float speedY, float neighborFurthestAheadX
                             , float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY
                             , float avgSpeedX, float avgSpeedY) {
@@ -173,7 +173,7 @@ vbpneighbors::AddNode (Ipv4Address address, uint16_t direction, uint16_t neighbo
 
 
 void 
-vbpneighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction) {
+VbpNeighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction) {
     for(uint16_t idx = 0; idx < m_1HopNumNeighborsAhead; ++idx) {
         if (m_1HopNeighborIPAhead[idx] == address) {
             // if find address check if direction changed
@@ -209,7 +209,7 @@ vbpneighbors::UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t directi
 }
 
 void 
-vbpneighbors::CheckForNeighborRemoval () {
+VbpNeighbors::CheckForNeighborRemoval () {
     // delete neighbor if no response in TIMEOUT seconds
     if (m_1HopNumNeighbors==0) {
         return; // nothing to remove
@@ -239,13 +239,13 @@ vbpneighbors::CheckForNeighborRemoval () {
 }
 
 void 
-vbpneighbors::ScheduleSpeedLogUpdate () { 
+VbpNeighbors::ScheduleSpeedLogUpdate () { 
     // to schedule getSpeedValue every SPEED_LOG_PERIOD seconds
-    Simulator::Schedule(Seconds(m_speedLogPeriod), &vbpneighbors::GetSpeedValue, this);
+    Simulator::Schedule(Seconds(m_speedLogPeriod), &VbpNeighbors::GetSpeedValue, this);
 }
 
 void 
-vbpneighbors::GetSpeedValue () {
+VbpNeighbors::GetSpeedValue () {
     // sample for individual speed to store in m_mostRecentIndividualNSpeedX 
         // and sample of current average for speed of 1 hop neighbors to store in m_mostRecentNeighborHoodNSpeedX
         // done for x and y direction
@@ -255,7 +255,7 @@ vbpneighbors::GetSpeedValue () {
 }
 
 void 
-vbpneighbors::AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY) {
+VbpNeighbors::AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY) {
     // store new speed sample for individual speed to store in m_mostRecentIndividualNSpeedX 
         // and store sample of current average for speed of 1 hop neighbors to store in m_mostRecentNeighborHoodNSpeedX
         // done for x and y direction
@@ -271,13 +271,13 @@ vbpneighbors::AddSpeedSample(float speedX, float speedY, float neighborhoodSpeed
 }
 
 void 
-vbpneighbors::ScheduleNeighborRemoval () {
+VbpNeighbors::ScheduleNeighborRemoval () {
     CheckForNeighborRemoval ();
-    Simulator::Schedule(Seconds(m_neighborRemovalPeriod), &vbpneighbors::ScheduleNeighborRemoval, this);
+    Simulator::Schedule(Seconds(m_neighborRemovalPeriod), &VbpNeighbors::ScheduleNeighborRemoval, this);
 }
 
 void 
-vbpneighbors::EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction) {
+VbpNeighbors::EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction) {
     if (direction) { // means remove from neighbor ahead
         for(uint16_t idx = 0; idx < m_1HopNumNeighborsAhead; ++idx) {
             if (m_1HopNeighborIPAhead[idx] == address) {
@@ -297,37 +297,37 @@ vbpneighbors::EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t directio
 }
 
 uint16_t 
-vbpneighbors::Get1HopNumNeighbors () {
+VbpNeighbors::Get1HopNumNeighbors () {
     return m_1HopNumNeighbors;
 }
 
 uint16_t 
-vbpneighbors::Get1HopNumNeighborsAhead () {
+VbpNeighbors::Get1HopNumNeighborsAhead () {
     return m_1HopNumNeighborsAhead;
 }
 
 uint16_t 
-vbpneighbors::Get1HopNumNeighborsBehind () {
+VbpNeighbors::Get1HopNumNeighborsBehind () {
     return m_1HopNumNeighborsBehind;
 }
 
 Ipv4Address 
-vbpneighbors::Get1HopNeighborIPAhead (uint16_t index) {
+VbpNeighbors::Get1HopNeighborIPAhead (uint16_t index) {
     return m_1HopNeighborIPAhead[index];
 }
 
 Ipv4Address 
-vbpneighbors::Get1HopNeighborIPBehind (uint16_t index) {
+VbpNeighbors::Get1HopNeighborIPBehind (uint16_t index) {
     return m_1HopNeighborIPBehind[index];
 }
 
 Ipv4Address 
-vbpneighbors::Get1HopNeighborIP(uint16_t index) {
+VbpNeighbors::Get1HopNeighborIP(uint16_t index) {
     return m_1HopNeighborIPs[index];
 }
 
 uint16_t 
-vbpneighbors::Get1HopDirectionByIP (Ipv4Address address) {
+VbpNeighbors::Get1HopDirectionByIP (Ipv4Address address) {
     int idx = FindNeighbor (address); 
     if (idx >= 0) {
  	return m_1HopNeighborDirection[idx];
@@ -338,92 +338,92 @@ vbpneighbors::Get1HopDirectionByIP (Ipv4Address address) {
 }
 
 uint16_t 
-vbpneighbors::Get1HopDirection (uint16_t index) {
+VbpNeighbors::Get1HopDirection (uint16_t index) {
  	return m_1HopNeighborDirection[index];
 }
 
 uint16_t 
-vbpneighbors::Get1HopNumberOfNodesAheadOfNeighbor (uint16_t index) {
+VbpNeighbors::Get1HopNumberOfNodesAheadOfNeighbor (uint16_t index) {
  	return m_1HopNumNeighborAhead[index];
 }
 
 uint16_t 
-vbpneighbors::Get1HopNumberOfNodesBehindOfNeighbor (uint16_t index) {
+VbpNeighbors::Get1HopNumberOfNodesBehindOfNeighbor (uint16_t index) {
  	return m_1HopNumNeighborBehind[index];
 }
 
 float 
-vbpneighbors::GetNeighborPositionX (uint16_t index) {
+VbpNeighbors::GetNeighborPositionX (uint16_t index) {
  	return m_1HopPositionX[index];
 }
 
 float 
-vbpneighbors::GetNeighborPositionY (uint16_t index) {
+VbpNeighbors::GetNeighborPositionY (uint16_t index) {
  	return m_1HopPositionY[index];
 }
 
 float 
-vbpneighbors::GetNeighborSpeedX (uint16_t index) {
+VbpNeighbors::GetNeighborSpeedX (uint16_t index) {
  	return m_1HopNeighborSpeedX[index];
 }
 
 float 
-vbpneighbors::GetNeighborSpeedY (uint16_t index) {
+VbpNeighbors::GetNeighborSpeedY (uint16_t index) {
  	return m_1HopNeighborSpeedY[index];
 }
 
 std::vector<float> 
-vbpneighbors::Get1HopNeighborLocationsX () {
+VbpNeighbors::Get1HopNeighborLocationsX () {
     return m_1HopPositionX;
 }
 
 std::vector<float> 
-vbpneighbors::Get1HopNeighborLocationsY () {
+VbpNeighbors::Get1HopNeighborLocationsY () {
     return m_1HopPositionY;
 }
 
 std::vector<float> 
-vbpneighbors::Get1HopNeighborSpeedX () {
+VbpNeighbors::Get1HopNeighborSpeedX () {
     return m_1HopNeighborSpeedX;
 }
 
 std::vector<float> 
-vbpneighbors::Get1HopNeighborSpeedY () {
+VbpNeighbors::Get1HopNeighborSpeedY () {
     return m_1HopNeighborSpeedY;
 }
 
 float 
-vbpneighbors::GetNeighborFurthestAheadX(uint16_t index) {
+VbpNeighbors::GetNeighborFurthestAheadX(uint16_t index) {
    return m_neighborFurthestAheadX[index];
 }
 
 float 
-vbpneighbors::GetNeighborFurthestAheadY(uint16_t index) {
+VbpNeighbors::GetNeighborFurthestAheadY(uint16_t index) {
    return m_neighborFurthestAheadY[index];
 }
 
 float 
-vbpneighbors::GetNeighborFurthestBehindX(uint16_t index) {
+VbpNeighbors::GetNeighborFurthestBehindX(uint16_t index) {
    return m_neighborFurthestBehindX[index];
 }
 
 float 
-vbpneighbors::GetNeighborFurthestBehindY(uint16_t index) {
+VbpNeighbors::GetNeighborFurthestBehindY(uint16_t index) {
    return m_neighborFurthestBehindY[index];
 }
 
 float 
-vbpneighbors::GetNeighborAvgSpeedX(uint16_t index) {
+VbpNeighbors::GetNeighborAvgSpeedX(uint16_t index) {
     return m_neighborAvgSpeedX[index];
 }
 
 float 
-vbpneighbors::GetNeighborAvgSpeedY(uint16_t index) {
+VbpNeighbors::GetNeighborAvgSpeedY(uint16_t index) {
     return m_neighborAvgSpeedY[index];
 }
 
 float 
-vbpneighbors::GetAvgSpeedNeighborX(float speedReferenceX) {
+VbpNeighbors::GetAvgSpeedNeighborX(float speedReferenceX) {
     float avgSpeedX = speedReferenceX;
     if (m_1HopNumNeighbors > 0) {
         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
@@ -435,7 +435,7 @@ vbpneighbors::GetAvgSpeedNeighborX(float speedReferenceX) {
 }
 
 float 
-vbpneighbors::GetAvgSpeedNeighborY(float speedReferenceY) {
+VbpNeighbors::GetAvgSpeedNeighborY(float speedReferenceY) {
     float avgSpeedY = speedReferenceY;
     if (m_1HopNumNeighbors > 0) {
         for(uint16_t idx = 0; idx < m_1HopNumNeighbors; idx++) { 
@@ -447,7 +447,7 @@ vbpneighbors::GetAvgSpeedNeighborY(float speedReferenceY) {
 }
 
 int 
-vbpneighbors::GetNeighborFurthestAheadByIndex(Vector reference) {
+VbpNeighbors::GetNeighborFurthestAheadByIndex(Vector reference) {
     int furthestIdx = -1;
     if (m_1HopNumNeighborsAhead > 0) {
         furthestIdx = FindNeighbor(m_1HopNeighborIPAhead[0]); // in case only has one neighbor ahead
@@ -470,7 +470,7 @@ vbpneighbors::GetNeighborFurthestAheadByIndex(Vector reference) {
 }
 
 int 
-vbpneighbors::GetNeighborFurthestBehindByIndex(Vector reference) {
+VbpNeighbors::GetNeighborFurthestBehindByIndex(Vector reference) {
     int furthestIdx = -1;
     if (m_1HopNumNeighborsBehind > 0) {
         furthestIdx = FindNeighbor(m_1HopNeighborIPBehind[0]); // in case only has one neighbor behind
@@ -493,7 +493,7 @@ vbpneighbors::GetNeighborFurthestBehindByIndex(Vector reference) {
 }
 
 int 
-vbpneighbors::Get2HopDistFurthestAheadByIndex(Vector reference) {
+VbpNeighbors::Get2HopDistFurthestAheadByIndex(Vector reference) {
     int furthestIndex = -1;
     float furthestDist = 0;
     if (m_1HopNumNeighborsAhead > 0) {
@@ -523,7 +523,7 @@ vbpneighbors::Get2HopDistFurthestAheadByIndex(Vector reference) {
 }
 
 int 
-vbpneighbors::Get2HopDistFurthestBehindByIndex(Vector reference) {
+VbpNeighbors::Get2HopDistFurthestBehindByIndex(Vector reference) {
     int furthestIndex = -1;
     float furthestDist = 0;
     if (m_1HopNumNeighborsBehind > 0) {
@@ -553,7 +553,7 @@ vbpneighbors::Get2HopDistFurthestBehindByIndex(Vector reference) {
 }
 
 uint16_t 
-vbpneighbors::Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBehindIndex, Vector reference) {
+VbpNeighbors::Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBehindIndex, Vector reference) {
         // 3 regions, cars ahead of 2hopFurthestAheadIdx, cars behind 2hopFurthestBehindIdx, and cars between those 2 Ids
     uint16_t totalCount = m_1HopNumNeighborAhead[twoHopFurthestAheadIndex];
     totalCount += m_1HopNumNeighborBehind[twoHopFurthestBehindIndex]; // first two regions
@@ -582,7 +582,7 @@ vbpneighbors::Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBe
 }
 
 uint16_t 
-vbpneighbors::Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector reference) {
+VbpNeighbors::Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector reference) {
         // 3 regions, vehicles behind reference, vehicles in front furthest ahead, vehicles between reference and furthest ahead
     uint16_t totalCount = m_1HopNumNeighborsBehind; 
     totalCount += m_1HopNumNeighborAhead[twoHopFurthestAheadIndex];
@@ -605,7 +605,7 @@ vbpneighbors::Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector refe
 }
 
 uint16_t 
-vbpneighbors::Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference) {
+VbpNeighbors::Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference) {
         // 3 regions, vehicles ahead reference, vehicles behind furthest behind, vehicles between reference and furthest behind
     uint16_t totalCount = m_1HopNumNeighborsAhead;
     totalCount += m_1HopNumNeighborBehind[twoHopFurthestBehindIndex]; // first two regions
@@ -628,7 +628,7 @@ vbpneighbors::Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector re
 }
 
 float 
-vbpneighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
+VbpNeighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
     Vector furthestAhead = Vector3D(NAN,NAN,0);
     Vector furthestBehind = Vector3D(NAN,NAN,0);
     float avgSpeedX = referenceVel.x; // in case needed
@@ -687,7 +687,7 @@ vbpneighbors::GetLosCalculation(Vector referencePos, Vector referenceVel) {
 }
 
 float 
-vbpneighbors::GetNeighborHoodSpeedMeanX() {
+VbpNeighbors::GetNeighborHoodSpeedMeanX() {
     // get average speed from vector of sampled values in m_mostRecentNeighborHoodNSpeedX
     float mean = 0;
 	int max = m_currentIdx;
@@ -702,7 +702,7 @@ vbpneighbors::GetNeighborHoodSpeedMeanX() {
 }
 
 float 
-vbpneighbors::GetNeighborHoodSpeedMeanY() {
+VbpNeighbors::GetNeighborHoodSpeedMeanY() {
     // get average speed from vector of sampled values in m_mostRecentNeighborHoodNSpeedY
 	float mean = 0;
 	int max = m_currentIdx;
@@ -717,7 +717,7 @@ vbpneighbors::GetNeighborHoodSpeedMeanY() {
 }
 
 void 
-vbpneighbors::PrintNeighbors2 () {
+VbpNeighbors::PrintNeighbors2 () {
     std::cout << "My neighbor list is now: [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
@@ -732,7 +732,7 @@ vbpneighbors::PrintNeighbors2 () {
 }
 
 void 
-vbpneighbors::PrintNeighborsAhead () {
+VbpNeighbors::PrintNeighborsAhead () {
     std::cout << "My neighbor's ahead are: [";
     if (m_1HopNumNeighborsAhead > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighborsAhead-1; i++) {
@@ -747,7 +747,7 @@ vbpneighbors::PrintNeighborsAhead () {
 }
 
 void 
-vbpneighbors::PrintNeighborsBehind () {
+VbpNeighbors::PrintNeighborsBehind () {
     std::cout << "My neighbor's behind are: [";
     if (m_1HopNumNeighborsBehind > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighborsBehind-1; i++) {
@@ -762,7 +762,7 @@ vbpneighbors::PrintNeighborsBehind () {
 }
 
 void 
-vbpneighbors::PrintDirections () {
+VbpNeighbors::PrintDirections () {
     std::cout << "My neighbor's directions are (+1=ahead, 0=behind): [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
@@ -777,7 +777,7 @@ vbpneighbors::PrintDirections () {
 }
 
 void 
-vbpneighbors::PrintNeighborDirections () {
+VbpNeighbors::PrintNeighborDirections () {
     std::cout << "My neighbor's have this many cars ahead of them: [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
@@ -798,12 +798,12 @@ vbpneighbors::PrintNeighborDirections () {
 }
 
 void 
-vbpneighbors::PrintNumNeighborsAheadBehind () {
+VbpNeighbors::PrintNumNeighborsAheadBehind () {
     std::cout << "There are: " << Get1HopNumNeighborsAhead () << " ahead and " << Get1HopNumNeighborsBehind () << " behind me" << std::endl;
 }
 
 void 
-vbpneighbors::PrintLocations () {
+VbpNeighbors::PrintLocations () {
     std::cout << "My neighbor's locations are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
@@ -817,7 +817,7 @@ vbpneighbors::PrintLocations () {
 }
 
 void 
-vbpneighbors::PrintSpeeds () {
+VbpNeighbors::PrintSpeeds () {
     std::cout << "My neighbor's speeds are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
@@ -831,7 +831,7 @@ vbpneighbors::PrintSpeeds () {
 }
 
 void 
-vbpneighbors::Print1hopFurthestAhead () {
+VbpNeighbors::Print1hopFurthestAhead () {
     std::cout << "My neighbor's FurthestAhead Pos [x,y] are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
@@ -845,7 +845,7 @@ vbpneighbors::Print1hopFurthestAhead () {
 }
 
 void 
-vbpneighbors::Print1hopFurthestBehind () {
+VbpNeighbors::Print1hopFurthestBehind () {
     std::cout << "My neighbor's FurthestBehind Pos [x,y] are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
@@ -859,7 +859,7 @@ vbpneighbors::Print1hopFurthestBehind () {
 }
 
 void 
-vbpneighbors::PrintAvgSpeeds () {
+VbpNeighbors::PrintAvgSpeeds () {
     std::cout << "My neighbor's avg speeds are: ";
     if (m_1HopNumNeighbors > 0) {
 	    for (uint16_t i = 0; i < m_1HopNumNeighbors; i++) {
@@ -873,7 +873,7 @@ vbpneighbors::PrintAvgSpeeds () {
 }
 
 void 
-vbpneighbors::PrintTimes () {
+VbpNeighbors::PrintTimes () {
     std::cout << "My neighbor's last updates were at: [";
     if (m_1HopNumNeighbors > 0) {
     	for (uint16_t i = 0; i < m_1HopNumNeighbors-1; i++) {
@@ -888,7 +888,7 @@ vbpneighbors::PrintTimes () {
 }
 
 void 
-vbpneighbors::PrintNeighborState() {
+VbpNeighbors::PrintNeighborState() {
     // NS_LOG_LOGIC("current time: " << Simulator::Now());
     //PrintNeighbors2();
     // //PrintTimes ();

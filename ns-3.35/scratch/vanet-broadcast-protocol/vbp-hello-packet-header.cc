@@ -5,34 +5,34 @@ namespace ns3
      namespace vbp
      {
 
-          helloPacketHeader::helloPacketHeader()
+          VbpHelloHeader::VbpHelloHeader()
           {
                // we must provide a public default constructor,
                // implicit or explicit, but never private.
           }
 
-          helloPacketHeader::~helloPacketHeader()
+          VbpHelloHeader::~VbpHelloHeader()
           {
           }
 
-          TypeId helloPacketHeader::GetTypeId(void)
+          TypeId VbpHelloHeader::GetTypeId(void)
           {
-               static TypeId tid = TypeId("ns3::vbp::helloPacketHeader")
+               static TypeId tid = TypeId("ns3::vbp::VbpHelloHeader")
                                        .SetParent<Header>()
-                                       .AddConstructor<helloPacketHeader>();
+                                       .AddConstructor<VbpHelloHeader>();
                return tid;
           }
 
-          TypeId helloPacketHeader::GetInstanceTypeId(void) const
+          TypeId VbpHelloHeader::GetInstanceTypeId(void) const
           {
                return GetTypeId();
           }
 
-          void helloPacketHeader::Print(std::ostream &os) const
+          void VbpHelloHeader::Print(std::ostream &os) const
           {
           }
 
-          uint32_t helloPacketHeader::GetSerializedSize(void) const
+          uint32_t VbpHelloHeader::GetSerializedSize(void) const
           {
                // we reserve bytes for our header.
                uint32_t totalSize = sizeof(m_packetType) + sizeof(m_neighborsAhead) + sizeof(m_neighborsBehind) + sizeof(m_positionX) + sizeof(m_positionY) + sizeof(m_speedX) + sizeof(m_speedY) + sizeof(m_neighborFurthestAheadX) + sizeof(m_neighborFurthestAheadY) + sizeof(m_neighborFurthestBehindX) + sizeof(m_neighborFurthestBehindY) + sizeof(m_avgSpeedX) + sizeof(m_avgSpeedY);
@@ -40,7 +40,7 @@ namespace ns3
                return totalSize;
           }
 
-          void helloPacketHeader::Serialize(Buffer::Iterator start) const
+          void VbpHelloHeader::Serialize(Buffer::Iterator start) const
           {
                // we write them in network byte order.
                start.WriteU8(m_packetType);
@@ -90,7 +90,7 @@ namespace ns3
                }
           }
 
-          uint32_t helloPacketHeader::Deserialize(Buffer::Iterator start)
+          uint32_t VbpHelloHeader::Deserialize(Buffer::Iterator start)
           {
                // we read them in network byte order and store them
                m_packetType = start.ReadU8();
@@ -141,7 +141,7 @@ namespace ns3
                return GetSerializedSize();
           }
 
-          void helloPacketHeader::SetData(uint8_t packetType, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead, uint16_t neighborsBehind, float neighborFurthestAheadX, float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY)
+          void VbpHelloHeader::SetData(uint8_t packetType, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead, uint16_t neighborsBehind, float neighborFurthestAheadX, float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY)
           {
                m_packetType = packetType;
                m_neighborsAhead = neighborsAhead;
@@ -199,23 +199,23 @@ namespace ns3
                }
           }
 
-          uint8_t helloPacketHeader::GetPacketType(void) const
+          uint8_t VbpHelloHeader::GetPacketType(void) const
           {
                // std::cout << unsigned(m_packetType) << std::endl;
                return m_packetType;
           }
 
-          uint16_t helloPacketHeader::GetNumNeighborsAhead(void) const
+          uint16_t VbpHelloHeader::GetNumNeighborsAhead(void) const
           {
                return m_neighborsAhead;
           }
 
-          uint16_t helloPacketHeader::GetNumNeighborsBehind(void) const
+          uint16_t VbpHelloHeader::GetNumNeighborsBehind(void) const
           {
                return m_neighborsBehind;
           }
 
-          float helloPacketHeader::GetPositionX(void) const
+          float VbpHelloHeader::GetPositionX(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -227,7 +227,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetPositionY(void) const
+          float VbpHelloHeader::GetPositionY(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -239,7 +239,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetSpeedX(void) const
+          float VbpHelloHeader::GetSpeedX(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -251,7 +251,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetSpeedY(void) const
+          float VbpHelloHeader::GetSpeedY(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -263,7 +263,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetNeighborFurthestAheadX(void) const
+          float VbpHelloHeader::GetNeighborFurthestAheadX(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -275,7 +275,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetNeighborFurthestAheadY(void) const
+          float VbpHelloHeader::GetNeighborFurthestAheadY(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -287,7 +287,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetNeighborFurthestBehindX(void) const
+          float VbpHelloHeader::GetNeighborFurthestBehindX(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -299,7 +299,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetNeighborFurthestBehindY(void) const
+          float VbpHelloHeader::GetNeighborFurthestBehindY(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -311,7 +311,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetAvgSpeedX(void) const
+          float VbpHelloHeader::GetAvgSpeedX(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;
@@ -323,7 +323,7 @@ namespace ns3
                return temp;
           }
 
-          float helloPacketHeader::GetAvgSpeedY(void) const
+          float VbpHelloHeader::GetAvgSpeedY(void) const
           {
                // use for loop to move 8 bits at a time to store 4 bytes into a float
                float temp;

@@ -48,7 +48,7 @@ namespace ns3
        * \return the object TypeId
        */
       static TypeId GetTypeId(void);
-      static const uint32_t VBP_PORT;
+      static const uint32_t VBP_HELLO_PORT;
       /// constructor
       RoutingProtocol();
       virtual ~RoutingProtocol();

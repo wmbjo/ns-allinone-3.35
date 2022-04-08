@@ -11,10 +11,10 @@ namespace ns3
   VanetBroadcastHelper::VanetBroadcastHelper() : Ipv4RoutingHelper()
   {
     m_agentFactory.SetTypeId("ns3::vbp::RoutingProtocol");
-    m_broadcastArea[0] = 10;
-    m_broadcastArea[1] = 10;
-    m_broadcastArea[2] = 10;
-    m_broadcastArea[3] = 10;
+    m_broadcastArea[0] = NAN;
+    m_broadcastArea[1] = NAN;
+    m_broadcastArea[2] = NAN;
+    m_broadcastArea[3] = NAN;
   }
 
   VanetBroadcastHelper *
@@ -26,11 +26,7 @@ namespace ns3
   Ptr<Ipv4RoutingProtocol>
   VanetBroadcastHelper::Create(Ptr<Node> node) const
   {
-    if (isnan(m_broadcastArea[0]) || isnan(m_broadcastArea[1]) || isnan(m_broadcastArea[2]) || isnan(m_broadcastArea[3]))
-    {
-      NS_LOG_ERROR ("Broadcast area not defined");
-      return NULL;
-    }
+    NS_ASSERT_MSG(!(isnan(m_broadcastArea[0]) || isnan(m_broadcastArea[1]) || isnan(m_broadcastArea[2]) || isnan(m_broadcastArea[3])),"Need to set coordinates of broadcast area with VanetBroadcastHelper");
   
     Ptr<vbp::RoutingProtocol> agent = m_agentFactory.Create<vbp::RoutingProtocol>();
     node->AggregateObject(agent);

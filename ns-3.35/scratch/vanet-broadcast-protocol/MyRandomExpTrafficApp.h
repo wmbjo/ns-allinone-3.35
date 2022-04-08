@@ -23,6 +23,7 @@
 
 #include "ns3/random-variable-stream.h"
 #include "ns3/applications-module.h"
+#include "vbp-data-packet-header.h"
 
 namespace ns3
 {
@@ -90,7 +91,6 @@ namespace ns3
     Ptr<Packet> packetptr = Create<Packet>(m_packetSize);
     m_socketptr->Send(packetptr);
     ScheduleTx();
-    //std::cout << "Data Packet Tx" << std::endl;
   }
 
   void MyRandomExpTrafficApp::ScheduleTx()

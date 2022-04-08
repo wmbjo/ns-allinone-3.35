@@ -8,7 +8,7 @@ namespace ns3
   namespace vbp
   {
     NS_OBJECT_ENSURE_REGISTERED(RoutingProtocol);
-    const uint32_t RoutingProtocol::VBP_PORT = 655;
+    const uint32_t RoutingProtocol::VBP_HELLO_PORT = 655;
     uint64_t m_uniformRandomVariable;
     const uint32_t Period_HelloTx = 95;
     const uint32_t Jitter_HelloTx = 10;
@@ -91,7 +91,7 @@ namespace ns3
           m_helloPacketType('h'),
           m_dataPacketType('d')
     {
-      Ptr<vbpneighbors> m_neighborsListPointer2 = CreateObject<vbpneighbors>();
+      Ptr<VbpNeighbors> m_neighborsListPointer2 = CreateObject<VbpNeighbors>();
       m_neighborsListPointer->AggregateObject(m_neighborsListPointer2);
       m_broadcastArea[0] = NAN;
       m_broadcastArea[1] = NAN;
@@ -115,16 +115,19 @@ namespace ns3
           return route;
         }
       sockerr = Socket::ERROR_NOTERROR;
-      dataPacketHeader dataHeader;
-      dataHeader.SetData(m_dataPacketType, m_broadcastArea[0],m_broadcastArea[1],m_broadcastArea[2],m_broadcastArea[3],m_BroadcastTime);
-      p->AddHeader(dataHeader);
-      p->PeekHeader(dataHeader);  
-      float pos = dataHeader.GetPosition2X();
-      std::cout << "POS " << pos << std::endl;  
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  
-      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-      Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
 
+      VbpRoutingHeader dataHeader;
+
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      Ipv4Address origin = iface.GetAddress();
+    
+      dataHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+      p->AddHeader(dataHeader);
+      std::cout << "Packet Route Output: " << std::endl; 
+      dataHeader.Print(std::cout);
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  
+
+      Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       RoutingTableEntry rt;
 
       rt.SetNextHop(nextHop);
@@ -155,8 +158,7 @@ namespace ns3
 
       Ipv4Address dst = header.GetDestination();
       Ipv4Address origin = header.GetSource();
-      helloPacketHeader destinationHeader;
-      p->PeekHeader(destinationHeader);
+
 
       // VBP is not a multicast routing protocol
       if (dst.IsMulticast())
@@ -180,10 +182,22 @@ namespace ns3
         }
         return true;
       }
-
       // Forwarding
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
+
+      VbpRoutingHeader dataPacket;
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      p->PeekHeader(dataPacket);
+      dataPacket.SetPrevHopIP(iface.GetAddress());
+      std::cout << "Packet Route Input: " << std::endl; 
+      dataPacket.Print(std::cout);
+
+      // if (dataPacket.GetPacketType() == m_dataPacketType)
+      // {
+      //   std::cout << "Route input received a data packet header" << std::endl;
+      // }
+
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
+
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       //create routing table entry using these four parameters
       RoutingTableEntry rt;
@@ -219,7 +233,7 @@ namespace ns3
       NS_ASSERT(socket != 0);
       socket->SetRecvCallback(MakeCallback(&RoutingProtocol::RecvVbp, this));
       socket->BindToNetDevice(l3->GetNetDevice(interface));
-      socket->Bind(InetSocketAddress(iface.GetLocal(), VBP_PORT));
+      socket->Bind(InetSocketAddress(iface.GetLocal(), VBP_HELLO_PORT));
       socket->SetAllowBroadcast(true);
       socket->SetIpRecvTtl(true);
       m_socketAddresses.insert(std::make_pair(socket, iface));
@@ -229,7 +243,7 @@ namespace ns3
       NS_ASSERT(socket != 0);
       socket->SetRecvCallback(MakeCallback(&RoutingProtocol::RecvVbp, this));
       socket->BindToNetDevice(l3->GetNetDevice(interface));
-      socket->Bind(InetSocketAddress(iface.GetBroadcast(), VBP_PORT));
+      socket->Bind(InetSocketAddress(iface.GetBroadcast(), VBP_HELLO_PORT));
       socket->SetAllowBroadcast(true);
       socket->SetIpRecvTtl(true);
       m_socketSubnetBroadcastAddresses.insert(std::make_pair(socket, iface));
@@ -240,7 +254,7 @@ namespace ns3
 
       m_thisNode = socket->GetNode();
       NS_LOG_FUNCTION("This Node: " << m_thisNode->GetObject<MobilityModel>()->GetPosition());
-      m_neighborsListPointer->GetObject<vbpneighbors>()->SetThisNode(m_thisNode);
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->SetThisNode(m_thisNode);
     }
 
     void
@@ -290,7 +304,7 @@ namespace ns3
         NS_ASSERT_MSG(false, "Received a packet from an unknown socket");
       }
       // remove the header from the packet:
-      helloPacketHeader destinationHeader;
+      VbpHelloHeader destinationHeader;
       packet->PeekHeader(destinationHeader);
       NS_LOG_FUNCTION("---Tx From --- " << sender);
       NS_LOG_FUNCTION("---Tx To --- " << receiver);
@@ -310,7 +324,7 @@ namespace ns3
     void
     RoutingProtocol::RecvHello(Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender)
     {
-      helloPacketHeader helloHeader;
+      VbpHelloHeader helloHeader;
       p->PeekHeader(helloHeader);
 
       // determine if forwarding node is ahead=1 or behind=0 by using dot product
@@ -349,7 +363,7 @@ namespace ns3
 
       // use received packet to update neighbors information in object neighbors
       // will add node as new neighbor or update information for that neighbor
-      m_neighborsListPointer->GetObject<vbpneighbors>()->AddNode(sender,
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->AddNode(sender,
                                                                  direction,
                                                                  helloHeader.GetNumNeighborsAhead(),
                                                                  helloHeader.GetNumNeighborsBehind(),
@@ -404,37 +418,37 @@ namespace ns3
         Ipv4InterfaceAddress iface = j->second;
         Ptr<Packet> packet = Create<Packet>();
         // create header here
-        helloPacketHeader HelloHeader;
+        VbpHelloHeader HelloHeader;
 
         // get info needed in packet from sockets
         Vector pos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
         Vector vel = m_thisNode->GetObject<MobilityModel>()->GetVelocity(); 
         // set dummy values to header setData (pass hardcoded values)
         Vector furthestAhead = Vector3D(NAN, NAN, 0);
-        int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
+        int furthestIdxAhead = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborFurthestAheadByIndex(pos);
         if (furthestIdxAhead >= 0)
         {
-          furthestAhead = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxAhead), m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxAhead), 0);
+          furthestAhead = Vector3D(m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionX(furthestIdxAhead), m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionY(furthestIdxAhead), 0);
         }
         Vector furthestBehind = Vector3D(NAN, NAN, 0);
-        int furthestIdxBehind = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestBehindByIndex(pos);
+        int furthestIdxBehind = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborFurthestBehindByIndex(pos);
         if (furthestIdxBehind >= 0)
         {
-          furthestBehind = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxBehind), m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxBehind), 0);
+          furthestBehind = Vector3D(m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionX(furthestIdxBehind), m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionY(furthestIdxBehind), 0);
         }
         HelloHeader.SetData(m_helloPacketType,
                             pos.x,
                             pos.y,
                             vel.x,
                             vel.y,
-                            m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsAhead(),
-                            m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsBehind(),
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead(),
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsBehind(),
                             furthestAhead.x,
                             furthestAhead.y,
                             furthestBehind.x,
                             furthestBehind.y,
-                            m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborX(vel.x),
-                            m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborY(vel.y));
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->GetAvgSpeedNeighborX(vel.x),
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->GetAvgSpeedNeighborY(vel.y));
 
         // add header to packet
         packet->AddHeader(HelloHeader);
@@ -455,13 +469,13 @@ namespace ns3
         Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
         SendTo(socket, packet, destination);
       }
-      m_neighborsListPointer->GetObject<vbpneighbors>()->PrintNeighborState();
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->PrintNeighborState();
     }
 
     void
     RoutingProtocol::SendTo(Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
     {
-      socket->SendTo(packet, 0, InetSocketAddress(destination, VBP_PORT));
+      socket->SendTo(packet, 0, InetSocketAddress(destination, VBP_HELLO_PORT));
     }
 
     void 

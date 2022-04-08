@@ -12,11 +12,11 @@ namespace ns3
 {
   namespace vbp
   {
-    class helloPacketHeader : public Header
+    class VbpHelloHeader : public Header
     {
     public:
-      helloPacketHeader();
-      virtual ~helloPacketHeader();
+      VbpHelloHeader();
+      virtual ~VbpHelloHeader();
 
       void SetData(uint8_t packetType, float posX, float posY, float speedX, float speedY, uint16_t neighborsAhead, uint16_t neighborsBehind, float neighborFurthestAheadX, float neighborFurthestAheadY, float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY);
       uint8_t GetPacketType(void) const;

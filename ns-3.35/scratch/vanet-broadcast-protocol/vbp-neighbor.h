@@ -15,10 +15,10 @@
 namespace ns3 {
 namespace vbp {
 
-class vbpneighbors : public Object {
+class VbpNeighbors : public Object {
     public:
-        vbpneighbors ();
-        virtual ~vbpneighbors ();
+        VbpNeighbors ();
+        virtual ~VbpNeighbors ();
         static TypeId GetTypeId (void);
         virtual TypeId GetInstanceTypeId (void) const;
         virtual void Print (std::ostream &os) const;

@@ -12,6 +12,7 @@
 #include "ns3/constant-velocity-mobility-model.h"
 #include "MyRandomExpTrafficApp.h"
 
+
 // =======================================================================================================================================================
 //
 //                          Wifi 10.1.1.0
@@ -48,6 +49,7 @@ NS_LOG_COMPONENT_DEFINE("wireless-grid");
 void ReceivePacket(Ptr<Socket> socket)
 {
     while (Ptr<Packet> packet = socket->Recv())
+
         std::cout << "Application Layer:" << packet->GetSize() << " bytes received" << std::endl;
 }
 
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
     // vbp
     InternetStackHelper stack;
     VanetBroadcastHelper vbp; //VanetBroadcastHelper
-    vbp.SetBroadcastArea({20, 30, 40, 50});
+    vbp.SetBroadcastArea({1, 2, 3, 4});
     stack.SetRoutingHelper(vbp);
     stack.Install(nodes);
 
