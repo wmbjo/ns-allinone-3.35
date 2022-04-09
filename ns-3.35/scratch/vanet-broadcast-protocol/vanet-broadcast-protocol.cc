@@ -103,6 +103,42 @@ namespace ns3
     {
     }
 
+  //  Ptr<Ipv4Route>
+  //   RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+  //   {
+  //     NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
+  //     if (m_socketAddresses.empty ())
+  //       {
+  //         sockerr = Socket::ERROR_NOROUTETOHOST;
+  //         NS_LOG_LOGIC ("No vbp interfaces");
+  //         Ptr<Ipv4Route> route;
+  //         return route;
+  //       }
+  //     sockerr = Socket::ERROR_NOTERROR;
+
+  //     VbpRoutingHeader dataHeader;
+
+  //     Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+  //     Ipv4Address origin = iface.GetAddress();
+    
+  //     dataHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+  //     p->AddHeader(dataHeader);
+  //     std::cout << "Packet Route Output: " << std::endl; 
+  //     dataHeader.Print(std::cout);
+  //     Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  
+
+  //     Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+  //     RoutingTableEntry rt;
+
+  //     rt.SetNextHop(nextHop);
+  //     rt.SetOutputDevice(dev);
+  //     rt.SetInterface(iface);
+  //     Ptr<Ipv4Route> rtentry;
+  //     return rt.GetRoute();
+
+
+  //   }
+
     Ptr<Ipv4Route>
     RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
@@ -123,10 +159,19 @@ namespace ns3
     
       dataHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
       p->AddHeader(dataHeader);
-      std::cout << "Packet Route Output: " << std::endl; 
+      std::cout << "Route Output: " << std::endl; 
       dataHeader.Print(std::cout);
+      int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors();
+      if (numNextHops == 0)
+      {
+        m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(dataHeader);
+      }
+      else
+      {
+        m_neighborsListPointer->GetObject<VbpNeighbors>()->CheckQueue();
+      }
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  
-
+      std::cout << "NEXT HOP RO: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       RoutingTableEntry rt;
 
@@ -190,11 +235,6 @@ namespace ns3
       dataPacket.SetPrevHopIP(iface.GetAddress());
       std::cout << "Packet Route Input: " << std::endl; 
       dataPacket.Print(std::cout);
-
-      // if (dataPacket.GetPacketType() == m_dataPacketType)
-      // {
-      //   std::cout << "Route input received a data packet header" << std::endl;
-      // }
 
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
 

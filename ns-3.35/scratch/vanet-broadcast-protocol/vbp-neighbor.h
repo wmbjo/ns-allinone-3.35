@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "ns3/log.h"
 #include "ns3/wifi-mac-header.h"
+#include "vbp-data-packet-header.h"
 
 namespace ns3 {
 namespace vbp {
@@ -23,6 +24,9 @@ class VbpNeighbors : public Object {
         virtual TypeId GetInstanceTypeId (void) const;
         virtual void Print (std::ostream &os) const;
         void AppendNeighbor(Ipv4Address neighborAddress);
+        void AppendQueue(VbpRoutingHeader dataHeader);
+        void CheckQueue();
+        void RemoveQueue(VbpRoutingHeader dataHeader);
         int FindNeighbor (Ipv4Address address); // returns index for specified nodeIP, returns -1 if new nodeIP
         void AddNode (Ipv4Address address,
                       uint16_t direction,
@@ -38,6 +42,7 @@ class VbpNeighbors : public Object {
                       float neighborFurthestBehindY, 
                       float avgSpeedX, 
                       float avgSpeedY);
+        VbpRoutingHeader GetPacketQueue();
         uint16_t Get1HopNumNeighbors ();       // total number of 1 hop neighbors
         uint16_t Get1HopNumNeighborsAhead ();  // number of neighbors ahead of 1 hop neighbor
         uint16_t Get1HopNumNeighborsBehind (); // number of neighbors behind 1 hop neighbor
@@ -90,6 +95,7 @@ class VbpNeighbors : public Object {
         void Print1hopFurthestBehind ();      // will display position of neighbor furthest behind
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
+        uint16_t m_numPackets; // total number of packets in queue
         bool m_filledFirstTime;
         int m_currentIdx;
         int m_NSamples;
@@ -122,7 +128,8 @@ class VbpNeighbors : public Object {
         std::vector<float> m_mostRecentIndividualNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
 	    std::vector<float> m_mostRecentIndividualNSpeedY = std::vector<float>(m_NSamples,0);
 	    std::vector<float> m_mostRecentNeighborHoodNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
-	    std::vector<float> m_mostRecentNeighborHoodNSpeedY = std::vector<float>(m_NSamples,0);  
+	    std::vector<float> m_mostRecentNeighborHoodNSpeedY = std::vector<float>(m_NSamples,0);
+        std::vector<VbpRoutingHeader> m_headerQ; // to hold queue of packet header  
         void ScheduleSpeedLogUpdate ();  
         void GetSpeedValue ();
         void AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY);

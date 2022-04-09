@@ -6,7 +6,8 @@ namespace ns3 {
 namespace vbp {
 
  VbpNeighbors::VbpNeighbors ()
-    : m_filledFirstTime(false),
+    : m_numPackets(0),
+      m_filledFirstTime(false),
       m_currentIdx(0),
       m_NSamples(100),
       m_thisNode(NULL), 
@@ -75,6 +76,35 @@ VbpNeighbors::AppendNeighbor (Ipv4Address neighborAddress)
   {
      m_1HopNeighborIPs.push_back(neighborAddress); // neighbors identified by address
   }
+
+void
+VbpNeighbors::AppendQueue(VbpRoutingHeader dataHeader)
+{
+    std::cout << "Append Queue" << std::endl;
+    m_headerQ.push_back(dataHeader);
+    m_numPackets++;
+}
+
+VbpRoutingHeader
+VbpNeighbors::GetPacketQueue()
+{
+    std::cout << "Get Packet Queue" << std::endl;
+    return m_headerQ.front(); // fifo
+}
+
+void
+VbpNeighbors::CheckQueue()
+{
+    std::cout << "Check Queue" << std::endl;
+    if (m_numPackets == 0)
+    {
+        std::cout << "No packets in queue" << std::endl;
+    }
+    else
+    {
+        std::cout << "Packets in queue" << std::endl;
+    }
+}
 
 void 
 VbpNeighbors::AddDirection (uint16_t direction, Ipv4Address address) {
