@@ -26,6 +26,7 @@ class VbpNeighbors : public Object {
         void AppendNeighbor(Ipv4Address neighborAddress);
         void AppendQueue(VbpRoutingHeader dataHeader);
         void CheckQueue();
+        bool QueueEmpty();
         void RemoveQueue(VbpRoutingHeader dataHeader);
         int FindNeighbor (Ipv4Address address); // returns index for specified nodeIP, returns -1 if new nodeIP
         void AddNode (Ipv4Address address,

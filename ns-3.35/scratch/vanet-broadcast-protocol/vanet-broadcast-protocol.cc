@@ -153,6 +153,7 @@ namespace ns3
       sockerr = Socket::ERROR_NOTERROR;
 
       VbpRoutingHeader dataHeader;
+      RoutingTableEntry rt;
 
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ipv4Address origin = iface.GetAddress();
@@ -168,13 +169,22 @@ namespace ns3
       }
       else
       {
-        m_neighborsListPointer->GetObject<VbpNeighbors>()->CheckQueue();
+        m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty();
       }
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  
+      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == true)
+      {
+          std::cout << "queue emptyyy" << std::endl;
+          Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
+          rt.SetNextHop(nextHop);
+      }
+      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == false)
+      {
+        std::cout << "Queue not empty, send packet from queue" << std::endl;
+      }
       std::cout << "NEXT HOP RO: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-      RoutingTableEntry rt;
-
+      //Problem: I have to define nextHop in if statement above and below. Ask how to proceed
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
       rt.SetNextHop(nextHop);
       rt.SetOutputDevice(dev);
       rt.SetInterface(iface);

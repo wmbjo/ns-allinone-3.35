@@ -92,7 +92,7 @@ VbpNeighbors::GetPacketQueue()
     return m_headerQ.front(); // fifo
 }
 
-void
+void //Replaced with bool QueueEmpty
 VbpNeighbors::CheckQueue()
 {
     std::cout << "Check Queue" << std::endl;
@@ -104,6 +104,22 @@ VbpNeighbors::CheckQueue()
     {
         std::cout << "Packets in queue" << std::endl;
     }
+}
+
+bool
+VbpNeighbors::QueueEmpty()
+{
+    std::cout << "QueueEmpty" << std::endl;
+     if (m_numPackets == 0)
+    {
+        std::cout << "No packets in queue" << std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "Packets in queue" << std::endl;
+        return false;
+    }   
 }
 
 void 
