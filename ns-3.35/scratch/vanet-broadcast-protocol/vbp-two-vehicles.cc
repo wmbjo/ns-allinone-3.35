@@ -19,8 +19,8 @@
 //                          Wifi 10.1.1.0
 //           *              *
 //           |              |
-//       n11 (src)       n0 (dst)
-//       10.1.1.12        10.1.1.1
+//       n1 (src)       n0 (dst)
+//       10.1.1.2        10.1.1.1
 //
 //
 // =======================================================================================================================================================
@@ -32,7 +32,7 @@
 #define SOURCES_START_TIME 1   // seconds
 #define SOURCE_START_TIME 1    // seconds
 #define PK_INTERARRIVAL_TIME 1 // seconds
-#define DISTANCE 5             // meters
+#define DISTANCE 5              // meters
 #define SPEED 3
 #define FREQ 2.4e9         // Hz
 #define SYS_LOSS 1         // unitless
@@ -117,7 +117,6 @@ int main(int argc, char *argv[])
     // Create nodes. Install Internet stack. Set location of the nodes and configure them as static (no movement).
     NodeContainer nodes;
     nodes.Create(NumNodes);
-    Ptr<Node> mover = CreateObject<Node>();
 
     // vbp
     InternetStackHelper stack;
@@ -130,14 +129,10 @@ int main(int argc, char *argv[])
     mobility.SetMobilityModel("ns3::ConstantVelocityMobilityModel");
     mobility.Install(nodes);
 
-    // Set node positions and velocities (x,y,z)
-    for (int i = 0; i < int(NumNodes); i++)
-    {
-                std::cout <<"HELLO" << std::endl;
-        nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector((float)DISTANCE * (NumNodes - i), 0, 0));
-        nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector((float)0.5*(NumNodes - i), 0, 0)); // 0.1*i because vehicles will lose neighbors about 50 seconds into simulation. SPEED is original variable here.
-        std::cout <<"HELLO2" << std::endl;
-    }
+     nodes.Get(0)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector(0, 0, 0));
+     nodes.Get(0)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector(5, 0, 0));
+     nodes.Get(1)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector(30, 0, 0));
+     nodes.Get(1)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector(0, 0, 0));
 
     // Create channel of constant propagation speed and Friis loss. Enable Radiotap link
     // layer information. Configure the wifi MAC layer in Ad Hoc mode. Use the 802.11b
@@ -198,19 +193,19 @@ int main(int argc, char *argv[])
 
     // Create and bind the socket on the destination node. Set the receive
     // callback that prints the number of data bytes received in every packet.
-    Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(0), UdpSocketFactory::GetTypeId());
+    Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(NumNodes-1), UdpSocketFactory::GetTypeId());
     udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
     udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
 
     // Application SRC
     Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
-    Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
+    Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(0), UdpSocketFactory::GetTypeId());
     Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
     udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
-    nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
+    nodes.Get(0)->AddApplication(udpSourceAppPtr);
 
     // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
-    wifiPhyHelper.EnablePcap("vbp-two-vehicles.pcap", nodes.Get(0)->GetDevice(1), false, true);
+    //wifiPhyHelper.EnablePcap("vbp-two-vehicles.pcap", nodes.Get(0)->GetDevice(1), false, true);
     AnimationInterface anim("vbp-two-vehicles.xml");
     anim.EnablePacketMetadata(true);
 

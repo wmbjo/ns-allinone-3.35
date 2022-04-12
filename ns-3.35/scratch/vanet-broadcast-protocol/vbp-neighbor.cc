@@ -78,39 +78,26 @@ VbpNeighbors::AppendNeighbor (Ipv4Address neighborAddress)
   }
 
 void
-VbpNeighbors::AppendQueue(VbpRoutingHeader dataHeader)
+VbpNeighbors::AppendQueue(Ptr<Packet> p)
 {
     std::cout << "Append Queue" << std::endl;
-    m_headerQ.push_back(dataHeader);
-    m_numPackets++;
+    m_packetQ.push_back(p);
 }
 
-VbpRoutingHeader
+Ptr<Packet>
 VbpNeighbors::GetPacketQueue()
 {
     std::cout << "Get Packet Queue" << std::endl;
-    return m_headerQ.front(); // fifo
-}
-
-void //Replaced with bool QueueEmpty
-VbpNeighbors::CheckQueue()
-{
-    std::cout << "Check Queue" << std::endl;
-    if (m_numPackets == 0)
-    {
-        std::cout << "No packets in queue" << std::endl;
-    }
-    else
-    {
-        std::cout << "Packets in queue" << std::endl;
-    }
+    Ptr<Packet> p = m_packetQ.front();
+    m_packetQ.erase(m_packetQ.begin());
+    return p;
 }
 
 bool
 VbpNeighbors::QueueEmpty()
 {
     std::cout << "QueueEmpty" << std::endl;
-     if (m_numPackets == 0)
+     if (m_packetQ.size() == 0)
     {
         std::cout << "No packets in queue" << std::endl;
         return true;
@@ -120,6 +107,12 @@ VbpNeighbors::QueueEmpty()
         std::cout << "Packets in queue" << std::endl;
         return false;
     }   
+}
+
+uint16_t
+VbpNeighbors::GetQueueSize()
+{
+    return m_packetQ.size();
 }
 
 void 

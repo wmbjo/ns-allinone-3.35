@@ -97,6 +97,7 @@ namespace ns3
       m_broadcastArea[1] = NAN;
       m_broadcastArea[2] = NAN;
       m_broadcastArea[3] = NAN;
+       //m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0) = "127.127.127.127";
     }
 
     RoutingProtocol::~RoutingProtocol()
@@ -142,58 +143,81 @@ namespace ns3
     Ptr<Ipv4Route>
     RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
+      Ptr<Ipv4Route> route;
       NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
       if (m_socketAddresses.empty ())
         {
           sockerr = Socket::ERROR_NOROUTETOHOST;
           NS_LOG_LOGIC ("No vbp interfaces");
-          Ptr<Ipv4Route> route;
           return route;
         }
       sockerr = Socket::ERROR_NOTERROR;
 
-      VbpRoutingHeader dataHeader;
+      VbpRoutingHeader routingHeader;
       RoutingTableEntry rt;
 
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ipv4Address origin = iface.GetAddress();
-    
-      dataHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
-      p->AddHeader(dataHeader);
-      std::cout << "Route Output: " << std::endl; 
-      dataHeader.Print(std::cout);
-      int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors();
-      if (numNextHops == 0)
-      {
-        m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(dataHeader);
-      }
-      else
-      {
-        m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty();
-      }
-      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == true)
-      {
-          std::cout << "queue emptyyy" << std::endl;
-          Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
-          rt.SetNextHop(nextHop);
-      }
-      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == false)
-      {
-        std::cout << "Queue not empty, send packet from queue" << std::endl;
-      }
-      std::cout << "NEXT HOP RO: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-      //Problem: I have to define nextHop in if statement above and below. Ask how to proceed
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
-      rt.SetNextHop(nextHop);
-      rt.SetOutputDevice(dev);
-      rt.SetInterface(iface);
-      Ptr<Ipv4Route> rtentry;
-      return rt.GetRoute();
+      routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+      p->AddHeader(routingHeader);
+      std::cout << "Route Output: " << std::endl; 
+      routingHeader.Print(std::cout);
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+      std::cout << "Queue Size: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+      int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
+      if (numNextHops > 0) //if more than 0 neighbors
+      {
+          p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
+          std::cout << "Queue Size 2: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+          Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
+          rt.SetNextHop(nextHop);//set route
+          rt.SetOutputDevice(dev);
+          rt.SetInterface(iface);
+          std::cout << "Next Hop > 0 " << std::endl; 
+          route = rt.GetRoute();
+      }
+      else //no neighbors
+      {
+        std::cout << "Socket Error " << std::endl; 
+        sockerr = Socket::ERROR_NOROUTETOHOST;
+      }
 
+      return route;
 
+      // else
+      // {
+      //   m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty();
+      // }
+      // if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == true) //put in else statement of line 170
+      // {
+      //     std::cout << "queue empty" << std::endl;
+      //     Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
+      //     rt.SetNextHop(nextHop);
+      // }
+      // if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == false) //else, put in else statement of line 170
+      // {
+      //   std::cout << "Queue not empty, send packet from queue" << std::endl;
+      //   //append packet and extract next packet
+      // }
+      // std::cout << "NEXT HOP RO: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() << std::endl;
+      // Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+      //                 std::cout << "H2" << std::endl;
+      // //Problem: I have to define nextHop in if statement above and below. Ask how to proceed
+      // Ipv4Address nextHop = iface.GetLocal();
+
+      // rt.SetNextHop(nextHop);
+      // rt.SetOutputDevice(dev);
+      // rt.SetInterface(iface);
+
+      //Ptr<Ipv4Route> rtentry;
+      //return rt.GetRoute();
+    
+     // return LoopbackRoute (header, oif);
     }
     
+
+
     bool
     RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
                                 Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
@@ -245,6 +269,11 @@ namespace ns3
       dataPacket.SetPrevHopIP(iface.GetAddress());
       std::cout << "Packet Route Input: " << std::endl; 
       dataPacket.Print(std::cout);
+
+      // if (dataPacket.GetPacketType() == m_dataPacketType)
+      // {
+      //   std::cout << "Route input received a data packet header" << std::endl;
+      // }
 
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
 
@@ -298,9 +327,7 @@ namespace ns3
       socket->SetIpRecvTtl(true);
       m_socketSubnetBroadcastAddresses.insert(std::make_pair(socket, iface));
 
-      NS_LOG_FUNCTION(Simulator::Now().GetSeconds() << " Seconds --- "
-                << "NotifyInterfaceUp "
-                << "--- " << m_ipv4->GetNInterfaces() << " Interfaces");
+      NS_LOG_FUNCTION(Simulator::Now().GetSeconds() << " Seconds --- " << "NotifyInterfaceUp " << "--- " << m_ipv4->GetNInterfaces() << " Interfaces");
 
       m_thisNode = socket->GetNode();
       NS_LOG_FUNCTION("This Node: " << m_thisNode->GetObject<MobilityModel>()->GetPosition());
