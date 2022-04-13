@@ -184,40 +184,8 @@ namespace ns3
       }
 
       return route;
-
-      // else
-      // {
-      //   m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty();
-      // }
-      // if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == true) //put in else statement of line 170
-      // {
-      //     std::cout << "queue empty" << std::endl;
-      //     Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
-      //     rt.SetNextHop(nextHop);
-      // }
-      // if (m_neighborsListPointer->GetObject<VbpNeighbors>()->QueueEmpty() == false) //else, put in else statement of line 170
-      // {
-      //   std::cout << "Queue not empty, send packet from queue" << std::endl;
-      //   //append packet and extract next packet
-      // }
-      // std::cout << "NEXT HOP RO: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() << std::endl;
-      // Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-      //                 std::cout << "H2" << std::endl;
-      // //Problem: I have to define nextHop in if statement above and below. Ask how to proceed
-      // Ipv4Address nextHop = iface.GetLocal();
-
-      // rt.SetNextHop(nextHop);
-      // rt.SetOutputDevice(dev);
-      // rt.SetInterface(iface);
-
-      //Ptr<Ipv4Route> rtentry;
-      //return rt.GetRoute();
-    
-     // return LoopbackRoute (header, oif);
     }
     
-
-
     bool
     RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
                                 Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
@@ -270,23 +238,110 @@ namespace ns3
       std::cout << "Packet Route Input: " << std::endl; 
       dataPacket.Print(std::cout);
 
-      // if (dataPacket.GetPacketType() == m_dataPacketType)
-      // {
-      //   std::cout << "Route input received a data packet header" << std::endl;
-      // }
-
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);  //SetGateway
-
+      //change from original code: commented out nextHop and rt.SetNextHop(nextHop)
+      //Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0); 
+          std::cout << "H12" << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-      //create routing table entry using these four parameters
       RoutingTableEntry rt;
-      //look at vbp-rtable to set destination
-      rt.SetNextHop(nextHop); //not needed, going to pass parameter
+
+      //rt.SetNextHop(nextHop); //not needed, going to pass parameter
       rt.SetOutputDevice(dev);
       rt.SetInterface(iface);
       ucb(rt.GetRoute(),p,header);
       return true;
     }
+
+    // bool
+    // RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
+    //                             Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
+    //                             MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
+    // {
+    //   NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
+    //   if (m_socketAddresses.empty())
+    //   {
+    //     NS_LOG_LOGIC("No vbp interfaces");
+    //     return false;
+    //   }
+    //   NS_ASSERT (m_ipv4 != 0);
+    //   NS_ASSERT (p != 0);
+    //   // Check if input device supports IP
+    //   NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
+    //   int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
+
+    //   Ipv4Address dst = header.GetDestination();
+    //   Ipv4Address origin = header.GetSource();
+
+
+    //   // VBP is not a multicast routing protocol
+    //   if (dst.IsMulticast())
+    //   {
+    //     NS_LOG_LOGIC("Multicast Return False");
+    //     return false;
+    //   }
+
+    //   // Unicast local delivery
+    //   if (m_ipv4->IsDestinationAddress(dst, iif))
+    //   {
+    //     if (lcb.IsNull() == false)
+    //     {
+    //       NS_LOG_LOGIC ("Unicast local delivery to " << dst);
+    //       lcb(p, header, iif);
+    //     }
+    //     else
+    //     {
+    //       NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
+    //       ecb (p, header, Socket::ERROR_NOROUTETOHOST);
+    //     }
+    //     return true;
+    //   }
+    //   // Forwarding
+
+    //   VbpRoutingHeader dataPacket;
+    //   Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+    //   p->PeekHeader(dataPacket);
+    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+    //   dataPacket.SetPrevHopIP(iface.GetAddress());
+    //   std::cout << "Packet Route Input: " << std::endl; 
+    //   dataPacket.Print(std::cout);
+
+    //   // if (dataPacket.GetPacketType() == m_dataPacketType)
+    //   // {
+    //   //   std::cout << "Route input received a data packet header" << std::endl;
+    //   // }
+
+
+    //   RoutingTableEntry rt;
+    //   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+    //   std::cout << "Queue Size 3: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+    //   int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
+    //         std::cout << "MMMMM " << numNextHops << std::endl;
+    //   if (numNextHops > 0) //if more than 0 neighbors
+    //   {
+
+    //       p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
+    //                                     std::cout << "AAAAA " << numNextHops << std::endl;
+    //       std::cout << "Queue Size 4: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+
+    //       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
+    //       rt.SetNextHop(nextHop);//set route
+    //       rt.SetOutputDevice(dev);
+    //       rt.SetInterface(iface);
+
+    //       ucb(rt.GetRoute(),p,header);
+    //       return true;
+    //   }
+    //   else //no neighbors
+    //   {
+    //     return false;
+    //     // std::cout << "LLLLL" << std::endl;
+    //     // ecb (p, header, Socket::ERROR_NOROUTETOHOST);
+    //     // return true;
+    //   }
+
+    // }
+
+
 
     void
     RoutingProtocol::NotifyInterfaceUp(uint32_t interface)

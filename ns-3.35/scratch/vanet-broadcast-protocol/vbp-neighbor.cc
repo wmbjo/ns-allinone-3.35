@@ -78,7 +78,7 @@ VbpNeighbors::AppendNeighbor (Ipv4Address neighborAddress)
   }
 
 void
-VbpNeighbors::AppendQueue(Ptr<Packet> p)
+VbpNeighbors::AppendQueue(const Ptr<Packet> p)
 {
     std::cout << "Append Queue" << std::endl;
     m_packetQ.push_back(p);
@@ -87,9 +87,11 @@ VbpNeighbors::AppendQueue(Ptr<Packet> p)
 Ptr<Packet>
 VbpNeighbors::GetPacketQueue()
 {
-    std::cout << "Get Packet Queue" << std::endl;
+            std::cout << "Get Packet Queue" << std::endl;
     Ptr<Packet> p = m_packetQ.front();
+
     m_packetQ.erase(m_packetQ.begin());
+
     return p;
 }
 

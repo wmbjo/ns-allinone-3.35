@@ -24,7 +24,7 @@ class VbpNeighbors : public Object {
         virtual TypeId GetInstanceTypeId (void) const;
         virtual void Print (std::ostream &os) const;
         void AppendNeighbor(Ipv4Address neighborAddress);
-        void AppendQueue(Ptr<Packet> p);
+        void AppendQueue(const Ptr<Packet> p);
         bool QueueEmpty();
         void RemoveQueue(VbpRoutingHeader dataHeader);
         int FindNeighbor (Ipv4Address address); // returns index for specified nodeIP, returns -1 if new nodeIP
