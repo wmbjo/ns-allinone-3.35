@@ -18,6 +18,7 @@
 #include "ns3/ipv4-routing-table-entry.h"
 #include "ns3/ipv4-route.h"
 #include "vbp-data-packet-header.h"
+#include "vbp-queue.h"
 
 namespace ns3
 {
@@ -90,6 +91,8 @@ namespace ns3
       Ptr<Ipv4> m_ipv4;
       Ptr<Node> m_thisNode;
       Ptr<Object> m_neighborsListPointer = CreateObject<Object>();
+      //Ptr<Object> m_queuePointer = CreateObject<Object>();
+      Ptr<Object> m_queuePointer = CreateObject<Object>();
       std::vector<float> m_broadcastArea = std::vector<float>(4,0);
       // Raw subnet directed broadcast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketSubnetBroadcastAddresses;

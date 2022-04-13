@@ -19,8 +19,8 @@
 //                          Wifi 10.1.1.0
 //           *              *
 //           |              |
-//       n1 (src)       n0 (dst)
-//       10.1.1.2        10.1.1.1
+//       n0 (src)       n1 (dst)
+//       10.1.1.1        10.1.1.2
 //
 //
 // =======================================================================================================================================================
@@ -129,10 +129,11 @@ int main(int argc, char *argv[])
     mobility.SetMobilityModel("ns3::ConstantVelocityMobilityModel");
     mobility.Install(nodes);
 
+    //n0 source, n1 destination
      nodes.Get(0)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector(0, 0, 0));
      nodes.Get(0)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector(5, 0, 0));
      nodes.Get(1)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector(30, 0, 0));
-     nodes.Get(1)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector(3, 0, 0));
+     nodes.Get(1)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector(2, 0, 0));
 
     // Create channel of constant propagation speed and Friis loss. Enable Radiotap link
     // layer information. Configure the wifi MAC layer in Ad Hoc mode. Use the 802.11b

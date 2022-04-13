@@ -6,7 +6,7 @@ namespace ns3 {
 namespace vbp {
 
  VbpNeighbors::VbpNeighbors ()
-    : m_numPackets(0),
+    : 
       m_filledFirstTime(false),
       m_currentIdx(0),
       m_NSamples(100),
