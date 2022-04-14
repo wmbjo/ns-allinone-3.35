@@ -75,6 +75,7 @@ namespace ns3
       void StartHelloTx(void);
 
     private:
+      float m_queueRemovalPeriod;
       int m_BroadcastTime;
       /// Routing table
       RoutingTable m_routingTable;
@@ -91,13 +92,15 @@ namespace ns3
       Ptr<Ipv4> m_ipv4;
       Ptr<Node> m_thisNode;
       Ptr<Object> m_neighborsListPointer = CreateObject<Object>();
-      //Ptr<Object> m_queuePointer = CreateObject<Object>();
       Ptr<Object> m_queuePointer = CreateObject<Object>();
       std::vector<float> m_broadcastArea = std::vector<float>(4,0);
       // Raw subnet directed broadcast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketSubnetBroadcastAddresses;
       /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketAddresses;
+      bool FindNextHop(Ipv4Address* nextHopPtr);
+      void QueueRemoval();
+      void ScheduleQueueRemoval();
 
       Ptr<Socket> FindSocketWithInterfaceAddress(Ipv4InterfaceAddress iface) const;
       /**
