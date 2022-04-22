@@ -75,7 +75,7 @@ namespace ns3
       void StartHelloTx(void);
 
     private:
-      float m_queueRemovalPeriod;
+      float m_emptyQueuePeriod;
       int m_BroadcastTime;
       /// Routing table
       RoutingTable m_routingTable;
@@ -99,8 +99,8 @@ namespace ns3
       /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketAddresses;
       bool FindNextHop(Ipv4Address* nextHopPtr);
-      void QueueRemoval();
-      void ScheduleQueueRemoval();
+      void EmptyQueue();
+      void ScheduleEmptyQueue();
 
       Ptr<Socket> FindSocketWithInterfaceAddress(Ipv4InterfaceAddress iface) const;
       /**
@@ -124,6 +124,25 @@ namespace ns3
        * \param sender is supposed to be IP address of my neighbor.
        */
       void RecvHello(Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender);
+
+      /**
+       * Create loopback route for given header
+       *
+       * \param header the IP header
+       * \param oif the output interface net device
+       * \returns the route
+       */
+      Ptr<Ipv4Route> LoopbackRoute (const Ipv4Header & header, Ptr<NetDevice> oif) const;
+
+      /**
+         * Queue packet and send route request
+         *
+         * \param p the packet to route
+         * \param header the IP header
+         * \param ucb the UnicastForwardCallback function
+         * \param ecb the ErrorCallback function
+         */ 
+        void DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & header, UnicastForwardCallback ucb, ErrorCallback ecb);
 
     };
 

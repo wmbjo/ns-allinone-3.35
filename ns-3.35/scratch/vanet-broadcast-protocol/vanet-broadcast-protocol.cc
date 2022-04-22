@@ -85,7 +85,7 @@ namespace ns3
     }
 
     RoutingProtocol::RoutingProtocol()
-        : m_queueRemovalPeriod(0.5),
+        : m_emptyQueuePeriod(0.5),
           m_BroadcastTime(500),
           m_routingTable(Time(5)),
           m_helloPacketType('h'),
@@ -99,6 +99,7 @@ namespace ns3
       m_broadcastArea[3] = NAN;
       Ptr<VbpQueue> m_queuePointer2 = CreateObject<VbpQueue>();
       m_queuePointer->AggregateObject(m_queuePointer2);
+      ScheduleEmptyQueue();
     }
 
     RoutingProtocol::~RoutingProtocol()
@@ -179,30 +180,33 @@ namespace ns3
       p->AddHeader(routingHeader);
       std::cout << "Route Output: " << std::endl; 
       routingHeader.Print(std::cout);
-      m_queuePointer->GetObject<VbpQueue>()->AppendQueue(p); //append packet to queue
-      std::cout << "Queue Size: " << m_queuePointer->GetObject<VbpQueue>()->GetQueueSize() << std::endl;
-      //Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
-      //l3->SendWithHeader(p, header, route);
-      
-      std::cout << "Queue Size 2: " << m_queuePointer->GetObject<VbpQueue>()->GetQueueSize() << std::endl;
-      //Ptr<Ipv4Address> nextHopPtr = CreateObject<Ipv4Address>();
       Ipv4Address nextHop;
       if (FindNextHop(&nextHop)) //find next hop
       {
-         p = m_queuePointer->GetObject<VbpQueue>()->GetPacketQueue();//remove packet from queue
          std::cout << "Find Next Hop: " << nextHop << std::endl;
          rt.SetNextHop(nextHop); //set route
          rt.SetOutputDevice(dev);
          rt.SetInterface(iface);
-        route = rt.GetRoute();
+         route = rt.GetRoute();
       } 
       else
       {
-         std::cout << "Socket Error " << std::endl; 
-         sockerr = Socket::ERROR_NOROUTETOHOST;
+        // Valid route not found, return loopback
+        uint32_t iif = (oif ? m_ipv4->GetInterfaceForDevice (oif) : -1);
+        DeferredRouteOutputTag tag (iif);
+        NS_LOG_DEBUG ("Valid Route not found");
+        if (!p->PeekPacketTag (tag))
+        {
+          p->AddPacketTag (tag);
+        }
+        route = LoopbackRoute(header, oif);
+        //  std::cout << "Socket Error " << std::endl; 
+        //  sockerr = Socket::ERROR_NOROUTETOHOST;
       }
 
       return route;
+
+
     }
     
     bool
@@ -222,10 +226,25 @@ namespace ns3
       // Check if input device supports IP
       NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
       int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
-
       Ipv4Address dst = header.GetDestination();
       Ipv4Address origin = header.GetSource();
-      //Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+      std::cout << "RI DST: " << dst << std::endl;
+      std::cout << "RI Origin: " << origin << std::endl;
+      
+
+      // Deferred route request
+      if (idev == m_lo)
+      {
+        std::cout << "Deferred Route Request" << std::endl;
+        DeferredRouteOutputTag tag;
+        if (p->PeekPacketTag (tag))
+        {
+          std::cout << "Deferred Route Request 2" << std::endl;
+          DeferredRouteOutput (p, header, ucb, ecb);
+          return false;
+          //return true;
+        }        
+      }
 
       // VBP is not a multicast routing protocol
       if (dst.IsMulticast())
@@ -235,7 +254,6 @@ namespace ns3
       }
 
       // Unicast local delivery
-      std::cout << "LCB " << dst << std::endl;
       if (m_ipv4->IsDestinationAddress(dst, iif))
       {
         if (lcb.IsNull() == false)
@@ -257,6 +275,7 @@ namespace ns3
       VbpRoutingHeader routingHeader;
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       p->PeekHeader(routingHeader);
+      std::cout << "SF " << iface.GetLocal() << std::endl;
       routingHeader.SetPrevHopIP(iface.GetAddress()); 
       routingHeader.Print(std::cout);
 
@@ -666,39 +685,146 @@ namespace ns3
     }
 
    void
-   RoutingProtocol::QueueRemoval()
+   RoutingProtocol::EmptyQueue()
    {
+     Ipv4Address nextHop;
+     if (!FindNextHop(&nextHop))
+     {
+       return;
+     }
      uint16_t queueSize =  m_queuePointer->GetObject<VbpQueue>()->GetQueueSize();
      if (queueSize == 0)
-    {
-      return;
-    }
-    while(queueSize > 0)
-    {
-      queueSize--;
-
-    }
-  
+     {
+        return;
+     }
+     while(queueSize > 0)
+     {
+        std::cout << "Empty Queue NextHop: " << nextHop << std::endl;
+        Ptr<const Packet> p = m_queuePointer->GetObject<VbpQueue>()->GetPacket();
+        Ipv4Header header = m_queuePointer->GetObject<VbpQueue>()->GetHeader();
+        Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_queuePointer->GetObject<VbpQueue>()->GetUcb();
+        Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+        Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+        // std::cout << "Empty Queue Local Address: " << iface.GetLocal () << std::endl;
+        RoutingTableEntry rt;
+        rt.SetNextHop(nextHop); //set route
+        rt.SetOutputDevice(dev);
+        rt.SetInterface(iface);
+        Ptr<Ipv4Route> route = rt.GetRoute();
+        ucb(route, p, header);
+        // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+        // l3->Send(p, source, destination, protocol, route);
+        queueSize--;
+     }
    }
 
     void 
-    RoutingProtocol::ScheduleQueueRemoval()
+    RoutingProtocol::ScheduleEmptyQueue()
     {
-        //Simulator::Schedule(Seconds(m_queueRemovalPeriod), &VbpQueue::GetPacketQueue, this);  
+        EmptyQueue();
+        Simulator::Schedule(Seconds(m_emptyQueuePeriod), &RoutingProtocol::ScheduleEmptyQueue, this);  
     }
 
     bool
     RoutingProtocol::FindNextHop(Ipv4Address* nextHopPtr)
     {
-      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors() == 0)
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      std::cout << "FindNextHop Local Address: " << iface.GetLocal () << std::endl;
+      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
       {
+        std::cout << "FindNextHop No Neighbors" << std::endl;
         return false;
       }
+      std::cout << "FindNextHop Neighbors Found " << std::endl;
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
       nextHopPtr->Set(nextHop.Get());
       return true;
 
     }
+
+Ptr<Ipv4Route>
+RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) const
+{
+  //This is the same LoopbackRoute implemented in AODV
+  NS_LOG_FUNCTION (this << hdr);
+  NS_ASSERT (m_lo != 0);
+
+  Ptr<Ipv4Route> routePtr; // = Create<Ipv4Route> ();
+  RoutingTableEntry rt;
+  rt.SetNextHop(Ipv4Address("127.0.0.1")); 
+  rt.SetOutputDevice(m_lo);
+  //rt.SetInterface(iface);
+  routePtr = rt.GetRoute();
+  routePtr->SetDestination (hdr.GetDestination ());
+  //
+  // Source address selection here is tricky.  The loopback route is
+  // returned when AODV does not have a route; this causes the packet
+  // to be looped back and handled (cached) in RouteInput() method
+  // while a route is found. However, connection-oriented protocols
+  // like TCP need to create an endpoint four-tuple (src, src port,
+  // dst, dst port) and create a pseudo-header for checksumming.  So,
+  // AODV needs to guess correctly what the eventual source address
+  // will be.
+  //
+  // For single interface, single address nodes, this is not a problem.
+  // When there are possibly multiple outgoing interfaces, the policy
+  // implemented here is to pick the first available AODV interface.
+  // If RouteOutput() caller specified an outgoing interface, that
+  // further constrains the selection of source address
+  //
+  std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin ();
+  if (oif)
+    {
+      // Iterate to find an address on the oif device
+      for (j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+        {
+          Ipv4Address addr = j->second.GetLocal ();
+          int32_t interface = m_ipv4->GetInterfaceForAddress (addr);
+          if (oif == m_ipv4->GetNetDevice (static_cast<uint32_t> (interface)))
+            {
+              routePtr->SetSource (addr);
+              break;
+            }
+        }
+    }
+  else
+    {
+      routePtr->SetSource (j->second.GetLocal ());
+    }
+  NS_ASSERT_MSG (routePtr->GetSource () != Ipv4Address (), "Valid VBP source address not found");
+  routePtr->SetGateway (Ipv4Address ("127.0.0.1"));
+  routePtr->SetOutputDevice (m_lo);
+  return routePtr;
+}
+
+void
+RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & header,
+                                      UnicastForwardCallback ucb, ErrorCallback ecb)
+{
+// This is the same DeferredRouteOutput as AODV
+//Append all params DeferredRouteOutput receives packet, header, ucb, ecb
+//Check how aodv removes packets from queue. If packet is removed, next hop has been found. Guessing ucb is called. Confirm.
+  NS_LOG_FUNCTION (this << p << header);
+  NS_ASSERT (p != 0 && p != Ptr<Packet> ());
+  m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+  m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+  m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+  m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+  std::cout << "Queue Size: " << m_queuePointer->GetObject<VbpQueue>()->GetQueueSize() << std::endl;
+  // QueueEntry newEntry (p, header, ucb, ecb);
+  // bool result = m_queue.Enqueue (newEntry);
+  // if (result)
+  //   {
+  //     NS_LOG_LOGIC ("Add packet " << p->GetUid () << " to queue. Protocol " << (uint16_t) header.GetProtocol ());
+  //     RoutingTableEntry rt;
+  //     bool result = m_routingTable.LookupRoute (header.GetDestination (), rt);
+  //     if (!result || ((rt.GetFlag () != IN_SEARCH) && result))
+  //       {
+  //         NS_LOG_LOGIC ("Send new RREQ for outbound packet to " << header.GetDestination ());
+  //         SendRequest (header.GetDestination ());
+  //       }
+  //   }
+}
 
   } // namespace vbp
 } // namespace ns3
