@@ -806,11 +806,22 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & he
 //Check how aodv removes packets from queue. If packet is removed, next hop has been found. Guessing ucb is called. Confirm.
   NS_LOG_FUNCTION (this << p << header);
   NS_ASSERT (p != 0 && p != Ptr<Packet> ());
+  //check if queue full. If full, can not append. If not full, append.
+  //What to do if queue size == 100?
+  if (m_queuePointer->GetObject<VbpQueue>()->QueueFull())
+  {
+    std::cout << "Empty Queue: Queue Size Limit Reached" << std::endl;
+    Ptr<const Packet> p = m_queuePointer->GetObject<VbpQueue>()->GetPacket();
+    Ipv4Header header = m_queuePointer->GetObject<VbpQueue>()->GetHeader();
+    Ipv4RoutingProtocol::ErrorCallback ecb = m_queuePointer->GetObject<VbpQueue>()->GetEcb();
+    ecb (p, header, Socket::ERROR_NOTERROR);
+  }
   m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
   m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
   m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
   m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
   std::cout << "Queue Size: " << m_queuePointer->GetObject<VbpQueue>()->GetQueueSize() << std::endl;
+
   // QueueEntry newEntry (p, header, ucb, ecb);
   // bool result = m_queue.Enqueue (newEntry);
   // if (result)

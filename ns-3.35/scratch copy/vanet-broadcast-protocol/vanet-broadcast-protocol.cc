@@ -1,463 +1,830 @@
 #include "vanet-broadcast-protocol.h"
-#include "vbp-neighbor.h"
 
-namespace ns3 {
-NS_LOG_COMPONENT_DEFINE ("VanetBroadcastProtocol");
-
-namespace vbp {
-NS_OBJECT_ENSURE_REGISTERED (RoutingProtocol);
-/// UDP Port for VBP control traffic
-const uint32_t RoutingProtocol::VBP_PORT = 655;
-uint64_t m_uniformRandomVariable;
-const uint32_t Period_HelloTx = 95;
-const uint32_t Jitter_HelloTx = 10;
-
-
-/// Tag used by vbp implementation
-struct DeferredRouteOutputTag : public Tag
+namespace ns3
 {
-  /// Positive if output device is fixed in RouteOutput
-  int32_t oif;
+  NS_LOG_COMPONENT_DEFINE("VanetBroadcastProtocol");
 
-  /**
-   * Constructor
-   *
-   * \param o outgoing interface (OIF)
-   */
-  DeferredRouteOutputTag (int32_t o = -1)
-    : Tag (),
-      oif (o)
+  namespace vbp
   {
-  }
+    NS_OBJECT_ENSURE_REGISTERED(RoutingProtocol);
+    const uint32_t RoutingProtocol::VBP_HELLO_PORT = 655;
+    uint64_t m_uniformRandomVariable;
+    const uint32_t Period_HelloTx = 95;
+    const uint32_t Jitter_HelloTx = 10;
 
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId
-  GetTypeId ()
-  {
-    static TypeId tid = TypeId ("ns3::vbp::DeferredRouteOutputTag")
-      .SetParent<Tag> ()
-      .SetGroupName ("Vbp")
-      .AddConstructor<DeferredRouteOutputTag> ()
-    ;
-    return tid;
-  }
-
-  TypeId
-  GetInstanceTypeId () const
-  {
-    return GetTypeId ();
-  }
-
-  uint32_t
-  GetSerializedSize () const
-  {
-    return sizeof(int32_t);
-  }
-
-  void
-  Serialize (TagBuffer i) const
-  {
-    i.WriteU32 (oif);
-  }
-
-  void
-  Deserialize (TagBuffer i)
-  {
-    oif = i.ReadU32 ();
-  }
-
-  void
-  Print (std::ostream &os) const
-  {
-    os << "DeferredRouteOutputTag: output interface = " << oif;
-  }
-};
-
-TypeId
-RoutingProtocol::GetTypeId (void)
-{
-  static TypeId tid = TypeId ("ns3::vbp::RoutingProtocol")
-    .SetParent<Ipv4RoutingProtocol> ()
-    .SetGroupName ("Vbp")
-    .AddConstructor<RoutingProtocol> ();
-  return tid;
-}
-
-
-RoutingProtocol::RoutingProtocol ()
-  : m_helloPacketType ('h') //104 is an 'h' in ascii 
-
-{
-Ptr<vbpneighbors> m_neighborsListPointer2 = CreateObject<vbpneighbors> ();
-m_neighborsListPointer->AggregateObject(m_neighborsListPointer2);
-m_neighborsListPointer->GetObject<vbpneighbors>()->PrintHello();
-}
-
-RoutingProtocol::~RoutingProtocol ()
-{
-}
-
-Ptr<Ipv4Route> 
-RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+    /// Tag used by vbp implementation
+    struct DeferredRouteOutputTag : public Tag
     {
-        Ptr<Ipv4Route> dummyvar;
-        return dummyvar;
-    }
-bool
-RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
-                             Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
-                             MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
-{
-  if (m_socketAddresses.empty ())
+      /// Positive if output device is fixed in RouteOutput
+      int32_t oif;
+
+      /**
+       * Constructor
+       *
+       * \param o outgoing interface (OIF)
+       */
+      DeferredRouteOutputTag(int32_t o = -1)
+          : Tag(),
+            oif(o)
+      {
+      }
+
+      /**
+       * \brief Get the type ID.
+       * \return the object TypeId
+       */
+      static TypeId
+      GetTypeId()
+      {
+        static TypeId tid = TypeId("ns3::vbp::DeferredRouteOutputTag")
+                                .SetParent<Tag>()
+                                .SetGroupName("Vbp")
+                                .AddConstructor<DeferredRouteOutputTag>();
+        return tid;
+      }
+
+      TypeId
+      GetInstanceTypeId() const
+      {
+        return GetTypeId();
+      }
+
+      uint32_t
+      GetSerializedSize() const
+      {
+        return sizeof(int32_t);
+      }
+
+      void
+      Serialize(TagBuffer i) const
+      {
+        i.WriteU32(oif);
+      }
+
+      void
+      Deserialize(TagBuffer i)
+      {
+        oif = i.ReadU32();
+      }
+
+      void
+      Print(std::ostream &os) const
+      {
+        os << "DeferredRouteOutputTag: output interface = " << oif;
+      }
+    };
+
+    TypeId
+    RoutingProtocol::GetTypeId(void)
     {
-      NS_LOG_LOGIC ("No vbp interfaces");
-      return false;
+      static TypeId tid = TypeId("ns3::vbp::RoutingProtocol")
+                              .SetParent<Ipv4RoutingProtocol>()
+                              .SetGroupName("Vbp")
+                              .AddConstructor<RoutingProtocol>();
+      return tid;
     }
 
-  int32_t iif = m_ipv4->GetInterfaceForDevice (idev);
-
-  Ipv4Address dst = header.GetDestination ();
-  //Ipv4Address origin = header.GetSource ();
-
-  // // Duplicate of own packet
-  // if (IsMyOwnAddress (origin))
-  //   {
-  //     return true;
-  //   }
-
-  // AODV is not a multicast routing protocol
-  if (dst.IsMulticast ())
+    RoutingProtocol::RoutingProtocol()
+        : m_emptyQueuePeriod(0.5),
+          m_BroadcastTime(500),
+          m_routingTable(Time(5)),
+          m_helloPacketType('h'),
+          m_dataPacketType('d')
     {
-      std::cout << "Multicast Return False" << std::endl;
-      return false;
+      Ptr<VbpNeighbors> m_neighborsListPointer2 = CreateObject<VbpNeighbors>();
+      m_neighborsListPointer->AggregateObject(m_neighborsListPointer2);
+      m_broadcastArea[0] = NAN;
+      m_broadcastArea[1] = NAN;
+      m_broadcastArea[2] = NAN;
+      m_broadcastArea[3] = NAN;
+      Ptr<VbpQueue> m_queuePointer2 = CreateObject<VbpQueue>();
+      m_queuePointer->AggregateObject(m_queuePointer2);
+      ScheduleEmptyQueue();
     }
 
-  //Unicast local delivery
-  if (m_ipv4->IsDestinationAddress (dst, iif))
+    RoutingProtocol::~RoutingProtocol()
     {
+    }
 
-      if (lcb.IsNull () == false)
+    // Ptr<Ipv4Route>
+    // RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+    // {
+    //   Ptr<Ipv4Route> route;
+    //   NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
+    //   if (m_socketAddresses.empty ())
+    //     {
+    //       sockerr = Socket::ERROR_NOROUTETOHOST;
+    //       NS_LOG_LOGIC ("No vbp interfaces");
+    //       return route;
+    //     }
+    //   sockerr = Socket::ERROR_NOTERROR;
+
+    //   VbpRoutingHeader routingHeader;
+    //   RoutingTableEntry rt;
+
+    //   Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+    //   Ipv4Address origin = iface.GetAddress();
+    //   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+    //   routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+    //   p->AddHeader(routingHeader);
+    //   std::cout << "Route Output: " << std::endl; 
+    //   routingHeader.Print(std::cout);
+    //   m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+    //   std::cout << "Queue Size: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+    //   int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
+    //   if (numNextHops > 0) //if more than 0 neighbors
+    //   {
+    //       p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
+    //       std::cout << "Queue Size 2: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+    //       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
+    //       rt.SetNextHop(nextHop);//set route
+    //       rt.SetOutputDevice(dev);
+    //       rt.SetInterface(iface);
+    //       std::cout << "Next Hop > 0 " << std::endl; 
+    //       route = rt.GetRoute();
+    //   }
+    //   else //no neighbors
+    //   {
+    //     std::cout << "Socket Error " << std::endl; 
+    //     sockerr = Socket::ERROR_NOROUTETOHOST;
+    //   }
+
+    //   return route;
+    // }
+
+    Ptr<Ipv4Route>
+    RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
+    {
+      Ptr<Ipv4Route> route;
+      NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
+      if (m_socketAddresses.empty ())
         {
-          lcb (p, header, iif);
+          sockerr = Socket::ERROR_NOROUTETOHOST;
+          NS_LOG_LOGIC ("No vbp interfaces");
+          return route;
         }
-      return true;
-    }
-  return true;
-}
+      sockerr = Socket::ERROR_NOTERROR;
 
-void 
-RoutingProtocol::NotifyInterfaceUp (uint32_t interface)
-  {
-    std::cout << "Notify Interface UP" << std::endl;
-  NS_LOG_FUNCTION (this << m_ipv4->GetAddress (interface, 0).GetLocal ());
-  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
-  if (l3->GetNAddresses (interface) > 1)
-    {
-      NS_LOG_WARN ("AODV does not work with more then one address per each interface.");
-    }
-  Ipv4InterfaceAddress iface = l3->GetAddress (interface, 0);
-  if (iface.GetLocal () == Ipv4Address ("127.0.0.1"))
-    {
-      return;
-    }
+      VbpRoutingHeader routingHeader;
+      RoutingTableEntry rt;
+      Ipv4Address dst = header.GetDestination ();
+      Ipv4Address src = header.GetSource();
+      std::cout << "RO DST: " << dst << std::endl;
+      std::cout << "RO Src: " << src << std::endl;
 
-  // Create a socket to listen only on this interface
-  Ptr<Socket> socket = Socket::CreateSocket (GetObject<Node> (),UdpSocketFactory::GetTypeId ());
-  NS_ASSERT (socket != 0);
-  socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvVbp, this));
-  socket->BindToNetDevice (l3->GetNetDevice (interface));
-  socket->Bind (InetSocketAddress (iface.GetLocal (), VBP_PORT));
-  socket->SetAllowBroadcast (true);
-  socket->SetIpRecvTtl (true);
-  m_socketAddresses.insert (std::make_pair (socket, iface));
-
-  //create also a subnet broadcast socket
-  socket = Socket::CreateSocket (GetObject<Node> (), UdpSocketFactory::GetTypeId ());
-  NS_ASSERT (socket != 0);
-  socket->SetRecvCallback (MakeCallback (&RoutingProtocol::RecvVbp, this));
-  socket->BindToNetDevice (l3->GetNetDevice (interface));
-  socket->Bind (InetSocketAddress (iface.GetBroadcast (), VBP_PORT));
-  socket->SetAllowBroadcast (true);
-  socket->SetIpRecvTtl (true);
-  m_socketSubnetBroadcastAddresses.insert (std::make_pair (socket, iface));
-
-    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "NotifyInterfaceUp " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
-
-  m_thisNode = socket->GetNode();
-  std::cout << "This Node: " << m_thisNode->GetObject<MobilityModel>()->GetPosition() << std::endl;
-  }
-void 
-RoutingProtocol::NotifyInterfaceDown (uint32_t interface)
-  {
-    std::cout << "Notify Interface Down " << "--- "  << std::endl;
-  }
-  
-void 
-RoutingProtocol::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
-  {
-  Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
-
-  if (!l3->IsUp (interface))
-    {
-      return;
-    }
-    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " <<  "NotifyAddAddress " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
-
-
-  }
-
-void 
-RoutingProtocol::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
-  {
-    std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Notify Remove Address " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
-  }
-
-void 
-RoutingProtocol::RecvVbp (Ptr<Socket> socket)
-  {
-    //write code to convert array of 4 bytes (ip address) to Ipv4Address 
-    // std::fstream log;
-    // log.open("AppendNeighborsLog.txt", std::fstream::app);
-    // std::ofstream nextMessageOut; 
-    //log << "----------- Receive Start ---------" << std::endl;
-    NS_LOG_FUNCTION (this << socket);
-    Address sourceAddress;
-    Ptr<Packet> packet = socket->RecvFrom (sourceAddress);
-    InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom (sourceAddress);
-    Ipv4Address sender = inetSourceAddr.GetIpv4 ();
-    Ipv4Address receiver;
-    std::cout << "Sender " << sender << std::endl;
-
-    if (m_socketAddresses.find (socket) != m_socketAddresses.end ())
-        {
-          receiver = m_socketAddresses[socket].GetLocal ();
-        }
-      else if (m_socketSubnetBroadcastAddresses.find (socket) != m_socketSubnetBroadcastAddresses.end ())
-        {
-          receiver = m_socketSubnetBroadcastAddresses[socket].GetLocal ();
-        }
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      Ipv4Address origin = iface.GetAddress();
+      std::cout << "RO Origin: " << origin << std::endl;
+      Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+      routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+      p->AddHeader(routingHeader);
+      std::cout << "Route Output: " << std::endl; 
+      routingHeader.Print(std::cout);
+      Ipv4Address nextHop;
+      if (FindNextHop(&nextHop)) //find next hop
+      {
+         std::cout << "Find Next Hop: " << nextHop << std::endl;
+         rt.SetNextHop(nextHop); //set route
+         rt.SetOutputDevice(dev);
+         rt.SetInterface(iface);
+         route = rt.GetRoute();
+      } 
       else
+      {
+        // Valid route not found, return loopback
+        uint32_t iif = (oif ? m_ipv4->GetInterfaceForDevice (oif) : -1);
+        DeferredRouteOutputTag tag (iif);
+        NS_LOG_DEBUG ("Valid Route not found");
+        if (!p->PeekPacketTag (tag))
         {
-          NS_ASSERT_MSG (false, "Received a packet from an unknown socket");
+          p->AddPacketTag (tag);
         }
-    // remove the header from the packet:
-    helloPacketHeader destinationHeader;
-    packet->PeekHeader (destinationHeader);
-    std::cout << "---Tx To --- " << receiver << std::endl;
-    std::cout << "---Begin Header Information --- "  << std::endl;
-    std::cout << "Packet Type: " << destinationHeader.GetPacketType() << std::endl;
-    std::cout << "Position X: "  << destinationHeader.GetPositionX() << std::endl;
-    std::cout << "Position Y: "  << destinationHeader.GetPositionY() << std::endl;
-    std::cout << "Speed X: " << destinationHeader.GetSpeedX() << std::endl;
-    std::cout << "Speed Y: "<< destinationHeader.GetSpeedY() << std::endl;
-    std::cout << "---End Header Information --- "  << std::endl;
-    //m_neighborsListPointer->GetObject<vbpneighbors>()->PrintHello();
-    //m_neighborsListPointer->GetObject<vbpneighbors>()->AppendNeighbor(sender);
-    m_neighborsListPointer->GetObject<vbpneighbors>()->PrintNeighbors();
-    //m_neighborsListPointer->GetObject<vbpneighbors>()->FindNeighbor(sender);
-    //log << "----------- Receive End ---------" << std::endl;
+        route = LoopbackRoute(header, oif);
+        //  std::cout << "Socket Error " << std::endl; 
+        //  sockerr = Socket::ERROR_NOROUTETOHOST;
+      }
 
-    if (destinationHeader.GetPacketType() == m_helloPacketType)
+      return route;
+
+
+    }
+    
+    bool
+    RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
+                                Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
+                                MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
     {
-      RecvHello(packet, receiver, sender);
-     }
-  }
+      std::cout << "Route Input: " << std::endl;
+      NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
+      if (m_socketAddresses.empty())
+      {
+        NS_LOG_LOGIC("No vbp interfaces");
+        return false;
+      }
+      NS_ASSERT (m_ipv4 != 0);
+      NS_ASSERT (p != 0);
+      // Check if input device supports IP
+      NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
+      int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
+      Ipv4Address dst = header.GetDestination();
+      Ipv4Address origin = header.GetSource();
+      std::cout << "RI DST: " << dst << std::endl;
+      std::cout << "RI Origin: " << origin << std::endl;
+      
 
-void 
-RoutingProtocol::RecvHello(Ptr<Packet> p,Ipv4Address receiver,Ipv4Address sender)
-{
-  //std::cout << "Recv Hello" << p << receiver << sender << std::endl;
-  helloPacketHeader helloHeader;
-  p->PeekHeader (helloHeader);
-    std::cout << "Packet Type 2: " << helloHeader.GetPacketType() << std::endl;
-    std::cout << "Position X 2: "  << helloHeader.GetPositionX() << std::endl;
-    std::cout << "Position Y 2: "  << helloHeader.GetPositionY() << std::endl;
-    std::cout << "Speed X 2: "  << helloHeader.GetSpeedX() << std::endl;
-    std::cout << "Speed Y 2: "  << helloHeader.GetSpeedY() << std::endl;
+      // Deferred route request
+      if (idev == m_lo)
+      {
+        std::cout << "Deferred Route Request" << std::endl;
+        DeferredRouteOutputTag tag;
+        if (p->PeekPacketTag (tag))
+        {
+          std::cout << "Deferred Route Request 2" << std::endl;
+          DeferredRouteOutput (p, header, ucb, ecb);
+          return false;
+          //return true;
+        }        
+      }
 
-  // determine if forwarding node is ahead=1 or behind=0 by using dot product            
-  float dotProduct;
-  float dotProductVel;
+      // VBP is not a multicast routing protocol
+      if (dst.IsMulticast())
+      {
+        NS_LOG_LOGIC("Multicast Return False");
+        return false;
+      }
+
+      // Unicast local delivery
+      if (m_ipv4->IsDestinationAddress(dst, iif))
+      {
+        if (lcb.IsNull() == false)
+        {
+          std::cout << "Local Delivery " << dst << std::endl;
+          NS_LOG_LOGIC ("Unicast local delivery to " << dst);
+          lcb(p, header, iif);
+        }
+        else
+        {
+          std::cout << "Error Delivery " << dst << std::endl;
+          NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
+          ecb (p, header, Socket::ERROR_NOROUTETOHOST);
+        }
+        return true;
+      }
+      // Forwarding
+
+      VbpRoutingHeader routingHeader;
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      p->PeekHeader(routingHeader);
+      std::cout << "SF " << iface.GetLocal() << std::endl;
+      routingHeader.SetPrevHopIP(iface.GetAddress()); 
+      routingHeader.Print(std::cout);
+
+      //change from original code: commented out nextHop and rt.SetNextHop(nextHop)
+      //Ipv4Address nextHop = FindNextHop(); 
+      //Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
+
+      Ipv4Address nextHop;
+      if (FindNextHop(&nextHop)) //find next hop
+      {
+         std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
+         RoutingTableEntry rt;
+         Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+         rt.SetNextHop(nextHop); //set route
+         rt.SetOutputDevice(dev);
+         rt.SetInterface(iface);
+         ucb(rt.GetRoute(),p,header);
+         return true;
+      } 
+      std::cout << "RI Find Next Hop FALSE: " << nextHop << std::endl; //why is nextHop returning 102.102.102.102. RouteOutput transmits a 102.102.102.102 packet, why? Should not be Tx. Packet needs to be initialized.
+      //Add a vector to AppendQueue to pair packet and header. Treat them in unison.
+      //Step After: Schedule packet removal. Follow Roberto's code "CheckForQueueRemoval" and follow logic in my method, QueueRemoval. I need to remove packet and header from queue, and only send packet. To send packet, use Ipv4L3 Send().
+      return false;
+
+    }
+
+    // bool
+    // RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
+    //                             Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
+    //                             MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
+    // {
+    //   NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
+    //   if (m_socketAddresses.empty())
+    //   {
+    //     NS_LOG_LOGIC("No vbp interfaces");
+    //     return false;
+    //   }
+    //   NS_ASSERT (m_ipv4 != 0);
+    //   NS_ASSERT (p != 0);
+    //   // Check if input device supports IP
+    //   NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
+    //   int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
+
+    //   Ipv4Address dst = header.GetDestination();
+    //   Ipv4Address origin = header.GetSource();
 
 
-  Vector receiveNodePos = m_thisNode->GetObject<MobilityModel>()->GetPosition(); 
-  Vector diff = Vector3D(helloHeader.GetPositionX(),helloHeader.GetPositionY(),0) - receiveNodePos; // vector pointing from receiving node to forwarding node
-  Vector receiveNodeVelocity = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
+    //   // VBP is not a multicast routing protocol
+    //   if (dst.IsMulticast())
+    //   {
+    //     NS_LOG_LOGIC("Multicast Return False");
+    //     return false;
+    //   }
 
-  if (receiveNodeVelocity.GetLength() == 0 ) {
+    //   // Unicast local delivery
+    //   if (m_ipv4->IsDestinationAddress(dst, iif))
+    //   {
+    //     if (lcb.IsNull() == false)
+    //     {
+    //       NS_LOG_LOGIC ("Unicast local delivery to " << dst);
+    //       lcb(p, header, iif);
+    //     }
+    //     else
+    //     {
+    //       NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
+    //       ecb (p, header, Socket::ERROR_NOROUTETOHOST);
+    //     }
+    //     return true;
+    //   }
+    //   // Forwarding
+
+    //   VbpRoutingHeader dataPacket;
+    //   Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+    //   p->PeekHeader(dataPacket);
+    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+    //   dataPacket.SetPrevHopIP(iface.GetAddress());
+    //   std::cout << "Packet Route Input: " << std::endl; 
+    //   dataPacket.Print(std::cout);
+
+    //   // if (dataPacket.GetPacketType() == m_dataPacketType)
+    //   // {
+    //   //   std::cout << "Route input received a data packet header" << std::endl;
+    //   // }
+
+
+    //   RoutingTableEntry rt;
+    //   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
+    //   std::cout << "Queue Size 3: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+    //   int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
+    //         std::cout << "MMMMM " << numNextHops << std::endl;
+    //   if (numNextHops > 0) //if more than 0 neighbors
+    //   {
+
+    //       p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
+    //                                     std::cout << "AAAAA " << numNextHops << std::endl;
+    //       std::cout << "Queue Size 4: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
+
+    //       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
+    //       rt.SetNextHop(nextHop);//set route
+    //       rt.SetOutputDevice(dev);
+    //       rt.SetInterface(iface);
+
+    //       ucb(rt.GetRoute(),p,header);
+    //       return true;
+    //   }
+    //   else //no neighbors
+    //   {
+    //     return false;
+    //     // std::cout << "LLLLL" << std::endl;
+    //     // ecb (p, header, Socket::ERROR_NOROUTETOHOST);
+    //     // return true;
+    //   }
+
+    // }
+
+
+
+    void
+    RoutingProtocol::NotifyInterfaceUp(uint32_t interface)
+    {
+      if (interface > 1)
+      {
+        NS_LOG_WARN("VBP does not work with more then one interface.");
+      }
+      NS_LOG_FUNCTION(this << m_ipv4->GetAddress(interface, 0).GetLocal());
+      Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+      if (l3->GetNAddresses(interface) > 1)
+      {
+        NS_LOG_WARN("VBP does not work with more then one address per each interface.");
+      }
+      Ipv4InterfaceAddress iface = l3->GetAddress(interface, 0);
+      if (iface.GetLocal() == Ipv4Address("127.0.0.1"))
+      {
+        return;
+      }
+      //include check that m_socketaddresses is empty and m_socketSubnetBroadcastAddresses is empty. Print out message only one interface is allowed if check fails
+      // Create a socket to listen only on this interface
+      Ptr<Socket> socket = Socket::CreateSocket(GetObject<Node>(), UdpSocketFactory::GetTypeId());
+      NS_ASSERT(socket != 0);
+      socket->SetRecvCallback(MakeCallback(&RoutingProtocol::RecvVbp, this));
+      socket->BindToNetDevice(l3->GetNetDevice(interface));
+      socket->Bind(InetSocketAddress(iface.GetLocal(), VBP_HELLO_PORT));
+      socket->SetAllowBroadcast(true);
+      socket->SetIpRecvTtl(true);
+      m_socketAddresses.insert(std::make_pair(socket, iface));
+
+      // create also a subnet broadcast socket
+      socket = Socket::CreateSocket(GetObject<Node>(), UdpSocketFactory::GetTypeId());
+      NS_ASSERT(socket != 0);
+      socket->SetRecvCallback(MakeCallback(&RoutingProtocol::RecvVbp, this));
+      socket->BindToNetDevice(l3->GetNetDevice(interface));
+      socket->Bind(InetSocketAddress(iface.GetBroadcast(), VBP_HELLO_PORT));
+      socket->SetAllowBroadcast(true);
+      socket->SetIpRecvTtl(true);
+      m_socketSubnetBroadcastAddresses.insert(std::make_pair(socket, iface));
+
+      NS_LOG_FUNCTION(Simulator::Now().GetSeconds() << " Seconds --- " << "NotifyInterfaceUp " << "--- " << m_ipv4->GetNInterfaces() << " Interfaces");
+
+      m_thisNode = socket->GetNode();
+      NS_LOG_FUNCTION("This Node: " << m_thisNode->GetObject<MobilityModel>()->GetPosition());
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->SetThisNode(m_thisNode);
+    }
+
+    void
+    RoutingProtocol::NotifyInterfaceDown(uint32_t interface)
+    {
+      NS_LOG_FUNCTION (this << m_ipv4->GetAddress (interface, 0).GetLocal ());
+    }
+
+    void
+    RoutingProtocol::NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address)
+    {
+      NS_LOG_FUNCTION (this << " interface " << interface << " address " << address);
+      Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+
+      if (!l3->IsUp(interface))
+      {
+        return;
+      }
+    }
+
+    void
+    RoutingProtocol::NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address)
+    {
+      NS_LOG_FUNCTION (this);
+    }
+
+    void
+    RoutingProtocol::RecvVbp(Ptr<Socket> socket)
+    {
+      NS_LOG_FUNCTION(this << socket);
+      Address sourceAddress;
+      Ptr<Packet> packet = socket->RecvFrom(sourceAddress);
+      InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom(sourceAddress);
+      Ipv4Address sender = inetSourceAddr.GetIpv4();
+      Ipv4Address receiver;
+
+      if (m_socketAddresses.find(socket) != m_socketAddresses.end())
+      {
+        receiver = m_socketAddresses[socket].GetLocal();
+      }
+      else if (m_socketSubnetBroadcastAddresses.find(socket) != m_socketSubnetBroadcastAddresses.end())
+      {
+        receiver = m_socketSubnetBroadcastAddresses[socket].GetLocal();
+      }
+      else
+      {
+        NS_ASSERT_MSG(false, "Received a packet from an unknown socket");
+      }
+      // remove the header from the packet:
+      VbpHelloHeader destinationHeader;
+      packet->PeekHeader(destinationHeader);
+      NS_LOG_FUNCTION("---Tx From --- " << sender);
+      NS_LOG_FUNCTION("---Tx To --- " << receiver);
+      NS_LOG_FUNCTION( "---Begin Header Information --- ");
+      NS_LOG_FUNCTION("Packet Type: " << destinationHeader.GetPacketType());
+      NS_LOG_FUNCTION("Position X: " << destinationHeader.GetPositionX());
+      NS_LOG_FUNCTION("Position Y: " << destinationHeader.GetPositionY());
+      NS_LOG_FUNCTION("Speed X: " << destinationHeader.GetSpeedX());
+      NS_LOG_FUNCTION("Speed Y: " << destinationHeader.GetSpeedY());
+      NS_LOG_FUNCTION("---End Header Information --- ");
+      if (destinationHeader.GetPacketType() == m_helloPacketType)
+      {
+        RecvHello(packet, receiver, sender);
+      }
+    }
+
+    void
+    RoutingProtocol::RecvHello(Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender)
+    {
+      VbpHelloHeader helloHeader;
+      p->PeekHeader(helloHeader);
+
+      // determine if forwarding node is ahead=1 or behind=0 by using dot product
+      float dotProduct;
+      float dotProductVel;
+
+      Vector receiveNodePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+      Vector diff = Vector3D(helloHeader.GetPositionX(), helloHeader.GetPositionY(), 0) - receiveNodePos; // vector pointing from receiving node to forwarding node
+      Vector receiveNodeVelocity = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
+
+      if (receiveNodeVelocity.GetLength() == 0)
+      {
         // if receiving node not moving, don't process anymore
-      return; 
-  }
- 
-  dotProductVel = receiveNodeVelocity.x*helloHeader.GetSpeedX() + receiveNodeVelocity.y*helloHeader.GetSpeedY();
-  if (dotProductVel <=0 ) {
-      // if velocity vectors do not align, don't process because neighbor moving in opposite direction
-      return;  
-  }
-
-  dotProduct = receiveNodeVelocity.x*diff.x + receiveNodeVelocity.y*diff.y;   
-  uint16_t direction; // 0 = behind, 1 = ahead
-  if (dotProduct >= 0) {  
-      // if dot product positive, then ahead
-      direction = 1;
-  }
-  else {  
-      // if dot product negative, then behind
-      direction = 0;
-  } 
-
-  // use received packet to update neighbors information in object neighbors
-      // will add node as new neighbor or update information for that neighbor
-
-
-
-  m_neighborsListPointer->GetObject<vbpneighbors>()->AddNode(sender, 
-                                                             direction, 
-                                                             helloHeader.GetNumNeighborsAhead(),
-                                                             helloHeader.GetNumNeighborsBehind(),
-                                                             helloHeader.GetPositionX(),
-                                                             helloHeader.GetPositionY(),
-                                                             helloHeader.GetSpeedX(),
-                                                             helloHeader.GetSpeedY(),
-                                                             helloHeader.GetNeighborFurthestAheadX(),
-                                                             helloHeader.GetNeighborFurthestAheadY(),
-                                                             helloHeader.GetNeighborFurthestBehindX(),
-                                                             helloHeader.GetNeighborFurthestBehindY(),
-                                                             helloHeader.GetAvgSpeedX(),
-                                                             helloHeader.GetAvgSpeedY());
-            // order is neighbor's node Id, direction, numAhead, numBehind, X, Y, speedX, speedY, furthestAhead.x, furthestAhead.y, furthestBehind.x
-              // , furthestBehind.y, avg SpeedX, avgSpeedY
-
-
-  m_neighborsListPointer->GetObject<vbpneighbors>()->PrintNeighborState();
-
-
-  
-
-
-}
-
-void
-RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
-{
-  NS_ASSERT (ipv4 != 0);
-  //NS_ASSERT (m_ipv4 == 0);
-
-  m_ipv4 = ipv4; //m_ipv4 set here
-
-  // Create lo route. It is asserted that the only one interface up for now is loopback
-  NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
-  m_lo = m_ipv4->GetNetDevice (0);
-  NS_ASSERT (m_lo != 0);
-  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Set Ipv4 " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
-  return;
-}
-
-void
-RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
-{
-  //  *stream->GetStream () << "Node: " << m_ipv4->GetObject<Node> ()->GetId ()
-  //                       << "; Time: " << Now ().As (unit)
-  //                       << ", Local time: " << m_ipv4->GetObject<Node> ()->GetLocalTime ().As (unit)
-  //                       << ", VBP Routing table" << std::endl;
-
-  // m_routingTable.Print (stream, unit);
-  // *stream->GetStream () << std::endl;
-}
-
-
-void
-RoutingProtocol::SendHello ()
-{
-  //In this version of SendHello I fill SetData with real values. This is a work in progress
-  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
-    {
-
-      Ptr<Socket> socket = j->first;
-      Ipv4InterfaceAddress iface = j->second;
-      std::cout << "---Interface Info--- " << iface << std::endl;
-      Ptr<Packet> packet = Create<Packet> ();
-      //create header here
-      helloPacketHeader HelloHeader;
- 
-      // get info needed in packet from sockets
-      Vector pos = (socket->GetNode())->GetObject<MobilityModel>()->GetPosition();
-      Vector vel = (socket->GetNode())->GetObject<MobilityModel>()->GetVelocity();
-      //set dummy values to header setData (pass hardcoded values)
-      Vector furthestAhead = Vector3D(NAN,NAN,0);
-      int furthestIdxAhead = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestAheadByIndex(pos);
-      std::cout << "furthestIdxAhead: " << furthestIdxAhead << std::endl;
-      if (furthestIdxAhead >= 0) {
-      furthestAhead = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxAhead)
-                             , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxAhead),0);
+        return;
       }
-      Vector furthestBehind = Vector3D(NAN,NAN,0); 
-      int furthestIdxBehind = m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborFurthestBehindByIndex(pos);
-      if (furthestIdxBehind >= 0) {
-          furthestBehind = Vector3D(m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionX(furthestIdxBehind)
-                              , m_neighborsListPointer->GetObject<vbpneighbors>()->GetNeighborPositionY(furthestIdxBehind),0);
+
+      dotProductVel = receiveNodeVelocity.x * helloHeader.GetSpeedX() + receiveNodeVelocity.y * helloHeader.GetSpeedY();
+      if (dotProductVel <= 0)
+      {
+        // if velocity vectors do not align, don't process because neighbor moving in opposite direction
+        return;
       }
-      HelloHeader.SetData(m_helloPacketType, 
-                          pos.x, 
-                          pos.y, 
-                          vel.x, 
-                          vel.y, 
-                          m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsAhead (), 
-                          m_neighborsListPointer->GetObject<vbpneighbors>()->Get1HopNumNeighborsBehind(), 
-                          furthestAhead.x,
-                          furthestAhead.y,
-                          furthestBehind.x,
-                          furthestBehind.y,  
-                          m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborX(vel.x), 
-                          m_neighborsListPointer->GetObject<vbpneighbors>()->GetAvgSpeedNeighborX(vel.y));
-     
 
-      // add header to packet
-      packet->AddHeader (HelloHeader);
-      // print the content of my packet on the standard output.
-      packet->Print (std::cout);
-
-   
-
-      // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
-      Ipv4Address destination;
-      if (iface.GetMask () == Ipv4Mask::GetOnes ())
-        {
-          destination = Ipv4Address ("255.255.255.255");
-          std::cout << "---Test 1--- " << destination << std::endl;
-        }
+      dotProduct = receiveNodeVelocity.x * diff.x + receiveNodeVelocity.y * diff.y;
+      uint16_t direction; // 0 = behind, 1 = ahead
+      if (dotProduct >= 0)
+      {
+        // if dot product positive, then ahead
+        direction = 1;
+      }
       else
-        {
-          destination = iface.GetBroadcast ();
-          std::cout << "---Test 2--- " << destination << std::endl;
-        }
-      Time jitter = Time (MilliSeconds (Period_HelloTx + m_uniformRandomVariable->GetInteger (0, Jitter_HelloTx)));
-      Simulator::Schedule (jitter, &RoutingProtocol::SendHello, this);
-      SendTo(socket,packet,destination);
+      {
+        // if dot product negative, then behind
+        direction = 0;
+      }
+
+      // use received packet to update neighbors information in object neighbors
+      // will add node as new neighbor or update information for that neighbor
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->AddNode(sender,
+                                                                 direction,
+                                                                 helloHeader.GetNumNeighborsAhead(),
+                                                                 helloHeader.GetNumNeighborsBehind(),
+                                                                 helloHeader.GetPositionX(),
+                                                                 helloHeader.GetPositionY(),
+                                                                 helloHeader.GetSpeedX(),
+                                                                 helloHeader.GetSpeedY(),
+                                                                 helloHeader.GetNeighborFurthestAheadX(),
+                                                                 helloHeader.GetNeighborFurthestAheadY(),
+                                                                 helloHeader.GetNeighborFurthestBehindX(),
+                                                                 helloHeader.GetNeighborFurthestBehindY(),
+                                                                 helloHeader.GetAvgSpeedX(),
+                                                                 helloHeader.GetAvgSpeedY());
+      // order is neighbor's node Id, direction, numAhead, numBehind, X, Y, speedX, speedY, furthestAhead.x, furthestAhead.y, furthestBehind.x
+      // , furthestBehind.y, avg SpeedX, avgSpeedY
     }
-  std::cout << Simulator::Now().GetSeconds() << " Seconds --- " << "Schedule Send Hello " << "--- "<< m_ipv4->GetNInterfaces() << " Interfaces" << std::endl;
 
+    void
+    RoutingProtocol::SetIpv4(Ptr<Ipv4> ipv4)
+    {
+      NS_ASSERT(ipv4 != 0);
+
+      m_ipv4 = ipv4; // m_ipv4 set here
+
+      // Create lo route. It is asserted that the only one interface up for now is loopback
+      NS_ASSERT(m_ipv4->GetNInterfaces() == 1 && m_ipv4->GetAddress(0, 0).GetLocal() == Ipv4Address("127.0.0.1"));
+      m_lo = m_ipv4->GetNetDevice(0);
+      NS_ASSERT(m_lo != 0);
+      return;
+    }
+
+    void
+    RoutingProtocol::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
+    {
+      *stream->GetStream() << "Node: " << m_ipv4->GetObject<Node>()->GetId()
+                           << "; Time: " << Now().As(unit)
+                           << ", Local time: " << m_ipv4->GetObject<Node>()->GetLocalTime().As(unit)
+                           << ", VBP Routing table" << std::endl;
+
+      m_routingTable.Print(stream, unit);
+      *stream->GetStream() << std::endl;
+    }
+
+    void
+    RoutingProtocol::SendHello()
+    {
+      // In this version of SendHello I fill SetData with real values. This is a work in progress
+      for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
+      {
+
+        Ptr<Socket> socket = j->first;
+        Ipv4InterfaceAddress iface = j->second;
+        Ptr<Packet> packet = Create<Packet>();
+        // create header here
+        VbpHelloHeader HelloHeader;
+
+        // get info needed in packet from sockets
+        Vector pos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+        Vector vel = m_thisNode->GetObject<MobilityModel>()->GetVelocity(); 
+        // set dummy values to header setData (pass hardcoded values)
+        Vector furthestAhead = Vector3D(NAN, NAN, 0);
+        int furthestIdxAhead = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborFurthestAheadByIndex(pos);
+        if (furthestIdxAhead >= 0)
+        {
+          furthestAhead = Vector3D(m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionX(furthestIdxAhead), m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionY(furthestIdxAhead), 0);
+        }
+        Vector furthestBehind = Vector3D(NAN, NAN, 0);
+        int furthestIdxBehind = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborFurthestBehindByIndex(pos);
+        if (furthestIdxBehind >= 0)
+        {
+          furthestBehind = Vector3D(m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionX(furthestIdxBehind), m_neighborsListPointer->GetObject<VbpNeighbors>()->GetNeighborPositionY(furthestIdxBehind), 0);
+        }
+        HelloHeader.SetData(m_helloPacketType,
+                            pos.x,
+                            pos.y,
+                            vel.x,
+                            vel.y,
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead(),
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsBehind(),
+                            furthestAhead.x,
+                            furthestAhead.y,
+                            furthestBehind.x,
+                            furthestBehind.y,
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->GetAvgSpeedNeighborX(vel.x),
+                            m_neighborsListPointer->GetObject<VbpNeighbors>()->GetAvgSpeedNeighborY(vel.y));
+
+        // add header to packet
+        packet->AddHeader(HelloHeader);
+        // print the content of my packet on the standard output.
+        //packet->Print(std::cout);
+
+        // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
+        Ipv4Address destination;
+        if (iface.GetMask() == Ipv4Mask::GetOnes())
+        {
+          destination = Ipv4Address("255.255.255.255");
+        }
+        else
+        {
+          destination = iface.GetBroadcast();
+        }
+        Time jitter = Time(MilliSeconds(Period_HelloTx + m_uniformRandomVariable->GetInteger(0, Jitter_HelloTx)));
+        Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
+        SendTo(socket, packet, destination);
+      }
+      m_neighborsListPointer->GetObject<VbpNeighbors>()->PrintNeighborState();
+    }
+
+    void
+    RoutingProtocol::SendTo(Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
+    {
+      socket->SendTo(packet, 0, InetSocketAddress(destination, VBP_HELLO_PORT));
+    }
+
+    void 
+    RoutingProtocol::StartHelloTx()
+    {
+      m_uniformRandomVariable = CreateObject<UniformRandomVariable>();
+      Time jitter = Time(MilliSeconds(Period_HelloTx + m_uniformRandomVariable->GetInteger(0, Jitter_HelloTx)));
+      Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
+    }
+
+    std::vector<float> 
+    RoutingProtocol::GetBroadcastArea()
+    {
+        return m_broadcastArea;
+    }
+
+    void
+    RoutingProtocol::SetBroadcastArea(std::vector<float> broadcastArea)
+    {
+        m_broadcastArea[0] = broadcastArea[0];
+        m_broadcastArea[1] = broadcastArea[1];
+        m_broadcastArea[2] = broadcastArea[2];
+        m_broadcastArea[3] = broadcastArea[3];
+    }
+
+   void
+   RoutingProtocol::EmptyQueue()
+   {
+     Ipv4Address nextHop;
+     if (!FindNextHop(&nextHop))
+     {
+       return;
+     }
+     uint16_t queueSize =  m_queuePointer->GetObject<VbpQueue>()->GetQueueSize();
+     if (queueSize == 0)
+     {
+        return;
+     }
+     while(queueSize > 0)
+     {
+        std::cout << "Empty Queue NextHop: " << nextHop << std::endl;
+        Ptr<const Packet> p = m_queuePointer->GetObject<VbpQueue>()->GetPacket();
+        Ipv4Header header = m_queuePointer->GetObject<VbpQueue>()->GetHeader();
+        Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_queuePointer->GetObject<VbpQueue>()->GetUcb();
+        Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+        Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+        // std::cout << "Empty Queue Local Address: " << iface.GetLocal () << std::endl;
+        RoutingTableEntry rt;
+        rt.SetNextHop(nextHop); //set route
+        rt.SetOutputDevice(dev);
+        rt.SetInterface(iface);
+        Ptr<Ipv4Route> route = rt.GetRoute();
+        ucb(route, p, header);
+        // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+        // l3->Send(p, source, destination, protocol, route);
+        queueSize--;
+     }
+   }
+
+    void 
+    RoutingProtocol::ScheduleEmptyQueue()
+    {
+        EmptyQueue();
+        Simulator::Schedule(Seconds(m_emptyQueuePeriod), &RoutingProtocol::ScheduleEmptyQueue, this);  
+    }
+
+    bool
+    RoutingProtocol::FindNextHop(Ipv4Address* nextHopPtr)
+    {
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      std::cout << "FindNextHop Local Address: " << iface.GetLocal () << std::endl;
+      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
+      {
+        std::cout << "FindNextHop No Neighbors" << std::endl;
+        return false;
+      }
+      std::cout << "FindNextHop Neighbors Found " << std::endl;
+      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
+      nextHopPtr->Set(nextHop.Get());
+      return true;
+
+    }
+
+Ptr<Ipv4Route>
+RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) const
+{
+  //This is the same LoopbackRoute implemented in AODV
+  NS_LOG_FUNCTION (this << hdr);
+  NS_ASSERT (m_lo != 0);
+
+  Ptr<Ipv4Route> routePtr; // = Create<Ipv4Route> ();
+  RoutingTableEntry rt;
+  rt.SetNextHop(Ipv4Address("127.0.0.1")); 
+  rt.SetOutputDevice(m_lo);
+  //rt.SetInterface(iface);
+  routePtr = rt.GetRoute();
+  routePtr->SetDestination (hdr.GetDestination ());
+  //
+  // Source address selection here is tricky.  The loopback route is
+  // returned when AODV does not have a route; this causes the packet
+  // to be looped back and handled (cached) in RouteInput() method
+  // while a route is found. However, connection-oriented protocols
+  // like TCP need to create an endpoint four-tuple (src, src port,
+  // dst, dst port) and create a pseudo-header for checksumming.  So,
+  // AODV needs to guess correctly what the eventual source address
+  // will be.
+  //
+  // For single interface, single address nodes, this is not a problem.
+  // When there are possibly multiple outgoing interfaces, the policy
+  // implemented here is to pick the first available AODV interface.
+  // If RouteOutput() caller specified an outgoing interface, that
+  // further constrains the selection of source address
+  //
+  std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin ();
+  if (oif)
+    {
+      // Iterate to find an address on the oif device
+      for (j = m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
+        {
+          Ipv4Address addr = j->second.GetLocal ();
+          int32_t interface = m_ipv4->GetInterfaceForAddress (addr);
+          if (oif == m_ipv4->GetNetDevice (static_cast<uint32_t> (interface)))
+            {
+              routePtr->SetSource (addr);
+              break;
+            }
+        }
+    }
+  else
+    {
+      routePtr->SetSource (j->second.GetLocal ());
+    }
+  NS_ASSERT_MSG (routePtr->GetSource () != Ipv4Address (), "Valid VBP source address not found");
+  routePtr->SetGateway (Ipv4Address ("127.0.0.1"));
+  routePtr->SetOutputDevice (m_lo);
+  return routePtr;
 }
-
 
 void
-RoutingProtocol::SendTo (Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination)
+RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & header,
+                                      UnicastForwardCallback ucb, ErrorCallback ecb)
 {
-  socket->SendTo (packet, 0, InetSocketAddress (destination, VBP_PORT));
-    std::cout << "---Send To--- " << std::endl;
+// This is the same DeferredRouteOutput as AODV
+//Append all params DeferredRouteOutput receives packet, header, ucb, ecb
+//Check how aodv removes packets from queue. If packet is removed, next hop has been found. Guessing ucb is called. Confirm.
+  NS_LOG_FUNCTION (this << p << header);
+  NS_ASSERT (p != 0 && p != Ptr<Packet> ());
+  m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+  m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+  m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+  m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+  std::cout << "Queue Size: " << m_queuePointer->GetObject<VbpQueue>()->GetQueueSize() << std::endl;
+  // QueueEntry newEntry (p, header, ucb, ecb);
+  // bool result = m_queue.Enqueue (newEntry);
+  // if (result)
+  //   {
+  //     NS_LOG_LOGIC ("Add packet " << p->GetUid () << " to queue. Protocol " << (uint16_t) header.GetProtocol ());
+  //     RoutingTableEntry rt;
+  //     bool result = m_routingTable.LookupRoute (header.GetDestination (), rt);
+  //     if (!result || ((rt.GetFlag () != IN_SEARCH) && result))
+  //       {
+  //         NS_LOG_LOGIC ("Send new RREQ for outbound packet to " << header.GetDestination ());
+  //         SendRequest (header.GetDestination ());
+  //       }
+  //   }
 }
 
-void RoutingProtocol::StartHelloTx()
-{
-  m_uniformRandomVariable = CreateObject<UniformRandomVariable>();
-  Time jitter = Time (MilliSeconds (Period_HelloTx + m_uniformRandomVariable->GetInteger (0, Jitter_HelloTx)));
-  Simulator::Schedule(jitter, &RoutingProtocol::SendHello, this);
-  std::cout << "---Start Hello TX--- " << std::endl;
-}
-
-
-}// namespace vbp
-}// namespace ns3
+  } // namespace vbp
+} // namespace ns3

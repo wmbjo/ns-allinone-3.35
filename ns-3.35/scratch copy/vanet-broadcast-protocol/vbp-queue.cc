@@ -6,7 +6,6 @@ namespace ns3 {
 namespace vbp {
 
 VbpQueue::VbpQueue ()   
-    : m_queueSizeLimit(100)
     {
 
     }
@@ -24,10 +23,8 @@ VbpQueue::VbpQueue ()
 void
 VbpQueue::AppendPacket(Ptr<const Packet> p)
 {
-    if (!QueueFull())
-    {
-        m_packetQ.push_back(p);
-    }
+    std::cout << "Append Packet" << std::endl;
+    m_packetQ.push_back(p);
 }
 
 // void
@@ -51,34 +48,20 @@ VbpQueue::AppendPacket(Ptr<const Packet> p)
 void
 VbpQueue::AppendUcb(Ipv4RoutingProtocol::UnicastForwardCallback ucb)
 {
-    if (!QueueFull())
-    {
-        m_ucbQ.push_back(ucb);
-    }
+    m_ucbQ.push_back(ucb);
 }
 
 void
 VbpQueue::AppendEcb(Ipv4RoutingProtocol::ErrorCallback ecb)
 {
-    if (!QueueFull())
-    {
-        m_ecbQ.push_back(ecb);
-    }
+    m_ecbQ.push_back(ecb);
 }
 
 void
 VbpQueue::AppendHeader(Ipv4Header header)
 {
-    if (!QueueFull())
-    {
-        m_headerQ.push_back(header);
-    }
-}
-
-bool
-VbpQueue::QueueFull()
-{
-    return GetQueueSize() >= m_queueSizeLimit;
+    std::cout << "Append Header" << std::endl;
+    m_headerQ.push_back(header);
 }
 
 Ptr<const Packet>

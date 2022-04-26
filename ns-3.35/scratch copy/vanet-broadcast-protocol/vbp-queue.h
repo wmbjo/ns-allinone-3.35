@@ -35,10 +35,8 @@ namespace ns3
             //uint8_t GetProtocol();
             Ipv4RoutingProtocol::UnicastForwardCallback GetUcb();
             Ipv4RoutingProtocol::ErrorCallback GetEcb();
-            bool QueueFull();
 
         private:
-            uint16_t m_queueSizeLimit;
             std::vector<Ptr<const Packet>> m_packetQ; // to hold queue of packet
             //std::vector<uint8_t> m_protocolQ;
             //std::vector<Ipv4Address> m_dstQ; // to hold queue of packet

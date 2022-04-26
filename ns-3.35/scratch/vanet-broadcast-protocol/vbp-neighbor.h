@@ -96,7 +96,6 @@ class VbpNeighbors : public Object {
         void Print1hopFurthestBehind ();      // will display position of neighbor furthest behind
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
-        uint16_t m_numPackets; // total number of packets in queue
         bool m_filledFirstTime;
         int m_currentIdx;
         int m_NSamples;

@@ -1,19 +1,3 @@
-// /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-// /*
-//  * This program is free software; you can redistribute it and/or modify
-//  * it under the terms of the GNU General Public License version 2 as
-//  * published by the Free Software Foundation;
-//  *
-//  * This program is distributed in the hope that it will be useful,
-//  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  * GNU General Public License for more details.
-//  *
-//  * You should have received a copy of the GNU General Public License
-//  * along with this program; if not, write to the Free Software
-//  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//  */
-
 // #include <iostream>
 // #include <cmath>
 // #include "ns3/core-module.h"
@@ -27,27 +11,9 @@
 // #include "ns3/vector.h"
 // #include "MyRandomExpTrafficApp.h"
 
-
 // // ==========================================================================
 // //
 // // ELEC 673 Final Project:
-// //
-// // You need to complete the ns3 script below where it says WRITE YOUR CODE
-// // HERE. Several lines of code can be written there. On the other hand, code
-// // that is already in the script cannot be modified. The script below was
-// // completed on the basis of:
-// //
-// // - The ns3 script aodv.cc of the ns3 available at
-// //   https://www.nsnam.org/docs/release/3.31/doxygen/aodv_8cc_source.html
-// // - ELEC673_example_6.cc
-// // - ELEC673_example_7.cc
-// //
-// // You can take a look at the scripts listed above to complete the final
-// // project.
-// //
-// // ==========================================================================
-
-
 // // ==========================================================================
 // //
 // //                   Wifi 10.1.1.0
@@ -180,7 +146,7 @@
 //   cmd.AddValue("MaxSpeed", "The speed of nodes is uniformly distributed from MinSpeed to MaxSpeed (m/s)", MaxSpeed);
 //   cmd.Parse (argc, argv);
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Create nodes and keep them on a container. Names are added to the nodes.
 //   // Install the Internet stack and set the routing protocol to AODV.
 //   NodeContainer nodes;
@@ -196,7 +162,7 @@
 //   stack.SetRoutingHelper(aodv);
 //   stack.Install(nodes);
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Nodes are mobile (2D random walk). The initial location of the nodes is
 //   // a grid. The area of movement is the square that encloses the grid. The
 //   // side length of the square is specified by the user. The 2D random walk
@@ -230,7 +196,7 @@
 //     //nodes.Get(i)->GetObject<RandomWalk2dMobilityModel>()->SetAttribute("Distance", DoubleValue(NodeDistance/20));
 //   }
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Install the channel and wifi net devices on all nodes. The MAC layer is
 //   // configured in ad-hoc mode. Its rate-control algorithm is
 //   // ConstantRateWifiManager with the data-mode set to OfdmRate6Mbps, and the
@@ -245,20 +211,20 @@
 //   wifiHelper.SetRemoteStationManager("ns3::ConstantRateWifiManager", "DataMode", StringValue("OfdmRate6Mbps"), "RtsCtsThreshold", UintegerValue(0));
 //   devices = wifiHelper.Install(wifiPhyHelper, wifiMacHelper, nodes);
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Assign IP addresses to wife network devices
 //   Ipv4AddressHelper address;
 //   address.SetBase(NET_ADDRESS, NET_MASK_ADDRESS);
 //   Ipv4InterfaceContainer interfaces = address.Assign(devices);
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Create and bind the socket on the destination node. Set the receive
 //   // callback that prints the number of data bytes received in every packet.
 //   Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(0), UdpSocketFactory::GetTypeId());
 //   udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
 //   udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
 
-//   // WRITE YOUR CODE HERE:
+
 //   // Create and install the source application over UDP on the last node that
 //   // generates random traffic directed to the sink (n0)
 //   Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));

@@ -7,7 +7,7 @@
 // #include "ns3/netanim-module.h"
 // #include "ns3/vector.h"
 // #include "ns3/v4ping-helper.h"
-// //#include "MyRandomExpTrafficApp.h"
+// #include "MyRandomExpTrafficApp.h"
 // #include "vanet-broadcast-helper.h"
 // //#include <limits>
 // // ====================================================================
@@ -148,8 +148,8 @@
 //   uint32_t PrimaryPktSize = 1024; // bytes
 //   uint32_t InterferingPktSize = 1024; // bytes
 //   std::string AppDataRate = {'8', '1', '9', '2'}; // bits per second
-//   //uint32_t PacketSize = 512; // bytes
-//   //uint32_t PRNGRunNumber = 1;
+//   uint32_t PacketSize = 512; // bytes
+//   uint32_t PRNGRunNumber = 1;
 //   uint32_t NumPackets = 10;
 //   bool Broadcast = true;
 //   bool showPings = true;
@@ -175,16 +175,6 @@
 //   Ptr<ListPositionAllocator> PositionAllocator = CreateObject<ListPositionAllocator>(); //Goes in order from node 0 to node n
 //   //positive y points down (positive distance)
 //   PositionAllocator->Add(Vector3D(DISTANCE, 0, 0)); //node 0(promiscuous)
-//   PositionAllocator->Add(Vector3D(0, 0, 0)); //node 1 dst
-//   PositionAllocator->Add(Vector3D(0, DISTANCE, 0)); //node 2
-//   PositionAllocator->Add(Vector3D(DISTANCE, DISTANCE, 0)); //node 3
-//   PositionAllocator->Add(Vector3D(2*DISTANCE, DISTANCE, 0)); //node 4
-//   PositionAllocator->Add(Vector3D(0, 2*DISTANCE, 0)); //node 5
-//   PositionAllocator->Add(Vector3D(DISTANCE, 2*DISTANCE, 0)); //node 6
-//   PositionAllocator->Add(Vector3D(2*DISTANCE, 2*DISTANCE, 0)); //node 7
-//   PositionAllocator->Add(Vector3D(0, 3*DISTANCE, 0)); //node 8
-//   PositionAllocator->Add(Vector3D(DISTANCE, 3*DISTANCE, 0)); //node 9
-//   PositionAllocator->Add(Vector3D(2*DISTANCE, 3*DISTANCE, 0)); //node 10
 //   PositionAllocator->Add(Vector3D(2*DISTANCE, 4*DISTANCE, 0)); //node 11 src
   
 
@@ -197,6 +187,7 @@
 //   //vbp
 //   InternetStackHelper stack;
 //   VanetBroadcastHelper vbp; 
+//   vbp.SetBroadcastArea({1, 2, 3, 4});
 //   stack.SetRoutingHelper(vbp);
 //   stack.Install(nodes);
 
@@ -225,30 +216,7 @@
 //   std::ostringstream configpath;
 //   for(int i = 0; i < int(NumNodes); i++)
 //   {
-//     //promiscuous node
-//     if (i == 0){ //TODO Figure out good values for TX and RX.  TX very negative -inf. RX very big +inf. Sensitivity(what are weakest signals you can listen to) -inf.
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::WifiPhy/ChannelNumber";
-//       Config::Set(configpath.str(), UintegerValue(1));
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/Frequency";
-//       Config::Set(configpath.str(), UintegerValue((uint32_t) FREQ/1e6));
-//       configpath.str(""); configpath.clear();
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/TxPowerEnd";
-//       Config::Set(configpath.str(), DoubleValue(-1e3));
-//       configpath.str(""); configpath.clear();
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/TxPowerStart";
-//       Config::Set(configpath.str(), DoubleValue(-1e3));
-//       configpath.str(""); configpath.clear();
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/TxGain";
-//       Config::Set(configpath.str(), DoubleValue(-1e3));
-//       configpath.str(""); configpath.clear();
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/RxGain";
-//       Config::Set(configpath.str(), DoubleValue(1e3));
-//       configpath.str(""); configpath.clear();
-//       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/RxSensitivity";
-//       Config::Set(configpath.str(), DoubleValue(-1e3));
-//       configpath.str(""); configpath.clear();
-//     }
-//     else {
+
 //       //Set src, dst, regular nodes to default values
 //       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::WifiPhy/ChannelNumber";
 //       Config::Set(configpath.str(), UintegerValue(1));
@@ -270,7 +238,6 @@
 //       configpath << "/NodeList/" << nodes.Get(i)->GetId() << "/DeviceList/1/$ns3::WifiNetDevice/Phy/RxSensitivity";
 //       Config::Set(configpath.str(), DoubleValue(RX_SENSITIVITY));
 //       configpath.str(""); configpath.clear();
-//     }
 
 //   }
 
@@ -284,9 +251,9 @@
 
 //   // Create and bind the socket on the destination node. Set the receive
 //   // callback that prints the number of data bytes received in every packet.
-//   // Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(1), UdpSocketFactory::GetTypeId());
-//   // udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
-//   // udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
+//   Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(1), UdpSocketFactory::GetTypeId());
+//   udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
+//   udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
 
 
 //   // Create and install the source application over UDP on the last node that
@@ -294,15 +261,15 @@
 
 
 
-//   //Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
-//   //Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
-//   // Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
-//   // udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
-//   // nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
+//   Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(1), UDP_PORT));
+//   Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 1), UdpSocketFactory::GetTypeId());
+//   Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
+//   udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
+//   nodes.Get(NumNodes - 1)->AddApplication(udpSourceAppPtr);
 
 //   // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
-//   wifiPhyHelper.EnablePcap("3x3.pcap", nodes.Get(0)->GetDevice(1), false, true);
-//   AnimationInterface anim("3x3.xml");
+//   wifiPhyHelper.EnablePcap("3x3mod.pcap", nodes.Get(0)->GetDevice(1), false, true);
+//   AnimationInterface anim("3x3mod.xml");
 //   anim.EnablePacketMetadata(true);
 
 //   // Configure time resolution, simulation start and stop times.

@@ -23,6 +23,7 @@
 
 #include "ns3/random-variable-stream.h"
 #include "ns3/applications-module.h"
+#include "vbp-data-packet-header.h"
 
 namespace ns3
 {

@@ -1,12 +1,5 @@
-
-
-
-
-
-
 #ifndef VBPNEIGHBOR_H
 #define VBPNEIGHBOR_H
-
 #include <vector>
 #include "ns3/simulator.h"
 #include "ns3/timer.h"
@@ -18,23 +11,39 @@
 #include <algorithm>
 #include "ns3/log.h"
 #include "ns3/wifi-mac-header.h"
+#include "vbp-data-packet-header.h"
 
 namespace ns3 {
 namespace vbp {
 
-class vbpneighbors : public Object {
+class VbpNeighbors : public Object {
     public:
-        vbpneighbors ();
-        virtual ~vbpneighbors ();
+        VbpNeighbors ();
+        virtual ~VbpNeighbors ();
         static TypeId GetTypeId (void);
         virtual TypeId GetInstanceTypeId (void) const;
         virtual void Print (std::ostream &os) const;
         void AppendNeighbor(Ipv4Address neighborAddress);
-        
-        int FindNeighbor (Ipv4Address address); // returns index for specified nodeId, returns -1 if new nodeId
-        void AddNode (Ipv4Address address, uint16_t direction, uint16_t neighborsAhead, uint16_t neighborsBehind
-                , float posX, float posY, float speedX, float speedY, float neighborFurthestAheadX, float neighborFurthestAheadY
-                , float neighborFurthestBehindX, float neighborFurthestBehindY, float avgSpeedX, float avgSpeedY);
+        void AppendQueue(const Ptr<Packet> p);
+        bool QueueEmpty();
+        void RemoveQueue(VbpRoutingHeader dataHeader);
+        int FindNeighbor (Ipv4Address address); // returns index for specified nodeIP, returns -1 if new nodeIP
+        void AddNode (Ipv4Address address,
+                      uint16_t direction,
+                      uint16_t neighborsAhead,
+                      uint16_t neighborsBehind,
+                      float posX,
+                      float posY,
+                      float speedX, 
+                      float speedY, 
+                      float neighborFurthestAheadX, 
+                      float neighborFurthestAheadY,
+                      float neighborFurthestBehindX, 
+                      float neighborFurthestBehindY, 
+                      float avgSpeedX, 
+                      float avgSpeedY);
+        Ptr<Packet> GetPacketQueue();
+        uint16_t GetQueueSize();
         uint16_t Get1HopNumNeighbors ();       // total number of 1 hop neighbors
         uint16_t Get1HopNumNeighborsAhead ();  // number of neighbors ahead of 1 hop neighbor
         uint16_t Get1HopNumNeighborsBehind (); // number of neighbors behind 1 hop neighbor
@@ -68,9 +77,11 @@ class vbpneighbors : public Object {
         uint16_t Get2HopCarCount(int twoHopFurthestAheadIndex, int twoHopFurthestBehindIndex, Vector reference);
         uint16_t Get2HopCarCountSelfAhead(int twoHopFurthestAheadIndex, Vector reference);
         uint16_t Get2HopCarCountSelfBehind(int twoHopFurthestBehindIndex, Vector reference);
+        float GetNeighborHoodSpeedMeanX(); // get average from sampled values in m_mostRecentNeighborHoodNSpeedX
+	    float GetNeighborHoodSpeedMeanY(); // get average from sampled values in m_mostRecentNeighborHoodNSpeedY
         float GetLosCalculation(Vector referencePos, Vector referenceVel);
+        void SetThisNode(Ptr<Node> n);
         void PrintNeighborState ();               // will display different info
-        void PrintHello();
         void PrintNeighbors();
         void PrintNeighbors2();
         void PrintDirections ();              // will display entries in m_1HopNeighborIDs
@@ -85,6 +96,12 @@ class vbpneighbors : public Object {
         void Print1hopFurthestBehind ();      // will display position of neighbor furthest behind
         void PrintAvgSpeeds ();               // will display average speed of 1 hop neighbors
     private:
+        uint16_t m_numPackets; // total number of packets in queue
+        bool m_filledFirstTime;
+        int m_currentIdx;
+        int m_NSamples;
+        Ptr<Node> m_thisNode;
+        int m_speedLogPeriod;
         float m_neighborRemovalPeriod; // seconds
         int m_neighborTimeout;
         float m_capacityPerLane;
@@ -108,7 +125,15 @@ class vbpneighbors : public Object {
         std::vector<float> m_neighborFurthestBehindY;  // store Y of furthest behind neighbor for each IP
         std::vector<float> m_neighborAvgSpeedX;        // store average speed in X direction for each IP
         std::vector<float> m_neighborAvgSpeedY;        // store average speed in Y direction for each IP
-        std::vector<Time> m_1HopNeighborLastTime;      // store last time of communication with all neighbors 
+        std::vector<Time> m_1HopNeighborLastTime;      // store last time of communication with all neighbors
+        std::vector<float> m_mostRecentIndividualNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
+	    std::vector<float> m_mostRecentIndividualNSpeedY = std::vector<float>(m_NSamples,0);
+	    std::vector<float> m_mostRecentNeighborHoodNSpeedX = std::vector<float>(m_NSamples,0); // initializes all values to zero
+	    std::vector<float> m_mostRecentNeighborHoodNSpeedY = std::vector<float>(m_NSamples,0);
+        std::vector<Ptr<Packet>> m_packetQ; // to hold queue of packet  
+        void ScheduleSpeedLogUpdate ();  
+        void GetSpeedValue ();
+        void AddSpeedSample(float speedX, float speedY, float neighborhoodSpeedX, float neighborhoodSpeedY);
         void ScheduleNeighborRemoval ();  // creates call to CheckForNeighborRemoval periodically, specified by NEIGHBOR_REMOVAL_PERIOD in simulationConfiguration.h
         void CheckForNeighborRemoval ();
         void AddDirection (uint16_t direction, Ipv4Address address);       // will add entry to m_neighborDirection
@@ -116,12 +141,9 @@ class vbpneighbors : public Object {
         void AddNumNeighborsBehind (uint16_t numBehind); // will add entry to m_1HopNumNeighborBehind
         void AddLocation (float posX, float posY);    // will add entry to m_positionX and m_positionY
         void AddSpeed (float speedX, float speedY);   // will add entry to m_neighborSpeedX and m_neighborSpeedY
-        void AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY);
-                  // will add entry to m_neighborFurthestAheadX
-        void AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY);
-                  // will add entry to m_neighborFurthestBehindX
-        void AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY);
-                  // will add entry to m_neighborFurthestBehindX
+        void AddNeighborFurthestAhead (float neighborFurthestAheadX, float neighborFurthestAheadY);   // will add entry to m_neighborFurthestAheadX
+        void AddNeighborFurthestBehind (float neighborFurthestBehindX, float neighborFurthestBehindY);    // will add entry to m_neighborFurthestBehindX
+        void AddNeighborAvgSpeed (float neighborAvgSpeedX, float neighborAvgSpeedY);  // adds entry to m_neighborFurthestBehindX
         void UpdateNeighborIPAheadBehind (Ipv4Address address, uint16_t direction); // given ID and direction, check entry is correct
         void EraseNeighborIPAheadBehind (Ipv4Address address, uint16_t direction);  // erase ID and direction from stored data
 };
