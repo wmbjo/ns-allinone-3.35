@@ -19,28 +19,13 @@
 #include "ns3/ipv4-route.h"
 #include "vbp-data-packet-header.h"
 #include "vbp-queue.h"
+#include "vbp-next-hop-finder.h"
 
 namespace ns3
 {
 
   namespace vbp
   {
-
-//     struct RoutingTableEntry
-// {
-//   Ipv4Address destAddr; //!< Address of the destination node.
-//   Ipv4Address nextAddr; //!< Address of the next hop.
-//   uint32_t interface; //!< Interface index
-//   uint32_t distance; //!< Distance in hops to the destination.
-
-//   RoutingTableEntry (void) : // default values
-//     destAddr (), nextAddr (),
-//     interface (0), distance (0)
-//   {
-//   }
-// };
-
-
     class RoutingProtocol : public Ipv4RoutingProtocol
     {
     public:
@@ -75,6 +60,11 @@ namespace ns3
       void StartHelloTx(void);
 
     private:
+      int m_maxDistance;
+      int m_txCutoffPercentage;
+      float m_vcHighTraffic;
+      float m_vcLowTraffic;
+      //VbpNextHopFinder m_nextHopFinder;
       float m_emptyQueuePeriod;
       int m_BroadcastTime;
       /// Routing table
@@ -93,12 +83,19 @@ namespace ns3
       Ptr<Node> m_thisNode;
       Ptr<Object> m_neighborsListPointer = CreateObject<Object>();
       Ptr<Object> m_queuePointer = CreateObject<Object>();
+      //Ptr<Object> m_nextHopPointer = CreateObject<Object>();
       std::vector<float> m_broadcastArea = std::vector<float>(4,0);
       // Raw subnet directed broadcast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketSubnetBroadcastAddresses;
       /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketAddresses;
+      bool FindFirstHop(Ipv4Address* nextHopAheadPtr, Ipv4Address* nextHopBehindPtr);
       bool FindNextHop(Ipv4Address* nextHopPtr);
+      Ipv4Address FindNextHopDownstream(Vector centerBA, bool movingToBA);
+      Ipv4Address FindNextHopUpstream(Vector centerBA, bool movingToBA);
+      int FindNextHopHighTrafficDownstream(Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopMidTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopLowTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
       void EmptyQueue();
       void ScheduleEmptyQueue();
 
@@ -110,8 +107,6 @@ namespace ns3
        * \param destination is supposed to be IP address of my neighbor.
        */
       void SendTo(Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
-
-      Ipv4Address FindNextHop();
       /**
        * Receive and process packets
        * \param socket input socket

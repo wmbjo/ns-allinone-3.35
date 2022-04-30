@@ -85,7 +85,11 @@ namespace ns3
     }
 
     RoutingProtocol::RoutingProtocol()
-        : m_emptyQueuePeriod(0.5),
+        : m_maxDistance(500),
+          m_txCutoffPercentage(1),
+          m_vcHighTraffic(0.8),
+          m_vcLowTraffic(0.4),
+          m_emptyQueuePeriod(0.5),
           m_BroadcastTime(500),
           m_routingTable(Time(5)),
           m_helloPacketType('h'),
@@ -99,58 +103,16 @@ namespace ns3
       m_broadcastArea[3] = NAN;
       Ptr<VbpQueue> m_queuePointer2 = CreateObject<VbpQueue>();
       m_queuePointer->AggregateObject(m_queuePointer2);
+      //VbpNextHopFinder m_nextHopFinder;
+      // Ptr<VbpNextHopFinder> m_nextHopPointer2 = CreateObject<VbpNextHopFinder>();
+      //m_nextHopPointer->AggregateObject(m_nextHopPointer2);
+      //m_nextHopPointer = &nextHopFinder;
       ScheduleEmptyQueue();
     }
 
     RoutingProtocol::~RoutingProtocol()
     {
     }
-
-    // Ptr<Ipv4Route>
-    // RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
-    // {
-    //   Ptr<Ipv4Route> route;
-    //   NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
-    //   if (m_socketAddresses.empty ())
-    //     {
-    //       sockerr = Socket::ERROR_NOROUTETOHOST;
-    //       NS_LOG_LOGIC ("No vbp interfaces");
-    //       return route;
-    //     }
-    //   sockerr = Socket::ERROR_NOTERROR;
-
-    //   VbpRoutingHeader routingHeader;
-    //   RoutingTableEntry rt;
-
-    //   Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-    //   Ipv4Address origin = iface.GetAddress();
-    //   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-    //   routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
-    //   p->AddHeader(routingHeader);
-    //   std::cout << "Route Output: " << std::endl; 
-    //   routingHeader.Print(std::cout);
-    //   m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
-    //   std::cout << "Queue Size: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
-    //   int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
-    //   if (numNextHops > 0) //if more than 0 neighbors
-    //   {
-    //       p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
-    //       std::cout << "Queue Size 2: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
-    //       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
-    //       rt.SetNextHop(nextHop);//set route
-    //       rt.SetOutputDevice(dev);
-    //       rt.SetInterface(iface);
-    //       std::cout << "Next Hop > 0 " << std::endl; 
-    //       route = rt.GetRoute();
-    //   }
-    //   else //no neighbors
-    //   {
-    //     std::cout << "Socket Error " << std::endl; 
-    //     sockerr = Socket::ERROR_NOROUTETOHOST;
-    //   }
-
-    //   return route;
-    // }
 
     Ptr<Ipv4Route>
     RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
@@ -180,15 +142,25 @@ namespace ns3
       p->AddHeader(routingHeader);
       std::cout << "Route Output: " << std::endl; 
       routingHeader.Print(std::cout);
-      Ipv4Address nextHop;
-      if (FindNextHop(&nextHop)) //find next hop
+      Ipv4Address nextHopAhead;
+      Ipv4Address nextHopBehind;
+      if (FindFirstHop(&nextHopAhead, &nextHopBehind)) //find next hop
       {
-         std::cout << "Find Next Hop: " << nextHop << std::endl;
-         rt.SetNextHop(nextHop); //set route
+         std::cout << "Find First Hop: " << nextHopAhead << std::endl;
+         rt.SetNextHop(nextHopAhead); //set route
          rt.SetOutputDevice(dev);
          rt.SetInterface(iface);
          route = rt.GetRoute();
       } 
+      //Ipv4Address nextHop;
+      // if (FindNextHop(&nextHop)) //find next hop
+      // {
+      //    std::cout << "Find Next Hop: " << nextHop << std::endl;
+      //    rt.SetNextHop(nextHop); //set route
+      //    rt.SetOutputDevice(dev);
+      //    rt.SetInterface(iface);
+      //    route = rt.GetRoute();
+      // } 
       else
       {
         // Valid route not found, return loopback
@@ -301,98 +273,6 @@ namespace ns3
       return false;
 
     }
-
-    // bool
-    // RoutingProtocol::RouteInput(Ptr<const Packet> p, const Ipv4Header &header,
-    //                             Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
-    //                             MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
-    // {
-    //   NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
-    //   if (m_socketAddresses.empty())
-    //   {
-    //     NS_LOG_LOGIC("No vbp interfaces");
-    //     return false;
-    //   }
-    //   NS_ASSERT (m_ipv4 != 0);
-    //   NS_ASSERT (p != 0);
-    //   // Check if input device supports IP
-    //   NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
-    //   int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
-
-    //   Ipv4Address dst = header.GetDestination();
-    //   Ipv4Address origin = header.GetSource();
-
-
-    //   // VBP is not a multicast routing protocol
-    //   if (dst.IsMulticast())
-    //   {
-    //     NS_LOG_LOGIC("Multicast Return False");
-    //     return false;
-    //   }
-
-    //   // Unicast local delivery
-    //   if (m_ipv4->IsDestinationAddress(dst, iif))
-    //   {
-    //     if (lcb.IsNull() == false)
-    //     {
-    //       NS_LOG_LOGIC ("Unicast local delivery to " << dst);
-    //       lcb(p, header, iif);
-    //     }
-    //     else
-    //     {
-    //       NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
-    //       ecb (p, header, Socket::ERROR_NOROUTETOHOST);
-    //     }
-    //     return true;
-    //   }
-    //   // Forwarding
-
-    //   VbpRoutingHeader dataPacket;
-    //   Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-    //   p->PeekHeader(dataPacket);
-    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
-    //   dataPacket.SetPrevHopIP(iface.GetAddress());
-    //   std::cout << "Packet Route Input: " << std::endl; 
-    //   dataPacket.Print(std::cout);
-
-    //   // if (dataPacket.GetPacketType() == m_dataPacketType)
-    //   // {
-    //   //   std::cout << "Route input received a data packet header" << std::endl;
-    //   // }
-
-
-    //   RoutingTableEntry rt;
-    //   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-    //   //m_neighborsListPointer->GetObject<VbpNeighbors>()->AppendQueue(p); //append packet to queue
-    //   std::cout << "Queue Size 3: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
-    //   int numNextHops = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighbors(); //get num 1 hop  neighbors
-    //         std::cout << "MMMMM " << numNextHops << std::endl;
-    //   if (numNextHops > 0) //if more than 0 neighbors
-    //   {
-
-    //       p = m_neighborsListPointer->GetObject<VbpNeighbors>()->GetPacketQueue();//remove packet from queue
-    //                                     std::cout << "AAAAA " << numNextHops << std::endl;
-    //       std::cout << "Queue Size 4: " << m_neighborsListPointer->GetObject<VbpNeighbors>()->GetQueueSize() << std::endl;
-
-    //       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
-    //       rt.SetNextHop(nextHop);//set route
-    //       rt.SetOutputDevice(dev);
-    //       rt.SetInterface(iface);
-
-    //       ucb(rt.GetRoute(),p,header);
-    //       return true;
-    //   }
-    //   else //no neighbors
-    //   {
-    //     return false;
-    //     // std::cout << "LLLLL" << std::endl;
-    //     // ecb (p, header, Socket::ERROR_NOROUTETOHOST);
-    //     // return true;
-    //   }
-
-    // }
-
-
 
     void
     RoutingProtocol::NotifyInterfaceUp(uint32_t interface)
@@ -726,21 +606,293 @@ namespace ns3
     }
 
     bool
-    RoutingProtocol::FindNextHop(Ipv4Address* nextHopPtr)
+    RoutingProtocol::FindFirstHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr)
     {
-      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-      std::cout << "FindNextHop Local Address: " << iface.GetLocal () << std::endl;
-      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
+      Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+      Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
+      float upperLeftBA_x = m_broadcastArea[0];
+      float upperLeftBA_y = m_broadcastArea[1];
+      float lowerRightBA_x = m_broadcastArea[2];
+      float lowerRightBA_y = m_broadcastArea[3];
+      Vector centerBA = Vector3D((upperLeftBA_x+lowerRightBA_x)/2,(upperLeftBA_y+lowerRightBA_y)/2,0);
+      Vector vehicleToBA = centerBA - vehiclePos;
+      bool movingToBA = (vehicleVel.x*vehicleToBA.x + vehicleVel.y*vehicleToBA.y) > 0; // true if moving towards BA
+      if (movingToBA) 
       {
-        std::cout << "FindNextHop No Neighbors" << std::endl;
+        nextHopAheadPtr->Set(FindNextHopDownstream(centerBA, movingToBA).Get());
+      }
+      nextHopBehindPtr->Set(FindNextHopUpstream(centerBA, movingToBA).Get());
+      if (*nextHopAheadPtr == Ipv4Address("102.102.102.102") && *nextHopBehindPtr == Ipv4Address("102.102.102.102"))
+      {
         return false;
       }
-      std::cout << "FindNextHop Neighbors Found " << std::endl;
+      return true;
+    }
+
+    bool
+    RoutingProtocol::FindNextHop(Ipv4Address* nextHopPtr)
+    {
+      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
+      {
+        return false;
+      }
       Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
       nextHopPtr->Set(nextHop.Get());
       return true;
 
     }
+
+    Ipv4Address
+    RoutingProtocol::FindNextHopDownstream(Vector centerBA, bool movingToBA)
+    {
+      std::cout << "Find Next Hop Downstream " << std::endl;
+      if (!movingToBA)
+      {
+        return Ipv4Address("102.102.102.102"); // BA in upstream, not downstream
+      }
+      Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+      uint16_t numNeighbors = neighborInfo->Get1HopNumNeighborsAhead();
+      if (numNeighbors == 0) 
+      {
+        return Ipv4Address("102.102.102.102"); // same as receiving node since no neighbors
+      }
+      Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+      Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
+      float LOS = neighborInfo->GetLosCalculation(vehiclePos, vehicleVel); // need to check if neighbor is moving toward broadcast area, if not moving towards bA then ignore
+      //float stopDist = vehicleVel.GetLength()*3; // stopping distance according to DMV= speed*3 seconds. Distance needed to stop   
+          // include paramter to determine if msg moves ahead or backwards
+      int nextHopIdx;
+      //float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
+      if (LOS>m_vcHighTraffic) //high traffic
+      {
+        nextHopIdx = 0;
+        //nextHopIdx = findNextHopHighTrafficDownstream(allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+            //return node that is closest to broadcast area(Dn)
+      } 
+      else if (LOS<m_vcLowTraffic) //no traffic
+      {
+        nextHopIdx = 0;
+        //nextHopIdx = findNextHopLowTrafficDownstream(neighborHoodSpeed, allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+            //return node with MDT
+      }
+      else //medium traffic
+      {
+        nextHopIdx = 0;
+        //nextHopIdx = findNextHopMidTrafficDownstream(neighborHoodSpeed, allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+            //return node with smallest Dn and MDT
+      }
+      if (nextHopIdx >= 0)
+      {
+        return neighborInfo->Get1HopNeighborIP(nextHopIdx);
+      }
+      return Ipv4Address("102.102.102.102");
+    }
+
+    Ipv4Address
+    RoutingProtocol::FindNextHopUpstream(Vector centerBA, bool movingToBA)
+    {
+      std::cout << "Find Next Hop Upstream " << centerBA << "moving " << std::endl;
+      Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+      uint16_t numNeighbors = neighborInfo->Get1HopNumNeighborsAhead();
+      if (numNeighbors == 0) 
+      {
+        return Ipv4Address("102.102.102.102"); // same as receiving node since no neighbors
+      }
+      Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+      Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
+      float LOS = neighborInfo->GetLosCalculation(vehiclePos, vehicleVel);
+      //stopDist = vehicleVel.GetLength()*3;
+      int nextHopIdx;
+      float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
+      if (!movingToBA)
+      {
+        if (LOS>m_vcHighTraffic)
+        {
+          nextHopIdx = 0;
+          //nextHopIdx = findNextHopHighTrafficUpstreamAwayBA(allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        } 
+        else if (LOS<m_vcLowTraffic) 
+        {
+          nextHopIdx = 0;
+          //nextHopIdx = findNextHopLowTrafficUpstreamAwayBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        } 
+        else
+        {
+          nextHopIdx = 0;
+          //nextHopIdx = findNextHopMidTrafficUpstreamAwayBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        }
+      }
+      else
+      {
+        // Determine if will reach BA before it expires, return -1 if not closeToBA 	
+        float currentMDT = CalculateDistance(vehiclePos, centerBA)/neighborhoodSpeed;  
+        //bool closeToBA = false;
+        if (Simulator::Now()/1e9 + currentMDT <= m_BroadcastTime)
+        { 
+          if (LOS>m_vcHighTraffic)
+          {
+            //nextHopIdx = findNextHopHighTrafficUpstreamToBA(allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          } 
+          else if (LOS<m_vcLowTraffic)
+          {
+            //nextHopIdx = findNextHopLowTrafficUpstreamToBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          } 
+          else 
+          {
+           // nextHopIdx = findNextHopMidTrafficUpstreamToBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          }
+        }
+        else
+        {
+          std::cout << "Will not reach broadcast area" << std::endl;
+          return Ipv4Address("102.102.102.102");
+        }
+
+      }
+
+      if (nextHopIdx >= 0)
+      {
+        neighborInfo->Get1HopNeighborIP(nextHopIdx);
+      }
+
+      return Ipv4Address("102.102.102.102");
+    }
+
+int
+RoutingProtocol::FindNextHopHighTrafficDownstream(Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  //used in heavy traffic
+  //finds next hop based on vehicle closest to broadcast area      
+  // high traffic downstream: 
+  // movement towards BA: consider neighbors ahead, closest to BA
+  // movement away BA: wont receive -- handled by Rx callback
+  std::cout << "Next hop based on high traffic, consider neighbors ahead, Min dist to BA" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors();
+  float currentMin = std::numeric_limits<float>::max();
+  int furthestIdx = -1;
+  float neighborDist;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++)
+  {  
+    if (neighborInfo->Get1HopDirection(idx) == 0) { // car is behind, then skip
+        continue;
+    }      
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos) < stopDist) {
+        std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) {
+        std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    std::cout << "Current min dist is:"<< currentMin << ", best idx is "<< furthestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", Neighbor dist is: " << neighborDist << ", Neighbor dist is: "<< neighborDist<<std::endl;
+    if (neighborDist < currentMin) {
+        // if closer to broadcast area, change current id  
+        currentMin = neighborDist;           
+        furthestIdx = idx;                
+    }
+  }
+return furthestIdx;  
+}
+      
+int 
+RoutingProtocol::FindNextHopMidTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in mid traffic
+  //finds next hop based on vehicle with Max of sqrt(speed^2 + distToNeighbor^2)
+  // Mid traffic downstream: 
+  // movement towards BA: consider neighbors ahead, Max of sqrt(speed^2 + distToNeighbor^2)
+  // movement away BA: wont receive  -- handled by Rx callback
+  std::cout << "Next hop based on mid traffic, consider neighbors ahead, Max of sqrt(speed^2 + distToNeighbor^2)" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMax = -1; 
+  int bestIdx = -1;    
+  float distToNeighbor;
+  float neighborMax;
+  float neighborVel;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++)
+  {   
+    if (neighborInfo->Get1HopDirection(idx) == 0)
+    { // car is behind, then skip
+      continue;
+    }    
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    distToNeighbor = CalculateDistance(neighborPos, vehiclePos);
+    if (distToNeighbor < stopDist) 
+    {
+        std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (distToNeighbor >= m_maxDistance*m_txCutoffPercentage) 
+    {
+        std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    // use most recent measurement speed of individual node
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    neighborMax = std::sqrt(neighborVel*neighborVel + distToNeighbor*distToNeighbor);
+    if (neighborMax > currentMax) 
+    {
+        currentMax = neighborMax;       
+        bestIdx = idx;                
+    }                
+  }
+  return bestIdx;  
+}
+      
+int
+RoutingProtocol::FindNextHopLowTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in low traffic
+  //finds next hop based on vehicle with minimum message delivery time 
+  // Low traffic downstream:
+  // movement towards BA : consider neighbors ahead, min MDT
+  // movement away BA : wont receive -- handled by Rx callback
+  std::cout << "Next hop based on low traffic, Min MDT" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMDT = std::numeric_limits<float>::max();
+  int bestIdx = -1;    
+  float neighborDist;
+  float neighborVel;
+  float neighborMDT;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++)
+  {  
+    if (neighborInfo->Get1HopDirection(idx) == 0) 
+    { // car is behind, then skip
+        continue;
+    }      
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos)  < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    neighborMDT = neighborDist/neighborVel;
+    std::cout << "Current MDT is:"<< currentMDT << ", best idx is "<< bestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", Neighbor dist is: " << neighborDist << ", Neighbor MDT is: "<< neighborMDT<<std::endl;
+    if (neighborMDT < currentMDT) {
+        // if will drive faster to broadcast area, change current id  
+        currentMDT = neighborMDT;           
+        bestIdx = idx;                
+    }
+  }
+  return bestIdx;   
+}
 
 Ptr<Ipv4Route>
 RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) const

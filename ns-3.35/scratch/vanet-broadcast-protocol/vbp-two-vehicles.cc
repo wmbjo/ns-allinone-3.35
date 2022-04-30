@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     // vbp
     InternetStackHelper stack;
     VanetBroadcastHelper vbp; //VanetBroadcastHelper
-    vbp.SetBroadcastArea({1, 2, 3, 4});
+    vbp.SetBroadcastArea({100, 10, 150, 0});
     stack.SetRoutingHelper(vbp);
     stack.Install(nodes);
 
