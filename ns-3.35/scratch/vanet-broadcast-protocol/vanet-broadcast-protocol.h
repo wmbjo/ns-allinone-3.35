@@ -94,8 +94,14 @@ namespace ns3
       Ipv4Address FindNextHopDownstream(Vector centerBA, bool movingToBA);
       Ipv4Address FindNextHopUpstream(Vector centerBA, bool movingToBA);
       int FindNextHopHighTrafficDownstream(Vector centerBA, Vector vehiclePos, float stopDist);
-      int FindNextHopMidTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
-      int FindNextHopLowTrafficDownstream(float neighborHoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopMidTrafficDownstream(float neighborhoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopLowTrafficDownstream(float neighborhoodSpeed, Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopHighTrafficUpstreamToBA(Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopHighTrafficUpstreamAwayBA(Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopMidTrafficUpstreamToBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopMidTrafficUpstreamAwayBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopLowTrafficUpstreamToBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist);
+      int FindNextHopLowTrafficUpstreamAwayBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist);
       void EmptyQueue();
       void ScheduleEmptyQueue();
 

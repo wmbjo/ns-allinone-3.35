@@ -659,26 +659,26 @@ namespace ns3
       Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
       Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
       float LOS = neighborInfo->GetLosCalculation(vehiclePos, vehicleVel); // need to check if neighbor is moving toward broadcast area, if not moving towards bA then ignore
-      //float stopDist = vehicleVel.GetLength()*3; // stopping distance according to DMV= speed*3 seconds. Distance needed to stop   
+      float stopDist = vehicleVel.GetLength()*3; // stopping distance according to DMV= speed*3 seconds. Distance needed to stop   
           // include paramter to determine if msg moves ahead or backwards
       int nextHopIdx;
-      //float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
+      float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
       if (LOS>m_vcHighTraffic) //high traffic
       {
-        nextHopIdx = 0;
-        //nextHopIdx = findNextHopHighTrafficDownstream(allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        //nextHopIdx = 0;
+        nextHopIdx = FindNextHopHighTrafficDownstream(centerBA, vehiclePos, stopDist);
             //return node that is closest to broadcast area(Dn)
       } 
       else if (LOS<m_vcLowTraffic) //no traffic
       {
-        nextHopIdx = 0;
-        //nextHopIdx = findNextHopLowTrafficDownstream(neighborHoodSpeed, allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        //nextHopIdx = 0;
+        nextHopIdx = FindNextHopLowTrafficDownstream(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
             //return node with MDT
       }
       else //medium traffic
       {
-        nextHopIdx = 0;
-        //nextHopIdx = findNextHopMidTrafficDownstream(neighborHoodSpeed, allNeighborInfo, center, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+        //nextHopIdx = 0;
+        nextHopIdx = FindNextHopMidTrafficDownstream(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
             //return node with smallest Dn and MDT
       }
       if (nextHopIdx >= 0)
@@ -701,25 +701,25 @@ namespace ns3
       Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
       Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
       float LOS = neighborInfo->GetLosCalculation(vehiclePos, vehicleVel);
-      //stopDist = vehicleVel.GetLength()*3;
+      float stopDist = vehicleVel.GetLength()*3;
       int nextHopIdx;
       float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
       if (!movingToBA)
       {
         if (LOS>m_vcHighTraffic)
         {
-          nextHopIdx = 0;
-          //nextHopIdx = findNextHopHighTrafficUpstreamAwayBA(allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          //nextHopIdx = 0;
+          nextHopIdx = FindNextHopHighTrafficUpstreamAwayBA(centerBA, vehiclePos, stopDist);
         } 
         else if (LOS<m_vcLowTraffic) 
         {
-          nextHopIdx = 0;
-          //nextHopIdx = findNextHopLowTrafficUpstreamAwayBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          //nextHopIdx = 0;
+          nextHopIdx = FindNextHopLowTrafficUpstreamAwayBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
         } 
         else
         {
-          nextHopIdx = 0;
-          //nextHopIdx = findNextHopMidTrafficUpstreamAwayBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+          //nextHopIdx = 0;
+          nextHopIdx = FindNextHopMidTrafficUpstreamAwayBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
         }
       }
       else
@@ -731,15 +731,15 @@ namespace ns3
         { 
           if (LOS>m_vcHighTraffic)
           {
-            //nextHopIdx = findNextHopHighTrafficUpstreamToBA(allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+            nextHopIdx = FindNextHopHighTrafficUpstreamToBA(centerBA, vehiclePos, stopDist);
           } 
           else if (LOS<m_vcLowTraffic)
           {
-            //nextHopIdx = findNextHopLowTrafficUpstreamToBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+            nextHopIdx = FindNextHopLowTrafficUpstreamToBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
           } 
           else 
           {
-           // nextHopIdx = findNextHopMidTrafficUpstreamToBA(neighborHoodSpeed, allNeighborInfo, centerBA, receivingNode->GetObject<MobilityModel>()->GetPosition(), stopDist);
+           nextHopIdx = FindNextHopMidTrafficUpstreamToBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
           }
         }
         else
@@ -892,6 +892,300 @@ RoutingProtocol::FindNextHopLowTrafficDownstream(float neighborHoodSpeed, Vector
     }
   }
   return bestIdx;   
+}
+
+int 
+RoutingProtocol::FindNextHopHighTrafficUpstreamToBA(Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  //used in heavy traffic
+  //finds next hop based on vehicle furthest to broadcast area    
+  // High traffic upstream: 
+  // movement towards BA : consider neighbors behind, farthest from BA
+  // movement away BA : consider neighbors behind, min Dist to BA
+  std::cout << "Next hop based on high traffic, Max dist to BA" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMax = -1; //if current node closer, hold onto packet
+  int furthestIdx = -1;    
+  float neighborDist;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++)
+  {  
+    if (neighborInfo->Get1HopDirection(idx) == 1)
+    { // car is ahead, then skip
+        continue;
+    }      
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos) < stopDist)
+    {
+        std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
+    {
+        std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+        continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    std::cout << "Current dist is:"<< currentMax << ", best idx is "<< furthestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", Neighbor dist is: " << neighborDist << ", Neighbor dist is: "<< neighborDist<<std::endl;
+    if (neighborDist > currentMax) 
+    {
+        // if closer to broadcast area, change current id  
+        currentMax = neighborDist;           
+        furthestIdx = idx;                
+    }
+  }
+  return furthestIdx; 
+}
+
+int 
+RoutingProtocol::FindNextHopHighTrafficUpstreamAwayBA(Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  //used in heavy traffic
+  //finds next hop based on vehicle min Dist to BA    
+  // High traffic upstream: 
+  // movement towards BA : consider neighbors behind, farthest from BA
+  // movement away BA : consider neighbors behind, min Dist to BA
+  std::cout << "Next hop based on high traffic, Min dist to BA" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMin = std::numeric_limits<float>::max(); //if current node closer, hold onto packet
+  int furthestIdx = -1;    
+  float neighborDist;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++) 
+  {  
+    if (neighborInfo->Get1HopDirection(idx) == 1) 
+    { // car is ahead, then skip, only change from high traffic
+      continue;
+    }      
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos) < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    std::cout << "Current dist is:"<< currentMin << ", best idx is "<< furthestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", Neighbor dist is: " << neighborDist << ", Neighbor dist is: "<< neighborDist<<std::endl;
+    if (neighborDist < currentMin) 
+    {
+      // if closer to broadcast area, change current id  
+      currentMin = neighborDist;           
+      furthestIdx = idx;                
+    }
+  }
+  return furthestIdx;   
+}
+
+int 
+RoutingProtocol::FindNextHopMidTrafficUpstreamToBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in mid traffic
+  //finds next hop based on vehicle with Max of sqrt(MDT^2 + distToNeighbor^2)
+  // Mid traffic upstream: 
+  // movement towards BA : consider neighbors behind, Max of sqrt(MDT^2 + distToNeighbor^2)
+  // movement away BA : consider neighbors behind, min of sqrt(speed^2 + distToNeighborToBA^2)
+  std::cout << "Next hop based on mid traffic, Max of sqrt(MDT^2 + distToNeighbor^2)" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMax = -1; 
+  int bestIdx = -1;    
+  float neighborMDT;
+  float neighborMax;
+  float neighborVel;
+  float neighborDist;
+  float distToNeighbor;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++) 
+  {   
+    if (neighborInfo->Get1HopDirection(idx) == 1)
+    { // car is ahead, then skip, only change from high traffic
+    continue;
+    } 
+    // wil include vehicles ahead and behind in case they have max MDT    
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    distToNeighbor = CalculateDistance(neighborPos, vehiclePos);
+    if (distToNeighbor < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (distToNeighbor >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    neighborMDT = neighborDist/neighborVel;
+    neighborMax = std::sqrt(neighborMDT*neighborMDT + distToNeighbor*distToNeighbor); 
+    std::cout << "Current Max is:" << currentMax << ", best idx is "<< bestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", dist To Neighbor is: " << distToNeighbor << ", Neighbor Max is: " << neighborMax << std::endl;
+    if (neighborMax > currentMax) 
+    { 
+      currentMax = neighborMax;        
+      bestIdx = idx;                
+    }                
+  }
+  return bestIdx; 
+}
+
+int 
+RoutingProtocol::FindNextHopMidTrafficUpstreamAwayBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in mid traffic
+  //finds next hop based on vehicle with min of sqrt(speed^2 + distNeighborToBA^2)
+  // Mid traffic upstream: 
+  // movement towards BA : consider neighbors behind, Max of sqrt(MDT^2 + distToNeighbor^2)
+  // movement away BA : consider neighbors behind, min of sqrt(speed^2 + distNeighborToBA^2)
+  std::cout << "Next hop based on mid traffic, min of sqrt(speed^2 + distToNeighborToBA^2)" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMin = std::numeric_limits<float>::max();
+  int bestIdx = -1;    
+  float neighborDist;
+  float neighborVel;
+  float neighborMin;
+  float distToNeighbor;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++) 
+  {   
+    if (neighborInfo->Get1HopDirection(idx) == 1)
+    { // car is ahead, then skip, only change from high traffic
+    continue;
+    } 
+    // wil include vehicles ahead and behind in case they have max MDT    
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    distToNeighbor = CalculateDistance(neighborPos, vehiclePos);
+    if (distToNeighbor < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (distToNeighbor >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue;
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    neighborMin = std::sqrt(neighborVel*neighborVel + neighborDist*neighborDist); 
+    std::cout << "Current Min is:" << currentMin << ", best idx is "<< bestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", dist To Neighbor is: " << distToNeighbor << ", Neighbor Min is: " << neighborMin << std::endl;
+    if (neighborMin < currentMin) 
+    { 
+    //if (neighborInfo->Get1HopNumberOfNodesBehindOfNeighbor(idx) == 0) {
+        // if node doesn't have neighbors ahead, move on
+        // continue;
+    //} 
+      currentMin = neighborMin;        
+      bestIdx = idx;                
+    }                
+  }
+  return bestIdx;    
+}
+
+int 
+RoutingProtocol::FindNextHopLowTrafficUpstreamToBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in low traffic
+  //finds next hop based on vehicle with maximum message delivery time
+  // Low traffic upstream: 
+  // movement towards BA : consider neighbors behind, max MDT
+  // movement away BA : consider neighbors behind, min speed
+  std::cout << "Next hop based on low traffic, Max MDT" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentMDT = -1;
+  int bestIdx = -1;    
+  float neighborDist;
+  float neighborVel;
+  float neighborMDT;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++) 
+  {  
+    // will consider vehicles going behind, change from low traffic 
+    if (neighborInfo->Get1HopDirection(idx) == 1) 
+    { // car is ahead, then skip,only change from high traffic
+      continue;
+    }     
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos)  < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue;
+    }
+    neighborDist = CalculateDistance(neighborPos, centerBA);
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    neighborMDT = neighborDist/neighborVel;
+    std::cout << "Current MDT is:"<< currentMDT << ", best idx is "<< bestIdx << std::endl;
+    std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx;
+    std::cout << ", Neighbor dist is: " << neighborDist << ", Neighbor MDT is: "<< neighborMDT<<std::endl;
+    if (neighborMDT > currentMDT) 
+    {
+      currentMDT = neighborMDT;           
+      bestIdx = idx;              
+    }
+  }
+  return bestIdx;   
+}
+
+int 
+RoutingProtocol::FindNextHopLowTrafficUpstreamAwayBA(float neighborhoodSpeed,Vector centerBA, Vector vehiclePos, float stopDist)
+{
+  // used in low traffic
+  //finds next hop based on vehicle with minimum speed
+  // Low traffic upstream: 
+  // movement towards BA : consider neighbors behind, max MDT
+  // movement away BA : consider neighbors behind, min speed
+  std::cout << "Next hop based on low traffic, Min speed" << std::endl;
+  Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  uint16_t numNeighbors = neighborInfo->Get1HopNumNeighbors(); 
+  float currentSpeed = std::numeric_limits<float>::max(); 
+  int bestIdx = -1;    
+  float neighborVel;
+  Vector neighborPos;
+  for(uint16_t idx = 0; idx < numNeighbors; idx++) 
+  {  
+    // will consider vehicles going behind
+    if (neighborInfo->Get1HopDirection(idx) == 1) 
+    { // car is ahead, then skip
+      continue;
+    }     
+    neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
+    if (CalculateDistance(neighborPos, vehiclePos)  < stopDist) 
+    {
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
+    }
+    if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
+    {
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; 
+    }
+    neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
+    std::cout << "Current speed is:"<< currentSpeed << ", best idx is "<< bestIdx << std::endl;
+    std::cout << "Neighbor speed is: "<< neighborVel << std::endl;
+    if (neighborVel <= currentSpeed) 
+    {
+      // if will drive slower, change current id  
+      currentSpeed = neighborVel;           
+      bestIdx = idx;              
+    }
+  }
+  return bestIdx; 
 }
 
 Ptr<Ipv4Route>
