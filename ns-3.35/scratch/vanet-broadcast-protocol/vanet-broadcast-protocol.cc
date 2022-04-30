@@ -831,16 +831,16 @@ RoutingProtocol::FindNextHopMidTrafficDownstream(float neighborHoodSpeed, Vector
     }
     if (distToNeighbor >= m_maxDistance*m_txCutoffPercentage) 
     {
-        std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
-        continue; // if not going to move more than 3 second of driving, hold onto packet
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
     }
     // use most recent measurement speed of individual node
     neighborVel = Vector3D(neighborInfo->GetNeighborSpeedX(idx), neighborInfo->GetNeighborSpeedY(idx),0).GetLength();
     neighborMax = std::sqrt(neighborVel*neighborVel + distToNeighbor*distToNeighbor);
     if (neighborMax > currentMax) 
     {
-        currentMax = neighborMax;       
-        bestIdx = idx;                
+      currentMax = neighborMax;       
+      bestIdx = idx;                
     }                
   }
   return bestIdx;  
@@ -913,27 +913,27 @@ RoutingProtocol::FindNextHopHighTrafficUpstreamToBA(Vector centerBA, Vector vehi
   {  
     if (neighborInfo->Get1HopDirection(idx) == 1)
     { // car is ahead, then skip
-        continue;
+      continue;
     }      
     neighborPos = Vector3D(neighborInfo->GetNeighborPositionX(idx), neighborInfo->GetNeighborPositionY(idx),0);
     if (CalculateDistance(neighborPos, vehiclePos) < stopDist)
     {
-        std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
-        continue; // if not going to move more than 3 second of driving, hold onto packet
+      std::cout << "\nToo close, They are  within(m): " << stopDist << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
     }
     if (CalculateDistance(neighborPos, vehiclePos) >= m_maxDistance*m_txCutoffPercentage) 
     {
-        std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
-        continue; // if not going to move more than 3 second of driving, hold onto packet
+      std::cout << "\nToo far, may not make it to them. They are  within(m): " << m_maxDistance*m_txCutoffPercentage << std::endl;               
+      continue; // if not going to move more than 3 second of driving, hold onto packet
     }
     neighborDist = CalculateDistance(neighborPos, centerBA);
     std::cout << "Current dist is:"<< currentMax << ", best idx is "<< furthestIdx << std::endl;
     std::cout << "Neighbor id is: "<< neighborInfo->Get1HopNeighborIP(idx) << ", idx is: " << idx << ", Neighbor dist is: " << neighborDist << ", Neighbor dist is: "<< neighborDist<<std::endl;
     if (neighborDist > currentMax) 
     {
-        // if closer to broadcast area, change current id  
-        currentMax = neighborDist;           
-        furthestIdx = idx;                
+      // if closer to broadcast area, change current id  
+      currentMax = neighborDist;           
+      furthestIdx = idx;                
     }
   }
   return furthestIdx; 
