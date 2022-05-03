@@ -90,7 +90,7 @@ namespace ns3
           m_vcHighTraffic(0.8),
           m_vcLowTraffic(0.4),
           m_emptyQueuePeriod(0.5),
-          m_BroadcastTime(500),
+          m_BroadcastTime(1000000),
           m_routingTable(Time(5)),
           m_helloPacketType('h'),
           m_dataPacketType('d')
@@ -131,26 +131,46 @@ namespace ns3
       RoutingTableEntry rt;
       Ipv4Address dst = header.GetDestination ();
       Ipv4Address src = header.GetSource();
-      std::cout << "RO DST: " << dst << std::endl;
-      std::cout << "RO Src: " << src << std::endl;
+      //std::cout << "RO DST: " << dst << std::endl;
+      //std::cout << "RO Src: " << src << std::endl;
 
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ipv4Address origin = iface.GetAddress();
-      std::cout << "RO Origin: " << origin << std::endl;
+      //std::cout << "RO Origin: " << origin << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
       p->AddHeader(routingHeader);
-      std::cout << "Route Output: " << std::endl; 
+      //std::cout << "Route Output: " << std::endl; 
       routingHeader.Print(std::cout);
       Ipv4Address nextHopAhead;
       Ipv4Address nextHopBehind;
       if (FindFirstHop(&nextHopAhead, &nextHopBehind)) //find next hop
       {
          std::cout << "Find First Hop: " << nextHopAhead << std::endl;
-         rt.SetNextHop(nextHopAhead); //set route
-         rt.SetOutputDevice(dev);
-         rt.SetInterface(iface);
-         route = rt.GetRoute();
+         if (nextHopAhead != Ipv4Address("102.102.102.102"))
+         {
+          std::cout << "Next Hop Ahead" << std::endl;
+          rt.SetNextHop(nextHopAhead); 
+          rt.SetOutputDevice(dev);
+          rt.SetInterface(iface);
+          route = rt.GetRoute();
+         }
+         else
+         {
+           sockerr = Socket::ERROR_NOROUTETOHOST;
+         }
+         if (nextHopBehind != Ipv4Address("102.102.102.102"))
+         {
+           std::cout << "Next Hop Behind" << std::endl;
+           Ptr<Packet> q = p->Copy();
+           Ptr<Ipv4Route> routeUpstream;
+           rt.SetNextHop(nextHopBehind);
+           rt.SetOutputDevice(dev);
+           rt.SetInterface(iface);
+           routeUpstream = rt.GetRoute();
+           Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+           l3->Send(q, src, dst, header.GetProtocol(), routeUpstream);
+         }
       } 
       //Ipv4Address nextHop;
       // if (FindNextHop(&nextHop)) //find next hop
@@ -163,6 +183,7 @@ namespace ns3
       // } 
       else
       {
+        std::cout << "Valid Route Not Found" << std::endl;
         // Valid route not found, return loopback
         uint32_t iif = (oif ? m_ipv4->GetInterfaceForDevice (oif) : -1);
         DeferredRouteOutputTag tag (iif);
@@ -186,7 +207,7 @@ namespace ns3
                                 Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
                                 MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
     {
-      std::cout << "Route Input: " << std::endl;
+      //std::cout << "Route Input: " << std::endl;
       NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
       if (m_socketAddresses.empty())
       {
@@ -200,18 +221,18 @@ namespace ns3
       int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
       Ipv4Address dst = header.GetDestination();
       Ipv4Address origin = header.GetSource();
-      std::cout << "RI DST: " << dst << std::endl;
-      std::cout << "RI Origin: " << origin << std::endl;
+      //std::cout << "RI DST: " << dst << std::endl;
+      //std::cout << "RI Origin: " << origin << std::endl;
       
 
       // Deferred route request
       if (idev == m_lo)
       {
-        std::cout << "Deferred Route Request" << std::endl;
+        //std::cout << "Deferred Route Request" << std::endl;
         DeferredRouteOutputTag tag;
         if (p->PeekPacketTag (tag))
         {
-          std::cout << "Deferred Route Request 2" << std::endl;
+          //std::cout << "Deferred Route Request 2" << std::endl;
           DeferredRouteOutput (p, header, ucb, ecb);
           return false;
           //return true;
@@ -230,13 +251,13 @@ namespace ns3
       {
         if (lcb.IsNull() == false)
         {
-          std::cout << "Local Delivery " << dst << std::endl;
+          //std::cout << "Local Delivery " << dst << std::endl;
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
           lcb(p, header, iif);
         }
         else
         {
-          std::cout << "Error Delivery " << dst << std::endl;
+          //std::cout << "Error Delivery " << dst << std::endl;
           NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
           ecb (p, header, Socket::ERROR_NOROUTETOHOST);
         }
@@ -247,7 +268,7 @@ namespace ns3
       VbpRoutingHeader routingHeader;
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       p->PeekHeader(routingHeader);
-      std::cout << "SF " << iface.GetLocal() << std::endl;
+      //std::cout << "SF " << iface.GetLocal() << std::endl;
       routingHeader.SetPrevHopIP(iface.GetAddress()); 
       routingHeader.Print(std::cout);
 
@@ -258,7 +279,7 @@ namespace ns3
       Ipv4Address nextHop;
       if (FindNextHop(&nextHop)) //find next hop
       {
-         std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
+         //std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
          RoutingTableEntry rt;
          Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
          rt.SetNextHop(nextHop); //set route
@@ -267,7 +288,7 @@ namespace ns3
          ucb(rt.GetRoute(),p,header);
          return true;
       } 
-      std::cout << "RI Find Next Hop FALSE: " << nextHop << std::endl; //why is nextHop returning 102.102.102.102. RouteOutput transmits a 102.102.102.102 packet, why? Should not be Tx. Packet needs to be initialized.
+      //std::cout << "RI Find Next Hop FALSE: " << nextHop << std::endl; //why is nextHop returning 102.102.102.102. RouteOutput transmits a 102.102.102.102 packet, why? Should not be Tx. Packet needs to be initialized.
       //Add a vector to AppendQueue to pair packet and header. Treat them in unison.
       //Step After: Schedule packet removal. Follow Roberto's code "CheckForQueueRemoval" and follow logic in my method, QueueRemoval. I need to remove packet and header from queue, and only send packet. To send packet, use Ipv4L3 Send().
       return false;
@@ -645,7 +666,7 @@ namespace ns3
     Ipv4Address
     RoutingProtocol::FindNextHopDownstream(Vector centerBA, bool movingToBA)
     {
-      std::cout << "Find Next Hop Downstream " << std::endl;
+      //std::cout << "Find Next Hop Downstream " << std::endl;
       if (!movingToBA)
       {
         return Ipv4Address("102.102.102.102"); // BA in upstream, not downstream
@@ -727,7 +748,7 @@ namespace ns3
         // Determine if will reach BA before it expires, return -1 if not closeToBA 	
         float currentMDT = CalculateDistance(vehiclePos, centerBA)/neighborhoodSpeed;  
         //bool closeToBA = false;
-        if (Simulator::Now()/1e9 + currentMDT <= m_BroadcastTime)
+        if ((Simulator::Now()/1e9 + Seconds(currentMDT)) <= Seconds(m_BroadcastTime))
         { 
           if (LOS>m_vcHighTraffic)
           {

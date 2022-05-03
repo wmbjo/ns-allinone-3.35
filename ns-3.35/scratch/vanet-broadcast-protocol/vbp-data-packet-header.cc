@@ -28,7 +28,7 @@ namespace ns3
  void VbpRoutingHeader::Print (std::ostream &os) const {
    // This method is invoked by the packet printing
    // routines to print the content of my header.
-    os << "Packet type: " << GetPacketType() << std::endl;
+   // os << "Packet type: " << GetPacketType() << std::endl;
     os << "Previous Hop: " << GetPrevHopIP() << std::endl;
     //os << "point 1: " << GetPosition1X() << ", " << GetPosition1Y() << std::endl;
     //os << "point 2: " << GetPosition2X() << ", " << GetPosition2Y() << std::endl;
