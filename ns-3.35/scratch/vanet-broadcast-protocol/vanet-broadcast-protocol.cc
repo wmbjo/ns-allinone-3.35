@@ -144,43 +144,38 @@ namespace ns3
       routingHeader.Print(std::cout);
       Ipv4Address nextHopAhead;
       Ipv4Address nextHopBehind;
+      std::cout << "Route Output Packet Type: " << routingHeader.GetPacketType() << std::endl;
       if (FindFirstHop(&nextHopAhead, &nextHopBehind)) //find next hop
       {
-         std::cout << "Find First Hop: " << nextHopAhead << std::endl;
-         if (nextHopAhead != Ipv4Address("102.102.102.102"))
+         rt.SetOutputDevice(dev);
+         rt.SetInterface(iface);
+         if (nextHopAhead != Ipv4Address("102.102.102.102") && nextHopBehind != Ipv4Address("102.102.102.102")) //case: hops both ahead and behind
          {
-          std::cout << "Next Hop Ahead" << std::endl;
+          std::cout << "Next Hop Ahead and Behind" << std::endl;
+          // next hop ahead
           rt.SetNextHop(nextHopAhead); 
-          rt.SetOutputDevice(dev);
-          rt.SetInterface(iface);
           route = rt.GetRoute();
+          // next hop behind
+          Ptr<Packet> q = p->Copy();
+          Ptr<Ipv4Route> routeUpstream;
+          rt.SetNextHop(nextHopBehind);
+          routeUpstream = rt.GetRoute();
+          Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+          l3->Send(q, src, dst, header.GetProtocol(), routeUpstream);
          }
+         else if (nextHopAhead != Ipv4Address("102.102.102.102"))
+         {
+          std::cout << "Next Hop Ahead Only" << std::endl;
+          rt.SetNextHop(nextHopAhead); 
+          route = rt.GetRoute();
+         } 
          else
          {
-           sockerr = Socket::ERROR_NOROUTETOHOST;
-         }
-         if (nextHopBehind != Ipv4Address("102.102.102.102"))
-         {
-           std::cout << "Next Hop Behind" << std::endl;
-           Ptr<Packet> q = p->Copy();
-           Ptr<Ipv4Route> routeUpstream;
-           rt.SetNextHop(nextHopBehind);
-           rt.SetOutputDevice(dev);
-           rt.SetInterface(iface);
-           routeUpstream = rt.GetRoute();
-           Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
-           l3->Send(q, src, dst, header.GetProtocol(), routeUpstream);
+          std::cout << "Next Hop Behind Only" << std::endl;
+          rt.SetNextHop(nextHopBehind);
+          route = rt.GetRoute();
          }
       } 
-      //Ipv4Address nextHop;
-      // if (FindNextHop(&nextHop)) //find next hop
-      // {
-      //    std::cout << "Find Next Hop: " << nextHop << std::endl;
-      //    rt.SetNextHop(nextHop); //set route
-      //    rt.SetOutputDevice(dev);
-      //    rt.SetInterface(iface);
-      //    route = rt.GetRoute();
-      // } 
       else
       {
         std::cout << "Valid Route Not Found" << std::endl;
@@ -220,11 +215,9 @@ namespace ns3
       NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
       int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
       Ipv4Address dst = header.GetDestination();
-      Ipv4Address origin = header.GetSource();
-      //std::cout << "RI DST: " << dst << std::endl;
-      //std::cout << "RI Origin: " << origin << std::endl;
-      
-
+      Ipv4Address src = header.GetSource();
+      //std::cout << "RI SRC: " << src << std::endl;
+    
       // Deferred route request
       if (idev == m_lo)
       {
@@ -238,7 +231,6 @@ namespace ns3
           //return true;
         }        
       }
-
       // VBP is not a multicast routing protocol
       if (dst.IsMulticast())
       {
@@ -247,50 +239,49 @@ namespace ns3
       }
 
       // Unicast local delivery
+
       if (m_ipv4->IsDestinationAddress(dst, iif))
       {
+
         if (lcb.IsNull() == false)
         {
-          //std::cout << "Local Delivery " << dst << std::endl;
+          //print out packet type
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
           lcb(p, header, iif);
         }
         else
         {
           //std::cout << "Error Delivery " << dst << std::endl;
-          NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << origin);
+          NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << src);
           ecb (p, header, Socket::ERROR_NOROUTETOHOST);
         }
         return true;
       }
-      // Forwarding
-
+      std::cout << "Hello World 2" << std::endl;
       VbpRoutingHeader routingHeader;
-      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       p->PeekHeader(routingHeader);
-      //std::cout << "SF " << iface.GetLocal() << std::endl;
-      routingHeader.SetPrevHopIP(iface.GetAddress()); 
-      routingHeader.Print(std::cout);
+      std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
+      std::cout << "RI DST: " << dst << std::endl;
+      // Forward packet
+      // not a loopback, local delivery or multicast
+      // VbpRoutingHeader routingHeader;
+      // Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      // p->PeekHeader(routingHeader);
+      // routingHeader.SetPrevHopIP(iface.GetAddress()); 
+      // routingHeader.Print(std::cout);
 
-      //change from original code: commented out nextHop and rt.SetNextHop(nextHop)
-      //Ipv4Address nextHop = FindNextHop(); 
-      //Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);//get next hop
-
-      Ipv4Address nextHop;
-      if (FindNextHop(&nextHop)) //find next hop
-      {
-         //std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
-         RoutingTableEntry rt;
-         Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-         rt.SetNextHop(nextHop); //set route
-         rt.SetOutputDevice(dev);
-         rt.SetInterface(iface);
-         ucb(rt.GetRoute(),p,header);
-         return true;
-      } 
-      //std::cout << "RI Find Next Hop FALSE: " << nextHop << std::endl; //why is nextHop returning 102.102.102.102. RouteOutput transmits a 102.102.102.102 packet, why? Should not be Tx. Packet needs to be initialized.
-      //Add a vector to AppendQueue to pair packet and header. Treat them in unison.
-      //Step After: Schedule packet removal. Follow Roberto's code "CheckForQueueRemoval" and follow logic in my method, QueueRemoval. I need to remove packet and header from queue, and only send packet. To send packet, use Ipv4L3 Send().
+      // Ipv4Address nextHop;
+      // if (FindNextHop(&nextHop)) //find next hop
+      // {
+      //    //std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
+      //    RoutingTableEntry rt;
+      //    Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+      //    rt.SetNextHop(nextHop); //set route
+      //    rt.SetOutputDevice(dev);
+      //    rt.SetInterface(iface);
+      //    ucb(rt.GetRoute(),p,header);
+      //    return true;
+      // }
       return false;
 
     }
@@ -666,7 +657,7 @@ namespace ns3
     Ipv4Address
     RoutingProtocol::FindNextHopDownstream(Vector centerBA, bool movingToBA)
     {
-      //std::cout << "Find Next Hop Downstream " << std::endl;
+      std::cout << "Find Next Hop Downstream " << std::endl;
       if (!movingToBA)
       {
         return Ipv4Address("102.102.102.102"); // BA in upstream, not downstream
@@ -686,20 +677,20 @@ namespace ns3
       float neighborhoodSpeed = Vector3D(neighborInfo->GetNeighborHoodSpeedMeanX(), neighborInfo->GetNeighborHoodSpeedMeanY(),0).GetLength();
       if (LOS>m_vcHighTraffic) //high traffic
       {
-        //nextHopIdx = 0;
         nextHopIdx = FindNextHopHighTrafficDownstream(centerBA, vehiclePos, stopDist);
+        std::cout << "Next Hop IDX A " << nextHopIdx << std::endl; 
             //return node that is closest to broadcast area(Dn)
       } 
       else if (LOS<m_vcLowTraffic) //no traffic
       {
-        //nextHopIdx = 0;
         nextHopIdx = FindNextHopLowTrafficDownstream(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+        std::cout << "Next Hop IDX B " << nextHopIdx << std::endl; 
             //return node with MDT
       }
       else //medium traffic
       {
-        //nextHopIdx = 0;
         nextHopIdx = FindNextHopMidTrafficDownstream(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+        std::cout << "Next Hop IDX C " << nextHopIdx << std::endl; 
             //return node with smallest Dn and MDT
       }
       if (nextHopIdx >= 0)
@@ -712,7 +703,7 @@ namespace ns3
     Ipv4Address
     RoutingProtocol::FindNextHopUpstream(Vector centerBA, bool movingToBA)
     {
-      std::cout << "Find Next Hop Upstream " << centerBA << "moving " << std::endl;
+      std::cout << "Find Next Hop Upstream " << std::endl;
       Ptr<VbpNeighbors> neighborInfo = m_neighborsListPointer->GetObject<VbpNeighbors>();
       uint16_t numNeighbors = neighborInfo->Get1HopNumNeighborsAhead();
       if (numNeighbors == 0) 
@@ -729,18 +720,18 @@ namespace ns3
       {
         if (LOS>m_vcHighTraffic)
         {
-          //nextHopIdx = 0;
           nextHopIdx = FindNextHopHighTrafficUpstreamAwayBA(centerBA, vehiclePos, stopDist);
+          std::cout << "Next Hop IDX D " << nextHopIdx << std::endl; 
         } 
         else if (LOS<m_vcLowTraffic) 
         {
-          //nextHopIdx = 0;
           nextHopIdx = FindNextHopLowTrafficUpstreamAwayBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+          std::cout << "Next Hop IDX E " << nextHopIdx << std::endl; 
         } 
         else
         {
-          //nextHopIdx = 0;
           nextHopIdx = FindNextHopMidTrafficUpstreamAwayBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+          std::cout << "Next Hop IDX F " << nextHopIdx << std::endl; 
         }
       }
       else
@@ -753,14 +744,17 @@ namespace ns3
           if (LOS>m_vcHighTraffic)
           {
             nextHopIdx = FindNextHopHighTrafficUpstreamToBA(centerBA, vehiclePos, stopDist);
+            std::cout << "Next Hop IDX G " << nextHopIdx << std::endl; 
           } 
           else if (LOS<m_vcLowTraffic)
           {
             nextHopIdx = FindNextHopLowTrafficUpstreamToBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+            std::cout << "Next Hop IDX H " << nextHopIdx << std::endl; 
           } 
           else 
           {
            nextHopIdx = FindNextHopMidTrafficUpstreamToBA(neighborhoodSpeed, centerBA, vehiclePos, stopDist);
+           std::cout << "Next Hop IDX I " << nextHopIdx << std::endl; 
           }
         }
         else

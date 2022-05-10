@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     // vbp
     InternetStackHelper stack;
     VanetBroadcastHelper vbp; //VanetBroadcastHelper
-    vbp.SetBroadcastArea({10000,-10,15000,10});
+    vbp.SetBroadcastArea({10000,10,15000,10});
     stack.SetRoutingHelper(vbp);
     stack.Install(nodes);
 
@@ -198,6 +198,13 @@ int main(int argc, char *argv[])
     udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
     udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
 
+    // // Application SRC
+    // Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
+    // Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 5), UdpSocketFactory::GetTypeId());
+    // Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
+    // udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
+    // nodes.Get(NumNodes - 5)->AddApplication(udpSourceAppPtr);
+
     // Application SRC
     Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
     Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 5), UdpSocketFactory::GetTypeId());
@@ -206,7 +213,6 @@ int main(int argc, char *argv[])
     nodes.Get(NumNodes - 5)->AddApplication(udpSourceAppPtr);
 
     // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
-    wifiPhyHelper.EnablePcap("vbp-caravan.pcap", nodes.Get(0)->GetDevice(1), false, true);
     AnimationInterface anim("vbp-caravan.xml");
     anim.EnablePacketMetadata(true);
 
