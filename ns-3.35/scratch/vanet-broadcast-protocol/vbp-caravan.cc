@@ -11,6 +11,8 @@
 #include "vanet-broadcast-helper.h"
 #include "ns3/constant-velocity-mobility-model.h"
 #include "MyRandomExpTrafficApp.h"
+#include "MyRandomExpTrafficApp_original.h"
+#include "VbpApp.h"
 
 
 // =======================================================================================================================================================
@@ -26,13 +28,13 @@
 
 #define NET_ADDRESS "10.1.1.0"
 #define NET_MASK_ADDRESS "255.255.255.0"
-//#define BROADCAST_ADDRESS "255.255.255.255"
+#define NET_BROADCAST_ADDRESS "10.1.1.255"
 #define UDP_PORT 8080
 #define SOURCES_START_TIME 1   // seconds
 #define SOURCE_START_TIME 1    // seconds
 #define PK_INTERARRIVAL_TIME 1 // seconds
 #define DISTANCE 5             // meters
-#define SPEED 3
+#define SPEED 1
 #define FREQ 2.4e9         // Hz
 #define SYS_LOSS 1         // unitless
 #define MIN_LOSS 0         // dB
@@ -40,6 +42,7 @@
 #define TX_GAIN 0          // dB
 #define RX_GAIN 0          // dB
 #define RX_SENSITIVITY -80 // dBm
+#define VBP_PORT 8081
 
 using namespace ns3;
 
@@ -49,8 +52,9 @@ NS_LOG_COMPONENT_DEFINE("wireless-grid");
 void ReceivePacket(Ptr<Socket> socket)
 {
     while (Ptr<Packet> packet = socket->Recv())
-
-        std::cout << "Application Layer:" << packet->GetSize() << " bytes received" << std::endl;
+        
+        //std::cout << "Application Layer:" << packet->GetSize() << " bytes received" << std::endl;
+        std::cout << "VBP App: " << packet->GetSize() << " bytes received" << std::endl;
 }
 
 // Function called to schedule the transmission of the next datagram from the source sockets
@@ -132,7 +136,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < int(NumNodes); i++)
     {
         nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetPosition(Vector((float)DISTANCE * (NumNodes - i), 0, 0));
-        nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector((float)3, 0, 0)); // 0.1*i because vehicles will lose neighbors about 50 seconds into simulation. SPEED is original variable here.
+        nodes.Get(i)->GetObject<ConstantVelocityMobilityModel>()->SetVelocity(Vector((float)SPEED, 0, 0)); // 0.1*i because vehicles will lose neighbors about 50 seconds into simulation. SPEED is original variable here.
     }
 
     // Create channel of constant propagation speed and Friis loss. Enable Radiotap link
@@ -192,11 +196,12 @@ int main(int argc, char *argv[])
     address.SetBase(NET_ADDRESS, NET_MASK_ADDRESS);
     Ipv4InterfaceContainer interfaces = address.Assign(devices); // notify methods (called from this line) will allow us to access interface to tx hello-packets
 
-    // Create and bind the socket on the destination node. Set the receive
-    // callback that prints the number of data bytes received in every packet.
-    Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(0), UdpSocketFactory::GetTypeId());
-    udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
-    udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
+    // =============== SINK APP =================
+    //Create and bind the socket on the destination node. Set the receive
+    //callback that prints the number of data bytes received in every packet.
+    // Ptr<Socket> udpSinkSocket = Socket::CreateSocket(nodes.Get(0), UdpSocketFactory::GetTypeId());
+    // udpSinkSocket->Bind(InetSocketAddress(Ipv4Address::GetAny(), UDP_PORT));
+    // udpSinkSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
 
     // // Application SRC
     // Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
@@ -205,12 +210,30 @@ int main(int argc, char *argv[])
     // udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
     // nodes.Get(NumNodes - 5)->AddApplication(udpSourceAppPtr);
 
-    // Application SRC
-    Address udpSinkAddress(InetSocketAddress(interfaces.GetAddress(0), UDP_PORT));
+    // =============== SINK APP =================
+
+    // =============== SOURCE APP =================
     Ptr<Socket> udpSourceSocket = Socket::CreateSocket(nodes.Get(NumNodes - 5), UdpSocketFactory::GetTypeId());
     Ptr<MyRandomExpTrafficApp> udpSourceAppPtr = CreateObject<MyRandomExpTrafficApp>();
-    udpSourceAppPtr->Setup(udpSourceSocket, udpSinkAddress, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
+    udpSourceAppPtr->Setup(udpSourceSocket, Ipv4Address(NET_BROADCAST_ADDRESS), VBP_PORT, PacketSize, DataRate(AppDataRate), PRNGRunNumber);
     nodes.Get(NumNodes - 5)->AddApplication(udpSourceAppPtr);
+    //udpSourceSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
+    udpSourceAppPtr->SetStartTime(Seconds(2));
+    // =============== SOURCE APP =================
+
+    // ============== SINK APP ===================
+    for(uint32_t i = 0; i < NumNodes-1; i++) 
+    {
+        // add routing app
+        Ptr<Socket> vbpSocket = Socket::CreateSocket(nodes.Get(i), UdpSocketFactory::GetTypeId());
+        Ptr<VbpApp> vbpAppPtr = CreateObject<VbpApp>();
+        vbpAppPtr->Setup(vbpSocket, VBP_PORT);
+        nodes.Get(i)->AddApplication(vbpAppPtr);
+        vbpSocket->SetRecvCallback(MakeCallback(&ReceivePacket));
+        vbpAppPtr->SetStartTime(Seconds(SOURCE_START_TIME));
+    }
+    // ============== SINK APP ===================
+
 
     // Enable promiscuous pcap tracing on sink node (n0) and enable network animation
     AnimationInterface anim("vbp-caravan.xml");

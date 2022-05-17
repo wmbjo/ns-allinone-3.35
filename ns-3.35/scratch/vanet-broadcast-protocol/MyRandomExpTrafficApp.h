@@ -32,7 +32,7 @@ namespace ns3
   public:
     MyRandomExpTrafficApp();
     virtual ~MyRandomExpTrafficApp();
-    void Setup (Ptr<Socket> socket, Address address, uint32_t packetSize, DataRate dataRate, uint64_t prngRunNumber);
+    void Setup (Ptr<Socket> socket, Ipv4Address netBroadcastAddress, uint16_t portNum, uint32_t packetSize, DataRate dataRate, uint64_t prngRunNumber);
     Ptr<Socket> GetSocketPtr(void);
   private:
     virtual void StartApplication(void);
@@ -40,6 +40,8 @@ namespace ns3
     void ScheduleTx(void);
     void SendPacket(void);
     Ptr<Socket> m_socketptr;
+    Ipv4Address m_netBroadcastAddress;
+    uint16_t m_portNum;
     Address m_peeraddress;
     uint32_t m_packetSize;
     DataRate m_appDataRate;
@@ -49,14 +51,15 @@ namespace ns3
     //uint64_t m_PRNGRunNumber;
   };
 
-  MyRandomExpTrafficApp::MyRandomExpTrafficApp() : m_socketptr(NULL), m_peeraddress(), m_packetSize(0), m_appDataRate(0), m_sendEvent(), m_running(false) {}
+  MyRandomExpTrafficApp::MyRandomExpTrafficApp() : m_socketptr(NULL), m_netBroadcastAddress(Ipv4Address("102.102.102.102")), m_portNum(0), m_peeraddress(), m_packetSize(0), m_appDataRate(0), m_sendEvent(), m_running(false) {}
 
   MyRandomExpTrafficApp::~MyRandomExpTrafficApp() { m_socketptr = NULL; }
 
-  void MyRandomExpTrafficApp::Setup(Ptr<Socket> socket, Address address, uint32_t packetSize, DataRate dataRate, uint64_t prngRunNumber)
+  void MyRandomExpTrafficApp::Setup(Ptr<Socket> socket, Ipv4Address netBroadcastAddress, uint16_t portNum, uint32_t packetSize, DataRate dataRate, uint64_t prngRunNumber)
   {
     m_socketptr = socket;
-    m_peeraddress = address;
+    m_netBroadcastAddress = netBroadcastAddress;
+    m_portNum = portNum;
     m_packetSize = packetSize;
     m_appDataRate = dataRate;
     RngSeedManager::SetRun(prngRunNumber);
@@ -72,8 +75,11 @@ namespace ns3
   void MyRandomExpTrafficApp::StartApplication(void)
   {
     m_running = true;
-    m_socketptr->Bind();
-    m_socketptr->Connect(m_peeraddress);
+    // set socket to broadcast to all neighbors
+    m_socketptr->Bind(InetSocketAddress(Ipv4Address::GetAny(), m_portNum));
+    //m_socketptr->Connect(InetSocketAddress(Ipv4Address("255.255.255.255"), m_portNum));
+    m_socketptr->Connect(InetSocketAddress(m_netBroadcastAddress, m_portNum));
+    m_socketptr->SetAllowBroadcast(true);
     SendPacket();
   }
 
@@ -88,6 +94,7 @@ namespace ns3
 
   void MyRandomExpTrafficApp::SendPacket(void)
   {
+    std::cout << "Send Packet" << std::endl;
     Ptr<Packet> packetptr = Create<Packet>(m_packetSize);
     m_socketptr->Send(packetptr);
     ScheduleTx();

@@ -117,6 +117,7 @@ namespace ns3
     Ptr<Ipv4Route>
     RoutingProtocol::RouteOutput(Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
     {
+      std::cout << "Route Output" << std::endl;
       Ptr<Ipv4Route> route;
       NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
       if (m_socketAddresses.empty ())
@@ -126,22 +127,15 @@ namespace ns3
           return route;
         }
       sockerr = Socket::ERROR_NOTERROR;
-
       VbpRoutingHeader routingHeader;
       RoutingTableEntry rt;
-      Ipv4Address dst = header.GetDestination ();
+      Ipv4Address dst = header.GetDestination();
       Ipv4Address src = header.GetSource();
-      //std::cout << "RO DST: " << dst << std::endl;
-      //std::cout << "RO Src: " << src << std::endl;
-
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       Ipv4Address origin = iface.GetAddress();
-      //std::cout << "RO Origin: " << origin << std::endl;
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
       p->AddHeader(routingHeader);
-      //std::cout << "Route Output: " << std::endl; 
-      routingHeader.Print(std::cout);
       Ipv4Address nextHopAhead;
       Ipv4Address nextHopBehind;
       std::cout << "Route Output Packet Type: " << routingHeader.GetPacketType() << std::endl;
@@ -149,31 +143,38 @@ namespace ns3
       {
          rt.SetOutputDevice(dev);
          rt.SetInterface(iface);
+         Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+         std::cout << "Find First Hop: " << std::endl;
          if (nextHopAhead != Ipv4Address("102.102.102.102") && nextHopBehind != Ipv4Address("102.102.102.102")) //case: hops both ahead and behind
          {
           std::cout << "Next Hop Ahead and Behind" << std::endl;
           // next hop ahead
-          rt.SetNextHop(nextHopAhead); 
-          route = rt.GetRoute();
+          Ptr<Ipv4Route> routeDownstream;
+          rt.SetNextHop(nextHopAhead);
+          routeDownstream = rt.GetRoute();
+          l3->Send(p, src, dst, header.GetProtocol(), routeDownstream);
           // next hop behind
           Ptr<Packet> q = p->Copy();
           Ptr<Ipv4Route> routeUpstream;
           rt.SetNextHop(nextHopBehind);
           routeUpstream = rt.GetRoute();
-          Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
           l3->Send(q, src, dst, header.GetProtocol(), routeUpstream);
          }
          else if (nextHopAhead != Ipv4Address("102.102.102.102"))
          {
           std::cout << "Next Hop Ahead Only" << std::endl;
-          rt.SetNextHop(nextHopAhead); 
-          route = rt.GetRoute();
+          Ptr<Ipv4Route> routeDownstream;
+          rt.SetNextHop(nextHopAhead);
+          routeDownstream = rt.GetRoute();
+          l3->Send(p, src, dst, header.GetProtocol(), routeDownstream);
          } 
          else
          {
           std::cout << "Next Hop Behind Only" << std::endl;
+          Ptr<Ipv4Route> routeUpstream;
           rt.SetNextHop(nextHopBehind);
-          route = rt.GetRoute();
+          routeUpstream = rt.GetRoute();
+          l3->Send(p, src, dst, header.GetProtocol(), routeUpstream);
          }
       } 
       else
@@ -191,10 +192,7 @@ namespace ns3
         //  std::cout << "Socket Error " << std::endl; 
         //  sockerr = Socket::ERROR_NOROUTETOHOST;
       }
-
       return route;
-
-
     }
     
     bool
@@ -202,7 +200,6 @@ namespace ns3
                                 Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
                                 MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
     {
-      //std::cout << "Route Input: " << std::endl;
       NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
       if (m_socketAddresses.empty())
       {
@@ -216,8 +213,6 @@ namespace ns3
       int32_t iif = m_ipv4->GetInterfaceForDevice(idev);
       Ipv4Address dst = header.GetDestination();
       Ipv4Address src = header.GetSource();
-      //std::cout << "RI SRC: " << src << std::endl;
-    
       // Deferred route request
       if (idev == m_lo)
       {
@@ -232,21 +227,26 @@ namespace ns3
         }        
       }
       // VBP is not a multicast routing protocol
+
       if (dst.IsMulticast())
       {
         NS_LOG_LOGIC("Multicast Return False");
         return false;
       }
-
+      Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       // Unicast local delivery
-
+      //std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
       if (m_ipv4->IsDestinationAddress(dst, iif))
       {
-
+        //std::cout << "DST " << iface.GetBroadcast() << std::endl;
+        //std::cout << "DST " << dst.IsSubnetDirectedBroadcast(iface.GetMask()) << std::endl;
         if (lcb.IsNull() == false)
         {
           //print out packet type
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
+          std::cout << "IS DST BROADCAST? " << dst << std::endl;
+          std::cout << "RI LCB " << std::endl;
+          // Determine if PROT_NUMBER = 253. If it is, determine packet type (line 263, 264,265) .If determine packet type, do forward operation (below starting on line 263). If it is not, do LCB
           lcb(p, header, iif);
         }
         else
@@ -257,20 +257,23 @@ namespace ns3
         }
         return true;
       }
-      std::cout << "Hello World 2" << std::endl;
-      VbpRoutingHeader routingHeader;
-      p->PeekHeader(routingHeader);
-      std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
-      std::cout << "RI DST: " << dst << std::endl;
-      // Forward packet
-      // not a loopback, local delivery or multicast
+      std::cout << "Forwarding Error in RouteInput " << std::endl;
+      NS_LOG_ERROR ("Unable to forward packet due to not being a VANET Broadcast Protocol data packet " << p->GetUid () << " from " << src);
+      ecb (p, header, Socket::ERROR_NOROUTETOHOST);
       // VbpRoutingHeader routingHeader;
-      // Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-      // p->PeekHeader(routingHeader);
+      // // p->PeekHeader(routingHeader);
+      // // std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
+      // std::cout << "RI DST: " << dst << std::endl;
+
+      // // Forward packet
+      // // not a loopback, local delivery or multicast
+      // //VbpRoutingHeader routingHeader;
+      // //Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+      // //p->PeekHeader(routingHeader);
       // routingHeader.SetPrevHopIP(iface.GetAddress()); 
       // routingHeader.Print(std::cout);
-
       // Ipv4Address nextHop;
+      // std::cout << "IS BROADCAST " << nextHop.IsBroadcast() << std::endl;;
       // if (FindNextHop(&nextHop)) //find next hop
       // {
       //    //std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
@@ -393,6 +396,8 @@ namespace ns3
       if (destinationHeader.GetPacketType() == m_helloPacketType)
       {
         RecvHello(packet, receiver, sender);
+        std::cout << "Neighbors List: " << "Receiver " << receiver << " Sender " << sender << std::endl;
+        m_neighborsListPointer->GetObject<VbpNeighbors>()->PrintNeighbors2();
       }
     }
 
@@ -636,8 +641,10 @@ namespace ns3
       nextHopBehindPtr->Set(FindNextHopUpstream(centerBA, movingToBA).Get());
       if (*nextHopAheadPtr == Ipv4Address("102.102.102.102") && *nextHopBehindPtr == Ipv4Address("102.102.102.102"))
       {
+        std::cout << "Find First Hop Returns False" << std::endl;
         return false;
       }
+      std::cout << "Find First Hop Returns True" << std::endl;
       return true;
     }
 
