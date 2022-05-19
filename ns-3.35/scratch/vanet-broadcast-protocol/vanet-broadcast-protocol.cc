@@ -1,4 +1,5 @@
 #include "vanet-broadcast-protocol.h"
+#include "ns3/udp-l4-protocol.h"
 
 namespace ns3
 {
@@ -7,6 +8,7 @@ namespace ns3
   namespace vbp
   {
     NS_OBJECT_ENSURE_REGISTERED(RoutingProtocol);
+    //const uint8_t RoutingProtocol::PROT_NUMBER = 253;
     const uint32_t RoutingProtocol::VBP_HELLO_PORT = 655;
     uint64_t m_uniformRandomVariable;
     const uint32_t Period_HelloTx = 95;
@@ -227,7 +229,6 @@ namespace ns3
         }        
       }
       // VBP is not a multicast routing protocol
-
       if (dst.IsMulticast())
       {
         NS_LOG_LOGIC("Multicast Return False");
@@ -235,23 +236,25 @@ namespace ns3
       }
       Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
       // Unicast local delivery
-      //std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
       if (m_ipv4->IsDestinationAddress(dst, iif))
       {
-        //std::cout << "DST " << iface.GetBroadcast() << std::endl;
-        //std::cout << "DST " << dst.IsSubnetDirectedBroadcast(iface.GetMask()) << std::endl;
         if (lcb.IsNull() == false)
         {
-          //print out packet type
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
-          std::cout << "IS DST BROADCAST? " << dst << std::endl;
-          std::cout << "RI LCB " << std::endl;
+          //std::cout << "IS DST BROADCAST? " << dst << std::endl;
           // Determine if PROT_NUMBER = 253. If it is, determine packet type (line 263, 264,265) .If determine packet type, do forward operation (below starting on line 263). If it is not, do LCB
-          lcb(p, header, iif);
+          if (header.GetProtocol () == UdpL4Protocol::PROT_NUMBER) // add #include "udp-l4-protocol.h" to make this work (udp protocol number = 17). != does not print anything
+          {
+            std::cout << "Detected UDP Protocol" << std::endl;
+            lcb(p, header, iif);
+          }
+          else
+          {
+            std::cout << "Never prints out else" << std::endl;
+          }
         }
         else
         {
-          //std::cout << "Error Delivery " << dst << std::endl;
           NS_LOG_ERROR ("Unable to deliver packet locally due to null callback " << p->GetUid () << " from " << src);
           ecb (p, header, Socket::ERROR_NOROUTETOHOST);
         }
@@ -260,20 +263,16 @@ namespace ns3
       std::cout << "Forwarding Error in RouteInput " << std::endl;
       NS_LOG_ERROR ("Unable to forward packet due to not being a VANET Broadcast Protocol data packet " << p->GetUid () << " from " << src);
       ecb (p, header, Socket::ERROR_NOROUTETOHOST);
-      // VbpRoutingHeader routingHeader;
-      // // p->PeekHeader(routingHeader);
-      // // std::cout << "Route Input Packet Type: " << routingHeader.GetPacketType() << std::endl;
-      // std::cout << "RI DST: " << dst << std::endl;
 
       // // Forward packet
       // // not a loopback, local delivery or multicast
-      // //VbpRoutingHeader routingHeader;
+      // VbpRoutingHeader routingHeader;
       // //Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-      // //p->PeekHeader(routingHeader);
+      // p->PeekHeader(routingHeader);
       // routingHeader.SetPrevHopIP(iface.GetAddress()); 
       // routingHeader.Print(std::cout);
       // Ipv4Address nextHop;
-      // std::cout << "IS BROADCAST " << nextHop.IsBroadcast() << std::endl;;
+      // std::cout << "IS BROADCAST " << nextHop.IsBroadcast() << std::endl;
       // if (FindNextHop(&nextHop)) //find next hop
       // {
       //    //std::cout << "RI Find Next Hop TRUE: " << nextHop << std::endl;
@@ -366,6 +365,7 @@ namespace ns3
       Address sourceAddress;
       Ptr<Packet> packet = socket->RecvFrom(sourceAddress);
       InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom(sourceAddress);
+      std::cout << "PORT " << inetSourceAddr.GetPort() << std::endl;
       Ipv4Address sender = inetSourceAddr.GetIpv4();
       Ipv4Address receiver;
 
