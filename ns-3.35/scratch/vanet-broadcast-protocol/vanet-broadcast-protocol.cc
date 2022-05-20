@@ -8,7 +8,7 @@ namespace ns3
   namespace vbp
   {
     NS_OBJECT_ENSURE_REGISTERED(RoutingProtocol);
-    //const uint8_t RoutingProtocol::PROT_NUMBER = 253;
+    const uint8_t RoutingProtocol::PROT_NUMBER = 253;
     const uint32_t RoutingProtocol::VBP_HELLO_PORT = 655;
     uint64_t m_uniformRandomVariable;
     const uint32_t Period_HelloTx = 95;
@@ -154,13 +154,13 @@ namespace ns3
           Ptr<Ipv4Route> routeDownstream;
           rt.SetNextHop(nextHopAhead);
           routeDownstream = rt.GetRoute();
-          l3->Send(p, src, dst, header.GetProtocol(), routeDownstream);
+          l3->Send(p, src, dst, PROT_NUMBER, routeDownstream);
           // next hop behind
           Ptr<Packet> q = p->Copy();
           Ptr<Ipv4Route> routeUpstream;
           rt.SetNextHop(nextHopBehind);
           routeUpstream = rt.GetRoute();
-          l3->Send(q, src, dst, header.GetProtocol(), routeUpstream);
+          l3->Send(q, src, dst, PROT_NUMBER, routeUpstream);
          }
          else if (nextHopAhead != Ipv4Address("102.102.102.102"))
          {
@@ -168,7 +168,7 @@ namespace ns3
           Ptr<Ipv4Route> routeDownstream;
           rt.SetNextHop(nextHopAhead);
           routeDownstream = rt.GetRoute();
-          l3->Send(p, src, dst, header.GetProtocol(), routeDownstream);
+          l3->Send(p, src, dst, PROT_NUMBER, routeDownstream);
          } 
          else
          {
@@ -176,7 +176,7 @@ namespace ns3
           Ptr<Ipv4Route> routeUpstream;
           rt.SetNextHop(nextHopBehind);
           routeUpstream = rt.GetRoute();
-          l3->Send(p, src, dst, header.GetProtocol(), routeUpstream);
+          l3->Send(p, src, dst, PROT_NUMBER, routeUpstream);
          }
       } 
       else
@@ -243,15 +243,30 @@ namespace ns3
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
           //std::cout << "IS DST BROADCAST? " << dst << std::endl;
           // Determine if PROT_NUMBER = 253. If it is, determine packet type (line 263, 264,265) .If determine packet type, do forward operation (below starting on line 263). If it is not, do LCB
-          if (header.GetProtocol () == UdpL4Protocol::PROT_NUMBER) // add #include "udp-l4-protocol.h" to make this work (udp protocol number = 17). != does not print anything
+          uint8_t protocol_numb = header.GetProtocol();
+          if (protocol_numb == PROT_NUMBER)
           {
-            std::cout << "Detected UDP Protocol" << std::endl;
-            lcb(p, header, iif);
+            std::cout << "Protocol Number = 253" << std::endl;
+            VbpRoutingHeader routingHeader;
+            p->PeekHeader(routingHeader);
+            std::cout << "Packet Type LCB Data " << routingHeader.GetPacketType() << std::endl;
           }
-          else
+          else //PROT_NUMB != 253 (hello packet)
           {
-            std::cout << "Never prints out else" << std::endl;
+          VbpHelloHeader helloHeader;
+          p->PeekHeader(helloHeader);
+          std::cout << "Packet Type LCB Hello " << helloHeader.GetPacketType() << std::endl;
           }
+
+          // if (header.GetProtocol () == 17) // add #include "udp-l4-protocol.h" to make this work (udp protocol number = 17). != does not print anything
+          // {
+          //   std::cout << "Detected UDP Protocol 2 " << std::endl;
+          // }
+          // else
+          // {
+          //   std::cout << "Never prints out else" << std::endl;
+          // }
+          lcb(p, header, iif);
         }
         else
         {
