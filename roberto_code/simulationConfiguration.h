@@ -150,7 +150,7 @@ void RoutePacket(Ptr<Socket> socket, dataPacketHeader head) {
     Vector center = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);			
     float neighborHoodSpeed = Vector3D((socket->GetNode())->GetObject<car>()->NeighborHoodSpeedMeanX()
 					, (socket->GetNode())->GetObject<car>()->NeighborHoodSpeedMeanY(),0).GetLength();
-    float currentMDT = CalculateDistance(currentPos, center)/neighborHoodSpeed;  
+    float currentMDT = CalculateDistance(currentPos, center)/neighborHoodSpeed;  //distance from vehicle to center of BA. How long it will take to reach center of BA. assumes vehicle will move avg speed of neighborhood
     bool closeToBA = false;
     if (Simulator::Now()/UNIT_FOR_SECONDS + currentMDT <= head.GetBroadcastingTime()) { 
         std::cout << "\n 50% chance to be in broadcast area" << std::endl;  

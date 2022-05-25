@@ -24,8 +24,6 @@
 #include "histogram.h"
 #include "omnet-data-output.h"
 #include "probe.h"
-#include "sqlite-data-output.h"
-#include "sqlite-output.h"
 #include "time-data-calculators.h"
 #include "time-probe.h"
 #include "time-series-adaptor.h"

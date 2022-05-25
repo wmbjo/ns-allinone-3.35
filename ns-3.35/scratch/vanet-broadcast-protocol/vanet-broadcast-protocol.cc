@@ -250,6 +250,7 @@ namespace ns3
             VbpRoutingHeader routingHeader;
             p->PeekHeader(routingHeader);
             std::cout << "Packet Type LCB Data " << routingHeader.GetPacketType() << std::endl;
+            //RoutePacket in this if statement
           }
           else //PROT_NUMB != 253 (hello packet)
           {
@@ -664,7 +665,7 @@ namespace ns3
     }
 
     bool
-    RoutingProtocol::FindNextHop(Ipv4Address* nextHopPtr)
+    RoutingProtocol::FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr)
     {
       if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
       {
@@ -1318,6 +1319,84 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & he
   //         SendRequest (header.GetDestination ());
   //       }
   //   }
+}
+
+bool
+RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHeader)
+{
+  //if can't use constant packet, duplicate packet and use copy
+  Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+  Ptr<VbpNeighbors> neighborsList = m_neighborsListPointer->GetObject<VbpNeighbors>();
+  //case 1: vehicle already in broadcast area
+  VbpRoutingHeader routingHeader;
+  p->PeekHeader(routingHeader);
+  if ((routingHeader.GetPosition1X() <= vehiclePos.x) && (vehiclePos.x <= routingHeader.GetPosition2X()))
+  {
+    if ((routingHeader.GetPosition1Y() <= vehiclePos.y) && (vehiclePos.y <= routingHeader.GetPosition2Y()))
+    {
+      std::cout << "In broadcast area" << std::endl;
+      p->RemoveHeader(routingHeader);
+      return true; //true = lcb. local delivery of vbp packet without routingheader. before call lcb, remove routing header (might need to do this in routeinput, before lcb)
+    }
+  }
+  //case 2: vehicle not in BA and may reach BA before expiration
+  Vector BA1 = Vector3D(routingHeader.GetPosition1X(), routingHeader.GetPosition1Y(),0); // for broadcast area point one
+  Vector BA2 = Vector3D(routingHeader.GetPosition2X(), routingHeader.GetPosition2Y(),0); // for broadcast area point two        
+  Vector centerBA = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);
+  float neighborhoodSpeed = Vector3D(neighborsList->GetNeighborHoodSpeedMeanX(), neighborsList->GetNeighborHoodSpeedMeanY(),0).GetLength();
+  float currentMDT = CalculateDistance(vehiclePos, centerBA)/neighborhoodSpeed;
+  bool closeToBA = false;
+
+  if ((Simulator::Now()/1e9 + Seconds(currentMDT)) <= Seconds(m_BroadcastTime))
+  {
+    p->RemoveHeader(routingHeader);
+    closeToBA = true; //will need to return closeToBA after forwarding
+  }
+  
+  //case 2 (determine next hop) and case 3: vehicle not in BA and will not reach BA before expiration
+  //determine next hop
+  Ipv4Address nextHopAhead = Ipv4Address("102.102.102.102");
+  Ipv4Address nextHopBehind = Ipv4Address("102.102.102.102");
+  //put below code in FindNextHop
+  //need to return closeToBA (do it in this function)
+  if (neighborsList->Get1HopDirectionByIP(routingHead.GetPrevHopIP()) == 0)
+  {
+    nextHopAhead = FindNextHopDownstream(centerBA, movingToBA)
+    if (nextHopIPAhead == Ipv4Address("102.102.102.102"))
+    {
+      std::cout << "Append to queue" << std::endl;
+      m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+      m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+      return;
+    }
+  }
+  else
+  {
+    if (closeToBA)
+    {
+      nextHopIPBehind = FindNextHopUpstream(centerBA, movingToBA)
+    }
+    else
+    {
+      std::cout << "Not sent upstream" << std::endl;
+      return;
+    }
+    if (nextHopIPBehind == Ipv4Address("127.0.0.1"))
+    {
+      std::cout << "Append to queue" << std::endl;
+      m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+      m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+      return;
+    }
+  }
+
+  //create header to store data that will be sent
+  routingHead.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+  //broadcast packet to all headers
+
+
+
+
 }
 
   } // namespace vbp

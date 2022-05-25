@@ -1,16 +1,16 @@
-# project ns (3.35) configured on Sat Feb 12 14:29:47 2022 by
-# waf 2.0.21 (abi 20, python 30909f0 on darwin)
-# using ./waf configure
+# project ns (3.35) configured on Fri May 20 14:24:23 2022 by
+# waf 2.0.21 (abi 20, python 30907f0 on darwin)
+# using ./waf configure --disable-werror
 #
 ----------------------------------------
 Setting top to
-/Users/william/Documents/ns-allinone-3.35/ns-3.35
+/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35
 ----------------------------------------
 Setting out to
-/Users/william/Documents/ns-allinone-3.35/ns-3.35/build
+/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build
 ----------------------------------------
 Checking for 'clang' (C compiler)
-find program=['clang'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CC' -> ['/usr/bin/clang']
+find program=['clang'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='CC' -> ['/usr/bin/clang']
 ['/usr/bin/clang', '-dM', '-E', '-']
 out: #define _LP64 1
 #define __AARCH64EL__ 1
@@ -28,6 +28,7 @@ out: #define _LP64 1
 #define __ARM_ARCH_8_5__ 1
 #define __ARM_ARCH_ISA_A64 1
 #define __ARM_ARCH_PROFILE 'A'
+#define __ARM_FEATURE_AES 1
 #define __ARM_FEATURE_ATOMICS 1
 #define __ARM_FEATURE_CLZ 1
 #define __ARM_FEATURE_COMPLEX 1
@@ -37,14 +38,20 @@ out: #define _LP64 1
 #define __ARM_FEATURE_DIV 1
 #define __ARM_FEATURE_DOTPROD 1
 #define __ARM_FEATURE_FMA 1
-#define __ARM_FEATURE_FP16FML 1
+#define __ARM_FEATURE_FP16_FML 1
 #define __ARM_FEATURE_FP16_SCALAR_ARITHMETIC 1
 #define __ARM_FEATURE_FP16_VECTOR_ARITHMETIC 1
+#define __ARM_FEATURE_FRINT 1
 #define __ARM_FEATURE_IDIV 1
 #define __ARM_FEATURE_JCVT 1
 #define __ARM_FEATURE_LDREX 0xF
 #define __ARM_FEATURE_NUMERIC_MAXMIN 1
 #define __ARM_FEATURE_QRDMX 1
+#define __ARM_FEATURE_SHA2 1
+#define __ARM_FEATURE_SHA3 1
+#define __ARM_FEATURE_SHA512 1
+#define __ARM_FEATURE_SM3 1
+#define __ARM_FEATURE_SM4 1
 #define __ARM_FEATURE_UNALIGNED 1
 #define __ARM_FP 0xE
 #define __ARM_FP16_ARGS 1
@@ -138,6 +145,7 @@ out: #define _LP64 1
 #define __GCC_ATOMIC_SHORT_LOCK_FREE 2
 #define __GCC_ATOMIC_TEST_AND_SET_TRUEVAL 1
 #define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2
+#define __GCC_HAVE_DWARF2_CFI_ASM 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1
@@ -372,7 +380,7 @@ out: #define _LP64 1
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ _
-#define __VERSION__ "Apple LLVM 13.0.0 (clang-1300.0.29.3)"
+#define __VERSION__ "Apple LLVM 13.1.6 (clang-1316.0.21.2.5)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -380,15 +388,17 @@ out: #define _LP64 1
 #define __WINT_TYPE__ int
 #define __WINT_WIDTH__ 32
 #define __aarch64__ 1
-#define __apple_build_version__ 13000029
+#define __apple_build_version__ 13160021
 #define __arm64 1
 #define __arm64__ 1
 #define __block __attribute__((__blocks__(byref)))
 #define __clang__ 1
+#define __clang_literal_encoding__ "UTF-8"
 #define __clang_major__ 13
-#define __clang_minor__ 0
-#define __clang_patchlevel__ 0
-#define __clang_version__ "13.0.0 (clang-1300.0.29.3)"
+#define __clang_minor__ 1
+#define __clang_patchlevel__ 6
+#define __clang_version__ "13.1.6 (clang-1316.0.21.2.5)"
+#define __clang_wide_literal_encoding__ "UTF-32"
 #define __llvm__ 1
 #define __nonnull _Nonnull
 #define __null_unspecified _Null_unspecified
@@ -398,15 +408,15 @@ out: #define _LP64 1
 #define __unsafe_unretained 
 #define __weak __attribute__((objc_gc(weak)))
 
-find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
-find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['llvm-ar', 'ar'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['ar'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
 /usr/bin/clang
 ----------------------------------------
 Checking for cc version
-13.0.0
+13.1.6
 ----------------------------------------
 Checking for 'clang++' (C++ compiler)
-find program=['clang++'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='CXX' -> ['/usr/bin/clang++']
+find program=['clang++'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='CXX' -> ['/usr/bin/clang++']
 ['/usr/bin/clang++', '-dM', '-E', '-']
 out: #define _LP64 1
 #define __AARCH64EL__ 1
@@ -424,6 +434,7 @@ out: #define _LP64 1
 #define __ARM_ARCH_8_5__ 1
 #define __ARM_ARCH_ISA_A64 1
 #define __ARM_ARCH_PROFILE 'A'
+#define __ARM_FEATURE_AES 1
 #define __ARM_FEATURE_ATOMICS 1
 #define __ARM_FEATURE_CLZ 1
 #define __ARM_FEATURE_COMPLEX 1
@@ -433,14 +444,20 @@ out: #define _LP64 1
 #define __ARM_FEATURE_DIV 1
 #define __ARM_FEATURE_DOTPROD 1
 #define __ARM_FEATURE_FMA 1
-#define __ARM_FEATURE_FP16FML 1
+#define __ARM_FEATURE_FP16_FML 1
 #define __ARM_FEATURE_FP16_SCALAR_ARITHMETIC 1
 #define __ARM_FEATURE_FP16_VECTOR_ARITHMETIC 1
+#define __ARM_FEATURE_FRINT 1
 #define __ARM_FEATURE_IDIV 1
 #define __ARM_FEATURE_JCVT 1
 #define __ARM_FEATURE_LDREX 0xF
 #define __ARM_FEATURE_NUMERIC_MAXMIN 1
 #define __ARM_FEATURE_QRDMX 1
+#define __ARM_FEATURE_SHA2 1
+#define __ARM_FEATURE_SHA3 1
+#define __ARM_FEATURE_SHA512 1
+#define __ARM_FEATURE_SM3 1
+#define __ARM_FEATURE_SM4 1
 #define __ARM_FEATURE_UNALIGNED 1
 #define __ARM_FP 0xE
 #define __ARM_FP16_ARGS 1
@@ -534,6 +551,7 @@ out: #define _LP64 1
 #define __GCC_ATOMIC_SHORT_LOCK_FREE 2
 #define __GCC_ATOMIC_TEST_AND_SET_TRUEVAL 1
 #define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2
+#define __GCC_HAVE_DWARF2_CFI_ASM 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1
@@ -768,7 +786,7 @@ out: #define _LP64 1
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ _
-#define __VERSION__ "Apple LLVM 13.0.0 (clang-1300.0.29.3)"
+#define __VERSION__ "Apple LLVM 13.1.6 (clang-1316.0.21.2.5)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -776,15 +794,17 @@ out: #define _LP64 1
 #define __WINT_TYPE__ int
 #define __WINT_WIDTH__ 32
 #define __aarch64__ 1
-#define __apple_build_version__ 13000029
+#define __apple_build_version__ 13160021
 #define __arm64 1
 #define __arm64__ 1
 #define __block __attribute__((__blocks__(byref)))
 #define __clang__ 1
+#define __clang_literal_encoding__ "UTF-8"
 #define __clang_major__ 13
-#define __clang_minor__ 0
-#define __clang_patchlevel__ 0
-#define __clang_version__ "13.0.0 (clang-1300.0.29.3)"
+#define __clang_minor__ 1
+#define __clang_patchlevel__ 6
+#define __clang_version__ "13.1.6 (clang-1316.0.21.2.5)"
+#define __clang_wide_literal_encoding__ "UTF-32"
 #define __llvm__ 1
 #define __nonnull _Nonnull
 #define __null_unspecified _Null_unspecified
@@ -794,8 +814,8 @@ out: #define _LP64 1
 #define __unsafe_unretained 
 #define __weak __attribute__((objc_gc(weak)))
 
-find program=['llvm-ar', 'ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
-find program=['ar'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['llvm-ar', 'ar'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
+find program=['ar'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='AR' -> ['/usr/bin/ar']
 /usr/bin/clang++
 ------------------------------------------------
 Checking for compilation flag -std=c++17 support
@@ -804,7 +824,7 @@ int main() { return 0; }
 <==
 [1/1] Compiling [32mbuild/.conf_check_040c0dd0eda912b8b29d7d1ce92ad6d6/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_040c0dd0eda912b8b29d7d1ce92ad6d6/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_040c0dd0eda912b8b29d7d1ce92ad6d6/testbuild/test.cpp.1.o']
 ok
 boost: loading conf
 boost: scanning for required libs
@@ -812,86 +832,86 @@ boost: libs required: []
 ------------------------------------------------
 Checking boost includes
 headers not found, please provide a --boost-includes argument (see help)
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35: The configuration failed
 boost: checking if we should define HAVE_BOOST
 boost: checking which libs are present
 ------------------------------------------------
 Checking for program 'python'
-/opt/homebrew/opt/python@3.9/bin/python3.9
-find program=['python'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9']
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', 'import sys\ntry:\n print(sys.implementation.cache_tag)\nexcept AttributeError:\n import imp\n print(imp.get_tag())\n']
+/Users/wmbjo/miniforge3/bin/python3
+find program=['python'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PYTHON' -> ['/Users/wmbjo/miniforge3/bin/python3']
+['/Users/wmbjo/miniforge3/bin/python3', '-c', 'import sys\ntry:\n print(sys.implementation.cache_tag)\nexcept AttributeError:\n import imp\n print(imp.get_tag())\n']
 out: cpython-39
 
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', 'import sys\nfor x in sys.version_info: print(str(x))']
+['/Users/wmbjo/miniforge3/bin/python3', '-c', 'import sys\nfor x in sys.version_info: print(str(x))']
 out: 3
 9
-9
+7
 final
 0
 
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_python_lib(standard_lib=0, prefix='/usr/local') or ''))"]
+['/Users/wmbjo/miniforge3/bin/python3', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_python_lib(standard_lib=0, prefix='/usr/local') or ''))"]
 out: '/usr/local/lib/python3.9/site-packages'
 
 '/usr/local/lib/python3.9/site-packages'
 
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_python_lib(plat_specific=1, standard_lib=0, prefix='/usr/local') or ''))"]
+['/Users/wmbjo/miniforge3/bin/python3', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_python_lib(plat_specific=1, standard_lib=0, prefix='/usr/local') or ''))"]
 out: '/usr/local/lib/python3.9/site-packages'
 
 '/usr/local/lib/python3.9/site-packages'
 
 ------------------------------------------------
 Checking for python version >= 2.3
-3.9.9
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_config_var('prefix') or ''))\nprint(repr(get_config_var('SO') or ''))\nprint(repr(get_config_var('LDFLAGS') or ''))\nprint(repr(get_config_var('LIBDIR') or ''))\nprint(repr(get_config_var('LIBPL') or ''))\nprint(repr(get_config_var('INCLUDEPY') or ''))\nprint(repr(get_config_var('Py_ENABLE_SHARED') or ''))\nprint(repr(get_config_var('MACOSX_DEPLOYMENT_TARGET') or ''))\nprint(repr(get_config_var('LDSHARED') or ''))\nprint(repr(get_config_var('CFLAGS') or ''))\nprint(repr(get_config_var('LDVERSION') or ''))"]
-out: '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9'
+3.9.7
+['/Users/wmbjo/miniforge3/bin/python3', '-c', "from distutils.sysconfig import get_config_var, get_python_lib\n\nprint(repr(get_config_var('prefix') or ''))\nprint(repr(get_config_var('SO') or ''))\nprint(repr(get_config_var('LDFLAGS') or ''))\nprint(repr(get_config_var('LIBDIR') or ''))\nprint(repr(get_config_var('LIBPL') or ''))\nprint(repr(get_config_var('INCLUDEPY') or ''))\nprint(repr(get_config_var('Py_ENABLE_SHARED') or ''))\nprint(repr(get_config_var('MACOSX_DEPLOYMENT_TARGET') or ''))\nprint(repr(get_config_var('LDSHARED') or ''))\nprint(repr(get_config_var('CFLAGS') or ''))\nprint(repr(get_config_var('LDVERSION') or ''))"]
+out: '/Users/wmbjo/miniforge3'
 '.cpython-39-darwin.so'
-'-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9'
+'-Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+'/Users/wmbjo/miniforge3/lib'
+'/Users/wmbjo/miniforge3/lib/python3.9/config-3.9-darwin'
+'/Users/wmbjo/miniforge3/include/python3.9'
 ''
-'12'
-'clang -bundle -undefined dynamic_lookup -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-'-Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
+'11.0'
+'clang -bundle -undefined dynamic_lookup -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+'-Wno-unused-result -Wsign-compare -Wunreachable-code -DNDEBUG -fwrapv -O2 -Wall -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64  -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64 '
 '3.9'
 
 err: <string>:4: DeprecationWarning: SO is deprecated, use EXT_SUFFIX
 
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9'
+'/Users/wmbjo/miniforge3'
 '.cpython-39-darwin.so'
-'-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin'
-'/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9'
+'-Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+'/Users/wmbjo/miniforge3/lib'
+'/Users/wmbjo/miniforge3/lib/python3.9/config-3.9-darwin'
+'/Users/wmbjo/miniforge3/include/python3.9'
 ''
-'12'
-'clang -bundle -undefined dynamic_lookup -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-'-Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
+'11.0'
+'clang -bundle -undefined dynamic_lookup -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+'-Wno-unused-result -Wsign-compare -Wunreachable-code -DNDEBUG -fwrapv -O2 -Wall -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64  -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64 '
 '3.9'
 
-Configuration returned from ['/opt/homebrew/opt/python@3.9/bin/python3.9']:
-prefix = '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9'
+Configuration returned from ['/Users/wmbjo/miniforge3/bin/python3']:
+prefix = '/Users/wmbjo/miniforge3'
 SO = '.cpython-39-darwin.so'
-LDFLAGS = '-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-LIBDIR = '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib'
-LIBPL = '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin'
-INCLUDEPY = '/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9'
+LDFLAGS = '-Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+LIBDIR = '/Users/wmbjo/miniforge3/lib'
+LIBPL = '/Users/wmbjo/miniforge3/lib/python3.9/config-3.9-darwin'
+INCLUDEPY = '/Users/wmbjo/miniforge3/include/python3.9'
 Py_ENABLE_SHARED = ''
-MACOSX_DEPLOYMENT_TARGET = '12'
-LDSHARED = 'clang -bundle -undefined dynamic_lookup -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
-CFLAGS = '-Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk'
+MACOSX_DEPLOYMENT_TARGET = '11.0'
+LDSHARED = 'clang -bundle -undefined dynamic_lookup -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib -Wl,-rpath,/Users/wmbjo/miniforge3/lib -L/Users/wmbjo/miniforge3/lib'
+CFLAGS = '-Wno-unused-result -Wsign-compare -Wunreachable-code -DNDEBUG -fwrapv -O2 -Wall -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64  -fPIC   -O2  -isystem /Users/wmbjo/miniforge3/include -arch arm64 '
 LDVERSION = '3.9'
 
 ------------------------------------------------
 python-config
-/opt/homebrew/opt/python@3.9/bin/python3.9-config
-find program=['/opt/homebrew/opt/python@3.9/bin/python3.9-config', 'python3.9-config', 'python-config-3.9', 'python3.9m-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PYTHON_CONFIG' -> ['/opt/homebrew/opt/python@3.9/bin/python3.9-config']
+/Users/wmbjo/miniforge3/bin/python3-config
+find program=['/Users/wmbjo/miniforge3/bin/python3-config', 'python3.9-config', 'python-config-3.9', 'python3.9m-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PYTHON_CONFIG' -> ['/Users/wmbjo/miniforge3/bin/python3-config']
 --------------------------------------------------------------------------
 Asking python-config for pyembed '--cflags --libs --ldflags --embed' flags
-['/opt/homebrew/opt/python@3.9/bin/python3.9-config', '--cflags', '--libs', '--ldflags', '--embed']
-out: -I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9 -I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9 -Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+['/Users/wmbjo/miniforge3/bin/python3-config', '--cflags', '--libs', '--ldflags', '--embed']
+out: -I/Users/wmbjo/miniforge3/include/python3.9 -I/Users/wmbjo/miniforge3/include/python3.9 -Wno-unused-result -Wsign-compare -Wunreachable-code -DNDEBUG -fwrapv -O2 -Wall -fPIC -O2 -isystem /Users/wmbjo/miniforge3/include -arch arm64 -fPIC -O2 -isystem /Users/wmbjo/miniforge3/include -arch arm64
 -lpython3.9 -ldl -framework CoreFoundation
--L/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin -lpython3.9 -ldl -framework CoreFoundation
+-L/Users/wmbjo/miniforge3/lib/python3.9/config-3.9-darwin -lpython3.9 -ldl -framework CoreFoundation
 
 Unhandled flag '-Wno-unused-result'
 Unhandled flag '-Wsign-compare'
@@ -922,209 +942,36 @@ int main(int argc, char **argv)
 <==
 [1/2] Compiling [32mbuild/.conf_check_b367436918f7cae05acae23362c521b8/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-fno-common', '-dynamic', '-g', '-fwrapv', '-O3', '-isysroot', '/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk', '-I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-fwrapv', '-O2', '-fPIC', '-O2', '-isystem', '/Users/wmbjo/miniforge3/include', '-arch', 'arm64', '-fPIC', '-O2', '-isystem', '/Users/wmbjo/miniforge3/include', '-arch', 'arm64', '-I/Users/wmbjo/miniforge3/include/python3.9', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/testprog', '-framework', 'CoreFoundation', '-L/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin', '-lpython3.9', '-ldl', '-lpython3.9', '-ldl']
-yes
---------------------------------------------------------------------------
-Asking python-config for pyext '--cflags --libs --ldflags' flags
-['/opt/homebrew/opt/python@3.9/bin/python3.9-config', '--cflags', '--libs', '--ldflags']
-out: -I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9 -I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9 -Wno-unused-result -Wsign-compare -Wunreachable-code -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
--ldl -framework CoreFoundation
--L/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin -ldl -framework CoreFoundation
+['/usr/bin/clang++', '-fPIC', '-arch', 'arm64', '-fPIC', '-arch', 'arm64', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/testprog', '-framework', 'CoreFoundation', '-L/Users/wmbjo/miniforge3/lib/python3.9/config-3.9-darwin', '-lpython3.9', '-ldl', '-lpython3.9', '-ldl']
+err: ld: library not found for -lpython3.9
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
 
-Unhandled flag '-Wno-unused-result'
-Unhandled flag '-Wsign-compare'
-Unhandled flag '-Wunreachable-code'
-Unhandled flag '-Wall'
-yes
---------------------------------------------------------------------------
-Testing pyext configuration
-==>
-
-#include <Python.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
-	void Py_Initialize(void);
-	void Py_Finalize(void);
-#ifdef __cplusplus
-}
-#endif
-int main(int argc, char **argv)
-{
-   (void)argc; (void)argv;
-   Py_Initialize();
-   Py_Finalize();
-   return 0;
-}
-
-<==
-[1/2] Compiling [32mbuild/.conf_check_66b724fcf417dea0fd77d12e509b70c6/test.cpp[0m
-
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-fPIC', '-fno-common', '-dynamic', '-g', '-fwrapv', '-O3', '-isysroot', '/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk', '-fPIC', '-I/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DHAVE_PYEMBED=1', '-DNDEBUG', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/test.cpp.1.o']
-[2/2] Linking [33mbuild/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/testprog.cpython-39-darwin.so[0m
-
-['/usr/bin/clang++', '-bundle', '-undefined', 'dynamic_lookup', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/testprog.cpython-39-darwin.so', '-framework', 'CoreFoundation', '-L/opt/homebrew/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin', '-ldl', '-ldl']
-yes
---------------------------------------------------------------------------
-Checking for compilation flag -Wno-array-bounds support
-==>
-int main() { return 0; }
-<==
-[1/1] Compiling [32mbuild/.conf_check_040c0dd0eda912b8b29d7d1ce92ad6d6/test.cpp[0m
-
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-Wno-array-bounds', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DHAVE_PYEMBED=1', '-DHAVE_PYEXT=1', '-DHAVE_PYTHON_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_040c0dd0eda912b8b29d7d1ce92ad6d6/testbuild/test.cpp.1.o']
-ok
---------------------------------------------------------------------------
-Checking for pybindgen location
-../pybindgen-0.22.0 (guessed)
---------------------------------------------------------------------------
-Checking for python module 'pybindgen'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport pybindgen as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-out: 0.22.0
-
-0.22.0
---------------------------------------------------------------------------
-Checking for pybindgen version
-0.22.0
---------------------------------------------------------------------------
-Checking for code snippet
-==>
-
-#include <stdint.h>
-#include <vector>
-
-int main ()
-{
-   std::vector< uint64_t > t = std::vector< unsigned long > ();
-   return 0;
-}
-
-<==
-[1/1] Compiling [32mbuild/.conf_check_3c4794929f224d1606d19026cf2e743a/test.cpp[0m
-
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DHAVE_PYEMBED=1', '-DHAVE_PYEXT=1', '-DHAVE_PYTHON_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_3c4794929f224d1606d19026cf2e743a/testbuild/test.cpp.1.o']
-err: ../test.cpp:7:28: error: no viable conversion from 'vector<unsigned long>' to 'vector<uint64_t>'
-   std::vector< uint64_t > t = std::vector< unsigned long > ();
-                           ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:559:5: note: candidate constructor not viable: no known conversion from 'std::vector<unsigned long>' to 'const std::vector<unsigned long long> &' for 1st argument
-    vector(const vector& __x);
-    ^
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:566:5: note: candidate constructor not viable: no known conversion from 'std::vector<unsigned long>' to 'initializer_list<std::vector<unsigned long long>::value_type>' (aka 'initializer_list<unsigned long long>') for 1st argument
-    vector(initializer_list<value_type> __il);
-    ^
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:572:5: note: candidate constructor not viable: no known conversion from 'std::vector<unsigned long>' to 'std::vector<unsigned long long> &&' for 1st argument
-    vector(vector&& __x)
-    ^
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:503:40: note: explicit constructor is not a candidate
-    _LIBCPP_INLINE_VISIBILITY explicit vector(const allocator_type& __a)
-                                       ^
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:515:14: note: explicit constructor is not a candidate
-    explicit vector(size_type __n);
-             ^
-1 error generated.
-
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/bindings/python: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/bindings/python: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-no
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/bindings/python: The configuration failed
---------------------------------------------------------------------------
-Checking for types uint64_t and unsigned long equivalence
-yes
---------------------------------------------------------------------------
-Checking for code snippet
-==>
-
-#include <stdint.h>
-#include <vector>
-
-int main ()
-{
-   std::vector< uint64_t > t = std::vector< unsigned long long > ();
-   return 0;
-}
-
-<==
-[1/1] Compiling [32mbuild/.conf_check_2dd1ea5fd6e3e98f803617848594785d/test.cpp[0m
-
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DHAVE_PYEMBED=1', '-DHAVE_PYEXT=1', '-DHAVE_PYTHON_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2dd1ea5fd6e3e98f803617848594785d/testbuild/test.cpp.1.o']
-yes
---------------------------------------------------------------------------
-Checking for types uint64_t and unsigned long long equivalence
-no
---------------------------------------------------------------------------
-Checking for the apidefs that can be used for Python bindings
-gcc-ILP32
---------------------------------------------------------------------------
-Checking for internal GCC cxxabi
-==>
-
-# include <cxxabi.h>
-int main ()
-{
-   const abi::__si_class_type_info *_typeinfo  __attribute__((unused)) = NULL;
-   return 0;
-}
-
-<==
-[1/2] Compiling [32mbuild/.conf_check_5af17e5884d0f64b2a76385c930904ab/test.cpp[0m
-
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3.9/site-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3.9/site-packages"', '-DHAVE_PYEMBED=1', '-DHAVE_PYEXT=1', '-DHAVE_PYTHON_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_5af17e5884d0f64b2a76385c930904ab/testbuild/test.cpp.1.o']
-err: ../test.cpp:5:15: error: no type named '__si_class_type_info' in namespace '__cxxabiv1'
-   const abi::__si_class_type_info *_typeinfo  __attribute__((unused)) = NULL;
-         ~~~~~^
-1 error generated.
-
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/bindings/python: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
-    bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
-    raise Errors.BuildError(self.producer.error)
-waflib.Errors.BuildError: Build failed
- -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
-
-incomplete
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/bindings/python: The configuration failed
---------------------------------------------------------------------------
-Checking for python module 'pygccxml'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport pygccxml as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'pygccxml'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/bindings/python: Could not find the python module 'pygccxml'
+Could not build a python embedded interpreter
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/bindings/python: The configuration failed
 --------------------------------------------------------------------------
 Checking for click location
 not found
 --------------------------------------------------------------------------
 Checking for program 'pkg-config'
-/opt/homebrew/bin/pkg-config
-find program=['pkg-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> ['/opt/homebrew/bin/pkg-config']
---------------------------------------------------------------------------
-Checking for 'gtk+-3.0 >= 3.22'
-['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'gtk+-3.0', '>=', '3.22']
-err: Package gtk+-3.0 was not found in the pkg-config search path.
-Perhaps you should add the directory containing `gtk+-3.0.pc'
-to the PKG_CONFIG_PATH environment variable
-No package 'gtk+-3.0' found
-
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/config-store: The configuration failed
+find program=['pkg-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/config-store: Could not find the program ['pkg-config']
 --------------------------------------------------------------------------
-Checking for 'libxml-2.0 >= 2.7'
-['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'libxml-2.0', '>=', '2.7']
-out: -lxml2
-
-yes
+Checking for program 'pkg-config'
+not found
+find program=['pkg-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/config-store: Could not find the program ['pkg-config']
 boost: core wants incs, required: False
 boost: core: no boost, but not required
 --------------------------------------------------------------------------
@@ -1143,7 +990,7 @@ checking for uint128_t
 <==
 [1/2] Compiling [32mbuild/.conf_check_2f39551c44a4e78a2e4469b1bac2d149/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2f39551c44a4e78a2e4469b1bac2d149/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2f39551c44a4e78a2e4469b1bac2d149/testbuild/test.cpp.1.o']
 err: ../test.cpp:6:7: error: use of undeclared identifier 'uint128_t'
         if ((uint128_t *) 0) return 0;
              ^
@@ -1155,16 +1002,16 @@ err: ../test.cpp:6:7: error: use of undeclared identifier 'uint128_t'
                     ^
 3 errors generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
 --------------------------------------------------------------------------
 checking for __uint128_t
 ==>
@@ -1181,10 +1028,10 @@ checking for __uint128_t
 <==
 [1/2] Compiling [32mbuild/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_9858f12ee3e8fd10ddbed7322e7f6d39/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking high precision implementation
@@ -1202,10 +1049,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header inttypes.h
@@ -1220,10 +1067,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/inttypes.h
@@ -1238,22 +1085,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'sys/inttypes.h' file not found
 #include <sys/inttypes.h>
          ^~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
 --------------------------------------------------------------------------
 Checking for header sys/types.h
 ==>
@@ -1267,10 +1114,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_8921d893cae40686018a1a0f274b919a/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_8921d893cae40686018a1a0f274b919a/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_8921d893cae40686018a1a0f274b919a/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_8921d893cae40686018a1a0f274b919a/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_8921d893cae40686018a1a0f274b919a/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_8921d893cae40686018a1a0f274b919a/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/stat.h
@@ -1285,10 +1132,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_35c3b87a09b47b232105a7d7cd0283a2/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header dirent.h
@@ -1303,10 +1150,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_42a2d945c05247460c5b0f87cb6870b7/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_42a2d945c05247460c5b0f87cb6870b7/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_42a2d945c05247460c5b0f87cb6870b7/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_42a2d945c05247460c5b0f87cb6870b7/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_42a2d945c05247460c5b0f87cb6870b7/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_42a2d945c05247460c5b0f87cb6870b7/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header signal.h
@@ -1321,10 +1168,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_4ecf044f3ad7de926ece45637d37a7c2/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header pthread.h
@@ -1341,10 +1188,10 @@ int main ()
 <==
 [1/2] Compiling [32mbuild/.conf_check_540e61053391cd4cb697e5746d5ea1e2/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_540e61053391cd4cb697e5746d5ea1e2/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_540e61053391cd4cb697e5746d5ea1e2/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_540e61053391cd4cb697e5746d5ea1e2/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_540e61053391cd4cb697e5746d5ea1e2/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_540e61053391cd4cb697e5746d5ea1e2/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header stdint.h
@@ -1359,10 +1206,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_INTTYPES_H=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_78f27eb1cb7d718aa77ac6221c1170cb/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header inttypes.h
@@ -1377,10 +1224,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_fc28ad0b265dbc0ea499b0019a3e29a9/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header sys/inttypes.h
@@ -1395,22 +1242,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_be8f82a542d6af9f438e0ae24dca5ce1/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'sys/inttypes.h' file not found
 #include <sys/inttypes.h>
          ^~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
 --------------------------------------------------------------------------
 Checking for library rt
 ==>
@@ -1423,23 +1270,23 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_2b334598ad55df9c966dac32c87d3c5d/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2b334598ad55df9c966dac32c87d3c5d/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE___UINT128_T=1', '-DINT64X64_USE_128=1', '-DHAVE_SYS_TYPES_H=1', '-DHAVE_SYS_STAT_H=1', '-DHAVE_DIRENT_H=1', '-DHAVE_SIGNAL_H=1', '-DHAVE_PTHREAD_H=1', '-DHAVE_STDINT_H=1', '-DHAVE_INTTYPES_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2b334598ad55df9c966dac32c87d3c5d/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_2b334598ad55df9c966dac32c87d3c5d/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2b334598ad55df9c966dac32c87d3c5d/testbuild/testprog', '-lrt']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_2b334598ad55df9c966dac32c87d3c5d/testbuild/testprog', '-lrt']
 err: ld: library not found for -lrt
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/core: The configuration failed
 --------------------------------------------------------------------------
 Checking for header sys/ioctl.h
 ==>
@@ -1453,10 +1300,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_72d93051ebaa6b5f9d463e7096461b0c/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header net/if.h
@@ -1471,10 +1318,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_10ae9c9b4244c33b19dacb103f33468c/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_10ae9c9b4244c33b19dacb103f33468c/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_10ae9c9b4244c33b19dacb103f33468c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_10ae9c9b4244c33b19dacb103f33468c/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_10ae9c9b4244c33b19dacb103f33468c/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_10ae9c9b4244c33b19dacb103f33468c/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header net/ethernet.h
@@ -1489,21 +1336,16 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_02eff9a880d4ef695f1f39407f17941c/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_02eff9a880d4ef695f1f39407f17941c/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_02eff9a880d4ef695f1f39407f17941c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_02eff9a880d4ef695f1f39407f17941c/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_02eff9a880d4ef695f1f39407f17941c/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_02eff9a880d4ef695f1f39407f17941c/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
-Checking for 'libdpdk'
-['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'libdpdk']
-err: Package libdpdk was not found in the pkg-config search path.
-Perhaps you should add the directory containing `libdpdk.pc'
-to the PKG_CONFIG_PATH environment variable
-No package 'libdpdk' found
-
+Checking for program 'pkg-config'
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
+find program=['pkg-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Could not find the program ['pkg-config']
 --------------------------------------------------------------------------
 Checking for header linux/if_tun.h
 ==>
@@ -1517,22 +1359,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_84bde5bf7ffe777dad5df813b93837c2/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_84bde5bf7ffe777dad5df813b93837c2/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_84bde5bf7ffe777dad5df813b93837c2/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'linux/if_tun.h' file not found
 #include <linux/if_tun.h>
          ^~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
 --------------------------------------------------------------------------
 Checking for header netpacket/packet.h
 ==>
@@ -1546,22 +1388,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_b65f599c2de3a80c907eb8b7100968be/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b65f599c2de3a80c907eb8b7100968be/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_b65f599c2de3a80c907eb8b7100968be/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'netpacket/packet.h' file not found
 #include <netpacket/packet.h>
          ^~~~~~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
 --------------------------------------------------------------------------
 Checking for header net/netmap_user.h
 ==>
@@ -1575,22 +1417,22 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_e9d03684062581acb00eba710bb5272f/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_e9d03684062581acb00eba710bb5272f/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_e9d03684062581acb00eba710bb5272f/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'net/netmap_user.h' file not found
 #include <net/netmap_user.h>
          ^~~~~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/fd-net-device: The configuration failed
 --------------------------------------------------------------------------
 Checking for NSC location
 not found
@@ -1598,11 +1440,10 @@ not found
 Checking for OpenFlow location
 not found
 --------------------------------------------------------------------------
-Checking for 'sqlite3'
-['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'sqlite3']
-out: -lsqlite3
-
-yes
+Checking for program 'pkg-config'
+not found
+find program=['pkg-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/stats: Could not find the program ['pkg-config']
 --------------------------------------------------------------------------
 Checking for header semaphore.h
 ==>
@@ -1616,10 +1457,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_c37efbb515ef25356eb075829fe2daf9/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_SQLITE3=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_c37efbb515ef25356eb075829fe2daf9/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_c37efbb515ef25356eb075829fe2daf9/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_c37efbb515ef25356eb075829fe2daf9/testbuild/testprog[0m
 
-['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_c37efbb515ef25356eb075829fe2daf9/testbuild/testprog']
+['/usr/bin/clang++', 'test.cpp.1.o', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_c37efbb515ef25356eb075829fe2daf9/testbuild/testprog']
 yes
 --------------------------------------------------------------------------
 Checking for header linux/if_tun.h
@@ -1634,123 +1475,46 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_84bde5bf7ffe777dad5df813b93837c2/test.cpp[0m
 
-['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_SQLITE3=1', '-DHAVE_SEMAPHORE_H=1', '../test.cpp', '-c', '-o/Users/william/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_84bde5bf7ffe777dad5df813b93837c2/testbuild/test.cpp.1.o']
+['/usr/bin/clang++', '-O0', '-ggdb', '-g3', '-Wall', '-Wno-unused-local-typedefs', '-Wno-potentially-evaluated-expression', '-std=c++17', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DHAVE_SYS_IOCTL_H=1', '-DHAVE_IF_NETS_H=1', '-DHAVE_NET_ETHERNET_H=1', '-DHAVE_SEMAPHORE_H=1', '../test.cpp', '-c', '-o/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/build/.conf_check_84bde5bf7ffe777dad5df813b93837c2/testbuild/test.cpp.1.o']
 err: ../test.cpp:1:10: fatal error: 'linux/if_tun.h' file not found
 #include <linux/if_tun.h>
          ^~~~~~~~~~~~~~~~
 1 error generated.
 
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/tap-bridge: Test does not build: Traceback (most recent call last):
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/tap-bridge: Test does not build: Traceback (most recent call last):
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/Users/william/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
+  File "/Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/.waf3-2.0.21-c6c9a875365426e5928462b9b74d40b5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/tap-bridge: The configuration failed
---------------------------------------------------------------------------
-Checking for python module 'gi'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi'
---------------------------------------------------------------------------
-Checking for python module 'gi.repository.GObject'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi.repository.GObject as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.GObject'
---------------------------------------------------------------------------
-Checking for python module 'cairo'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport cairo as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'cairo'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'cairo'
---------------------------------------------------------------------------
-Checking for python module 'pygraphviz'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport pygraphviz as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'pygraphviz'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'pygraphviz'
---------------------------------------------------------------------------
-Checking for python module 'gi.repository.Gtk'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi.repository.Gtk as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.Gtk'
---------------------------------------------------------------------------
-Checking for python module 'gi.repository.Gdk'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi.repository.Gdk as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.Gdk'
---------------------------------------------------------------------------
-Checking for python module 'gi.repository.Pango'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi.repository.Pango as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.Pango'
---------------------------------------------------------------------------
-Checking for python module 'gi.repository.GooCanvas'
-['/opt/homebrew/opt/python@3.9/bin/python3.9', '-c', "\nimport gi.repository.GooCanvas as current_module\nversion = getattr(current_module, '__version__', None)\nif version is not None:\n\tprint(str(version))\nelse:\n\tprint('unknown version')\n"]
-err: Traceback (most recent call last):
-  File "<string>", line 2, in <module>
-ModuleNotFoundError: No module named 'gi'
-
-not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35/src/visualizer: Could not find the python module 'gi.repository.GooCanvas'
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35/src/tap-bridge: The configuration failed
 --------------------------------------------------------------------------
 Found contrib module
 my-aodv
 --------------------------------------------------------------------------
 Checking for program 'sudo'
 /usr/bin/sudo
-find program=['sudo'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='SUDO' -> ['/usr/bin/sudo']
+find program=['sudo'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='SUDO' -> ['/usr/bin/sudo']
 --------------------------------------------------------------------------
 Checking for program 'valgrind'
 not found
-find program=['valgrind'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='VALGRIND' -> None
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['valgrind']
+find program=['valgrind'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='VALGRIND' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['valgrind']
 --------------------------------------------------------------------------
-Checking for 'gsl'
-['/opt/homebrew/bin/pkg-config', '--cflags', '--libs', 'gsl']
-err: Package gsl was not found in the pkg-config search path.
-Perhaps you should add the directory containing `gsl.pc'
-to the PKG_CONFIG_PATH environment variable
-No package 'gsl' found
-
+Checking for program 'pkg-config'
 not found
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35: The configuration failed
+find program=['pkg-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='PKGCONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['pkg-config']
 --------------------------------------------------------------------------
 libgcrypt-config
 not found
-find program=['libgcrypt-config'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='LIBGCRYPT_CONFIG' -> None
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['libgcrypt-config']
+find program=['libgcrypt-config'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='LIBGCRYPT_CONFIG' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['libgcrypt-config']
 --------------------------------------------------------------------------
 Checking for program 'doxygen'
 not found
-find program=['doxygen'] paths=['/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/opt/qt@5/bin', '/opt/homebrew/bin', '/usr/local/opt/qt@5/bin', '/usr/local/opt/qt@5/bin', '/Users/william/opt/miniconda3/bin', '/Users/william/opt/miniconda3/condabin', '/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Applications/VMware Fusion Tech Preview.app/Contents/Public', '/Library/TeX/texbin', '/opt/X11/bin', '/Library/Apple/usr/bin'] var='DOXYGEN' -> None
-from /Users/william/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['doxygen']
+find program=['doxygen'] paths=['/Users/wmbjo/miniforge3/bin', '/Users/wmbjo/miniforge3/condabin', '/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin', '/Library/Apple/usr/bin'] var='DOXYGEN' -> None
+from /Users/wmbjo/Documents/ns-allinone-3.35/ns-3.35: Could not find the program ['doxygen']

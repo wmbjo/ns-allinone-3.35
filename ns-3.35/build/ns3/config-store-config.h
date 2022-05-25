@@ -5,9 +5,6 @@
 
 #define PYTHONDIR "/usr/local/lib/python3.9/site-packages"
 #define PYTHONARCHDIR "/usr/local/lib/python3.9/site-packages"
-#define HAVE_PYEMBED 1
-#define HAVE_PYEXT 1
-#define HAVE_PYTHON_H 1
-#define HAVE_LIBXML2 1
+/* #undef HAVE_PYEMBED */
 
 #endif /* W_NS3_CONFIG_STORE_CONFIG_H_WAF */
