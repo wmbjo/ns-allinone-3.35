@@ -1321,6 +1321,14 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & he
   //   }
 }
 
+bool FindNextHop
+{
+  Vector BA1 = Vector3D(routingHeader.GetPosition1X(), routingHeader.GetPosition1Y(),0); // for broadcast area point one
+  Vector BA2 = Vector3D(routingHeader.GetPosition2X(), routingHeader.GetPosition2Y(),0); // for broadcast area point two        
+  Vector centerBA = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);
+  
+}
+
 bool
 RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHeader)
 {
@@ -1384,7 +1392,7 @@ RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHead
       std::cout << "Not sent upstream" << std::endl;
       return;
     }
-    if (nextHopIPBehind == Ipv4Address("127.0.0.1"))
+    if (nextHopIPBehind == Ipv4Address("102.102.102.102"))
     {
       std::cout << "Append to queue" << std::endl;
       m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
