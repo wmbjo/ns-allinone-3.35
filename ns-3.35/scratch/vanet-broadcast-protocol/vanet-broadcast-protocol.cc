@@ -1326,6 +1326,7 @@ RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHead
 {
   //if can't use constant packet, duplicate packet and use copy
   Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
+  Vector vehicleVel = m_thisNode->GetObject<MobilityModel>()->GetVelocity();
   Ptr<VbpNeighbors> neighborsList = m_neighborsListPointer->GetObject<VbpNeighbors>();
   //case 1: vehicle already in broadcast area
   VbpRoutingHeader routingHeader;
@@ -1345,6 +1346,8 @@ RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHead
   Vector centerBA = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);
   float neighborhoodSpeed = Vector3D(neighborsList->GetNeighborHoodSpeedMeanX(), neighborsList->GetNeighborHoodSpeedMeanY(),0).GetLength();
   float currentMDT = CalculateDistance(vehiclePos, centerBA)/neighborhoodSpeed;
+  Vector vehicleToBA = centerBA - vehiclePos;
+  bool movingToBA = (vehicleVel.x*vehicleToBA.x + vehicleVel.y*vehicleToBA.y) > 0; // true if moving towards BA
   bool closeToBA = false;
 
   if ((Simulator::Now()/1e9 + Seconds(currentMDT)) <= Seconds(m_BroadcastTime))
