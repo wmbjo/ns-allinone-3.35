@@ -138,6 +138,7 @@ namespace ns3
       Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
       routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
       p->AddHeader(routingHeader);
+      //dev,iface
       Ipv4Address nextHopAhead;
       Ipv4Address nextHopBehind;
       std::cout << "Route Output Packet Type: " << routingHeader.GetPacketType() << std::endl;
@@ -241,24 +242,25 @@ namespace ns3
         if (lcb.IsNull() == false)
         {
           NS_LOG_LOGIC ("Unicast local delivery to " << dst);
-          //std::cout << "IS DST BROADCAST? " << dst << std::endl;
-          // Determine if PROT_NUMBER = 253. If it is, determine packet type (line 263, 264,265) .If determine packet type, do forward operation (below starting on line 263). If it is not, do LCB
           uint8_t protocol_numb = header.GetProtocol();
           if (protocol_numb == PROT_NUMBER)
           {
-            std::cout << "Protocol Number = 253" << std::endl;
-            VbpRoutingHeader routingHeader;
-            p->PeekHeader(routingHeader);
-            std::cout << "Packet Type LCB Data " << routingHeader.GetPacketType() << std::endl;
-            //RoutePacket in this if statement
+            std::cout << "Protocol Number = 253, VBP Data Packet" << std::endl;
+            bool lcbIndicator = RoutePacket(p); //true lcb. false no lcb
+            if (lcbIndicator)
+            {
+              VbpRoutingHeader routingHeader;
+              p->RemoveHeader(routingHeader);
+              lcb(p,header,iif);
+            }
+            return true;
           }
-          else //PROT_NUMB != 253 (hello packet)
-          {
-          VbpHelloHeader helloHeader;
-          p->PeekHeader(helloHeader);
-          std::cout << "Packet Type LCB Hello " << helloHeader.GetPacketType() << std::endl;
-          }
-
+          // else //PROT_NUMB != 253 (hello packet)
+          // {
+          // VbpHelloHeader helloHeader;
+          // p->PeekHeader(helloHeader);
+          // std::cout << "Packet Type LCB Hello " << helloHeader.GetPacketType() << std::endl;
+          // }
           // if (header.GetProtocol () == 17) // add #include "udp-l4-protocol.h" to make this work (udp protocol number = 17). != does not print anything
           // {
           //   std::cout << "Detected UDP Protocol 2 " << std::endl;
@@ -267,7 +269,7 @@ namespace ns3
           // {
           //   std::cout << "Never prints out else" << std::endl;
           // }
-          lcb(p, header, iif);
+          lcb(p, header, iif); //non-vbp-data-packet local callback
         }
         else
         {
@@ -600,8 +602,9 @@ namespace ns3
    void
    RoutingProtocol::EmptyQueue()
    {
-     Ipv4Address nextHop;
-     if (!FindNextHop(&nextHop))
+     Ipv4Address nextHopAhead;
+     Ipv4Address nextHopBehind;
+     if (!FindFirstHop(&nextHopAhead, &nextHopBehind))
      {
        return;
      }
@@ -612,22 +615,60 @@ namespace ns3
      }
      while(queueSize > 0)
      {
-        std::cout << "Empty Queue NextHop: " << nextHop << std::endl;
-        Ptr<const Packet> p = m_queuePointer->GetObject<VbpQueue>()->GetPacket();
-        Ipv4Header header = m_queuePointer->GetObject<VbpQueue>()->GetHeader();
-        Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_queuePointer->GetObject<VbpQueue>()->GetUcb();
-        Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
-        Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
-        // std::cout << "Empty Queue Local Address: " << iface.GetLocal () << std::endl;
-        RoutingTableEntry rt;
-        rt.SetNextHop(nextHop); //set route
-        rt.SetOutputDevice(dev);
-        rt.SetInterface(iface);
-        Ptr<Ipv4Route> route = rt.GetRoute();
-        ucb(route, p, header);
-        // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
-        // l3->Send(p, source, destination, protocol, route);
-        queueSize--;
+      if (FindFirstHop(&nextHopAhead, &nextHopBehind)) //find next hop
+      {
+         rt.SetOutputDevice(dev);
+         rt.SetInterface(iface);
+         Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+         std::cout << "Find First Hop: " << std::endl;
+         if (nextHopAhead != Ipv4Address("102.102.102.102") && nextHopBehind != Ipv4Address("102.102.102.102")) //case: hops both ahead and behind
+         {
+          std::cout << "Next Hop Ahead and Behind" << std::endl;
+          // next hop ahead
+          Ptr<Ipv4Route> routeDownstream;
+          rt.SetNextHop(nextHopAhead);
+          routeDownstream = rt.GetRoute();
+          l3->Send(p, src, dst, PROT_NUMBER, routeDownstream);
+          // next hop behind
+          Ptr<Packet> q = p->Copy();
+          Ptr<Ipv4Route> routeUpstream;
+          rt.SetNextHop(nextHopBehind);
+          routeUpstream = rt.GetRoute();
+          l3->Send(q, src, dst, PROT_NUMBER, routeUpstream);
+         }
+         else if (nextHopAhead != Ipv4Address("102.102.102.102"))
+         {
+          std::cout << "Next Hop Ahead Only" << std::endl;
+          Ptr<Ipv4Route> routeDownstream;
+          rt.SetNextHop(nextHopAhead);
+          routeDownstream = rt.GetRoute();
+          l3->Send(p, src, dst, PROT_NUMBER, routeDownstream);
+         } 
+         else
+         {
+          std::cout << "Next Hop Behind Only" << std::endl;
+          Ptr<Ipv4Route> routeUpstream;
+          rt.SetNextHop(nextHopBehind);
+          routeUpstream = rt.GetRoute();
+          l3->Send(p, src, dst, PROT_NUMBER, routeUpstream);
+         }
+      } 
+        // //std::cout << "Empty Queue NextHop: " << nextHop << std::endl;
+        // Ptr<const Packet> p = m_queuePointer->GetObject<VbpQueue>()->GetPacket();
+        // Ipv4Header header = m_queuePointer->GetObject<VbpQueue>()->GetHeader();
+        // Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_queuePointer->GetObject<VbpQueue>()->GetUcb();
+        // Ipv4InterfaceAddress iface = m_socketAddresses.begin()->second;
+        // Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (iface.GetLocal ()));
+        // // std::cout << "Empty Queue Local Address: " << iface.GetLocal () << std::endl;
+        // RoutingTableEntry rt;
+        // rt.SetNextHop(nextHopAhead); //set route
+        // rt.SetOutputDevice(dev);
+        // rt.SetInterface(iface);
+        // Ptr<Ipv4Route> route = rt.GetRoute();
+        // ucb(route, p, header);
+        // // Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol>();
+        // // l3->Send(p, source, destination, protocol, route);
+        //queueSize--;
      }
    }
 
@@ -663,19 +704,20 @@ namespace ns3
       std::cout << "Find First Hop Returns True" << std::endl;
       return true;
     }
+    //original find first hop, void
+    // bool
+    // RoutingProtocol::FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr)
+    // {
+    //   if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
+    //   {
+    //     return false;
+    //   }
+    //   Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
+    //   nextHopPtr->Set(nextHop.Get());
+    //   return true;
 
-    bool
-    RoutingProtocol::FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr)
-    {
-      if (m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNumNeighborsAhead() == 0)
-      {
-        return false;
-      }
-      Ipv4Address nextHop = m_neighborsListPointer->GetObject<VbpNeighbors>()->Get1HopNeighborIPAhead(0);
-      nextHopPtr->Set(nextHop.Get());
-      return true;
+    // }
 
-    }
 
     Ipv4Address
     RoutingProtocol::FindNextHopDownstream(Vector centerBA, bool movingToBA)
@@ -1321,16 +1363,106 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & he
   //   }
 }
 
-bool FindNextHop
-{
-  Vector BA1 = Vector3D(routingHeader.GetPosition1X(), routingHeader.GetPosition1Y(),0); // for broadcast area point one
-  Vector BA2 = Vector3D(routingHeader.GetPosition2X(), routingHeader.GetPosition2Y(),0); // for broadcast area point two        
-  Vector centerBA = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);
-  
-}
+//work on the hybrid of case two and case three. This requires the use of FindNextHop. Need to figure out
+//how to integrate with LCB. Put FindNextHop in RoutePacket. 
+//return true = LCB. return false = NO LCB
+// bool FindNextHop(&nextHopAhead, &nextHopBehind)
+// {
+//   //determine next hop
+//   Ipv4Address nextHopAhead = Ipv4Address("102.102.102.102");
+//   Ipv4Address nextHopBehind = Ipv4Address("102.102.102.102");
+//   Ptr<VbpNeighbors> neighborsList = m_neighborsListPointer->GetObject<VbpNeighbors>();
+//   Vector BA1 = Vector3D(routingHeader.GetPosition1X(), routingHeader.GetPosition1Y(),0); // for broadcast area point one
+//   Vector BA2 = Vector3D(routingHeader.GetPosition2X(), routingHeader.GetPosition2Y(),0); // for broadcast area point two        
+//   Vector centerBA = Vector3D((BA1.x+BA2.x)/2,(BA1.y+BA2.y)/2,0);
+//   if (neighborsList->Get1HopDirectionByIP(routingHead.GetPrevHopIP()) == 0) //packet sent from behind. send downstream
+//   {
+//     nextHopAhead = FindNextHopDownstream(centerBA, movingToBA)
+//     if (nextHopAhead == Ipv4Address("102.102.102.102"))
+//     {
+//       std::cout << "Add to queue" << std::endl;
+//       m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+//       m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+//       m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+//       m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+//       return false;
+//     }
+//   }
+//   else
+//   {
+//     if (closeToBA)
+//     {
+//       nextHopBehind = FindNextHopUpstream(centerBA, movingToBA)
+//     }
+//     else
+//     {
+//       std::cout << "Will stop sending upstream" << std::endl;
+//       return false;
+//     }
+//     if (nextHopBehind == Ipv4Address("102.102.102.102"))
+//     {
+//       std::cout << "added to queue" << std::endl;
+//       m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+//       m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+//       m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+//       m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+//       return false;
+//     }
+//   }
+//   VbpRoutingHeader routingHeader;
+//   routingHeader.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
+//   p->Addheader(routingHeader);
+// }
+
+  bool
+  RoutingProtocol::FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr, Vector centerBA, bool movingToBA, bool closeToBA)
+  {
+    VbpRoutingHeader routingHeader;
+    Ptr<Packet> p = Create<Packet>();
+    p->PeekHeader(routingHeader);
+    //determine next hop
+    Ipv4Address nextHopAhead = Ipv4Address("102.102.102.102");
+    Ipv4Address nextHopBehind = Ipv4Address("102.102.102.102");
+    if (neighborsList->Get1HopDirectionByIP(routingHeader.GetPrevHopIP()) == 0) //packet sent from behind. send downstream
+    {
+      nextHopAhead = FindNextHopDownstream(centerBA, movingToBA);
+      if (nextHopAhead == Ipv4Address("102.102.102.102"))
+      {
+        std::cout << "Add to queue" << std::endl;
+        m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+        m_queuePointer->GetObject<VbpQueue>()->AppendHeader(routingHeader); 
+        m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+        m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+        return false;
+      }
+    }
+    else //previous hop is from ahead
+    {
+      if (closeToBA)
+      {
+        nextHopBehind = FindNextHopUpstream(centerBA, movingToBA);
+        if (nextHopBehind == Ipv4Address("102.102.102.102"))
+          {
+            std::cout << "added to queue" << std::endl;
+            m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+            m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+            m_queuePointer->GetObject<VbpQueue>()->AppendUcb(ucb);
+            m_queuePointer->GetObject<VbpQueue>()->AppendEcb(ecb); 
+            return false;
+          }
+        return true;
+      }
+      else
+      {
+        //turn below line into NSLOG function
+        std::cout << "Will stop sending upstream because vehicle won't reach BA before expiration" << std::endl;
+        return false;
+      }
+    }
+  }
 
 bool
-RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHeader)
+RoutingProtocol::RoutePacket(Ptr<const Packet> p,&nextHopAhead, &nextHopBehind) //VbpRoutingHeader routingHeader)
 {
   //if can't use constant packet, duplicate packet and use copy
   Vector vehiclePos = m_thisNode->GetObject<MobilityModel>()->GetPosition();
@@ -1361,52 +1493,49 @@ RoutingProtocol::RoutePacket(Ptr<const Packet> p) //VbpRoutingHeader routingHead
   if ((Simulator::Now()/1e9 + Seconds(currentMDT)) <= Seconds(m_BroadcastTime))
   {
     p->RemoveHeader(routingHeader);
-    closeToBA = true; //will need to return closeToBA after forwarding
+    closeToBA = true; //will need to return closeToBA after forwarding. return true
   }
   
-  //case 2 (determine next hop) and case 3: vehicle not in BA and will not reach BA before expiration
+  //case 3: hybrid of case 2 (determine next hop) and case 3: vehicle not in BA and will not reach BA before expiration
   //determine next hop
-  Ipv4Address nextHopAhead = Ipv4Address("102.102.102.102");
-  Ipv4Address nextHopBehind = Ipv4Address("102.102.102.102");
-  //put below code in FindNextHop
-  //need to return closeToBA (do it in this function)
-  if (neighborsList->Get1HopDirectionByIP(routingHead.GetPrevHopIP()) == 0)
-  {
-    nextHopAhead = FindNextHopDownstream(centerBA, movingToBA)
-    if (nextHopIPAhead == Ipv4Address("102.102.102.102"))
-    {
-      std::cout << "Append to queue" << std::endl;
-      m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
-      m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
-      return;
-    }
-  }
-  else
-  {
-    if (closeToBA)
-    {
-      nextHopIPBehind = FindNextHopUpstream(centerBA, movingToBA)
-    }
-    else
-    {
-      std::cout << "Not sent upstream" << std::endl;
-      return;
-    }
-    if (nextHopIPBehind == Ipv4Address("102.102.102.102"))
-    {
-      std::cout << "Append to queue" << std::endl;
-      m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
-      m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
-      return;
-    }
-  }
-
+  // Ipv4Address nextHopAhead = Ipv4Address("102.102.102.102");
+  // Ipv4Address nextHopBehind = Ipv4Address("102.102.102.102");
+  // //put below code in FindNextHop
+  // //need to return closeToBA (do it in this function)
+  // if (neighborsList->Get1HopDirectionByIP(routingHeader.GetPrevHopIP()) == 0)
+  // {
+  //   nextHopAhead = FindNextHopDownstream(centerBA, movingToBA)
+  //   if (nextHopIPAhead == Ipv4Address("102.102.102.102"))
+  //   {
+  //     std::cout << "Append to queue" << std::endl;
+  //     m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+  //     m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+  //     return;
+  //   }
+  // }
+  // else
+  // {
+  //   if (closeToBA)
+  //   {
+  //     nextHopIPBehind = FindNextHopUpstream(centerBA, movingToBA)
+  //   }
+  //   else
+  //   {
+  //     std::cout << "Not sent upstream" << std::endl;
+  //     return;
+  //   }
+  //   if (nextHopIPBehind == Ipv4Address("102.102.102.102"))
+  //   {
+  //     std::cout << "Append to queue" << std::endl;
+  //     m_queuePointer->GetObject<VbpQueue>()->AppendPacket(p); //append packet to queue
+  //     m_queuePointer->GetObject<VbpQueue>()->AppendHeader(header); 
+  //     return;
+  //   }
+  // }
+  FindNextHop(&nextHopAhead, &nextHopBehind, centerBA, movingToBA, closeToBA);
   //create header to store data that will be sent
   routingHead.SetData(m_dataPacketType, origin, m_broadcastArea[0], m_broadcastArea[1], m_broadcastArea[2], m_broadcastArea[3], m_BroadcastTime);
   //broadcast packet to all headers
-
-
-
 
 }
 
