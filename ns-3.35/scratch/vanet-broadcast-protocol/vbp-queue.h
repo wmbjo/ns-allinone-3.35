@@ -24,8 +24,8 @@ namespace ns3
             // void AppendDestination(Ipv4Address destination);
             // void AppendSource(Ipv4Address source);
             // void AppendProtocol(uint8_t protocol);
-            void AppendUcb(Ipv4RoutingProtocol::UnicastForwardCallback ucb);
-            void AppendEcb(Ipv4RoutingProtocol::ErrorCallback ecb);
+            // void AppendUcb(Ipv4RoutingProtocol::UnicastForwardCallback ucb);
+            // void AppendEcb(Ipv4RoutingProtocol::ErrorCallback ecb);
             void AppendHeader(Ipv4Header header);
             Ptr<const Packet> GetPacket();
             // Ipv4Address GetDestination();
@@ -33,8 +33,9 @@ namespace ns3
             Ipv4Header GetHeader();
             uint16_t GetQueueSize();
             //uint8_t GetProtocol();
-            Ipv4RoutingProtocol::UnicastForwardCallback GetUcb();
-            Ipv4RoutingProtocol::ErrorCallback GetEcb();
+            // Ipv4RoutingProtocol::UnicastForwardCallback GetUcb();
+            // Ipv4RoutingProtocol::ErrorCallback GetEcb();
+            Ptr<const Packet> PeekPacket();
             bool QueueFull();
 
         private:
@@ -43,8 +44,8 @@ namespace ns3
             //std::vector<uint8_t> m_protocolQ;
             //std::vector<Ipv4Address> m_dstQ; // to hold queue of packet
             //std::vector<Ipv4Address> m_srcQ; // to hold queue of packet
-            std::vector<Ipv4RoutingProtocol::UnicastForwardCallback> m_ucbQ;
-            std::vector<Ipv4RoutingProtocol::ErrorCallback> m_ecbQ;
+            // std::vector<Ipv4RoutingProtocol::UnicastForwardCallback> m_ucbQ;
+            // std::vector<Ipv4RoutingProtocol::ErrorCallback> m_ecbQ;
             std::vector<Ipv4Header> m_headerQ; // to hold queue of packet
         };
 

@@ -48,23 +48,23 @@ VbpQueue::AppendPacket(Ptr<const Packet> p)
 //     m_protocolQ.push_back(protocol);
 // }
 
-void
-VbpQueue::AppendUcb(Ipv4RoutingProtocol::UnicastForwardCallback ucb)
-{
-    if (!QueueFull())
-    {
-        m_ucbQ.push_back(ucb);
-    }
-}
+// void
+// VbpQueue::AppendUcb(Ipv4RoutingProtocol::UnicastForwardCallback ucb)
+// {
+//     if (!QueueFull())
+//     {
+//         m_ucbQ.push_back(ucb);
+//     }
+// }
 
-void
-VbpQueue::AppendEcb(Ipv4RoutingProtocol::ErrorCallback ecb)
-{
-    if (!QueueFull())
-    {
-        m_ecbQ.push_back(ecb);
-    }
-}
+// void
+// VbpQueue::AppendEcb(Ipv4RoutingProtocol::ErrorCallback ecb)
+// {
+//     if (!QueueFull())
+//     {
+//         m_ecbQ.push_back(ecb);
+//     }
+// }
 
 void
 VbpQueue::AppendHeader(Ipv4Header header)
@@ -87,6 +87,13 @@ VbpQueue::GetPacket()
     std::cout << "Get Packet Queue" << std::endl;
     Ptr<const Packet> p = m_packetQ.front();
     m_packetQ.erase(m_packetQ.begin());
+    return p;
+}
+
+Ptr<const Packet>
+VbpQueue::PeekPacket()
+{
+    Ptr<const Packet> p = m_packetQ.front();
     return p;
 }
 
@@ -114,21 +121,21 @@ VbpQueue::GetPacket()
 //     return protocol;
 // }
 
-Ipv4RoutingProtocol::UnicastForwardCallback
-VbpQueue::GetUcb()
-{
-    Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_ucbQ.front();
-    m_ucbQ.erase(m_ucbQ.begin());
-    return ucb;
-}
+// Ipv4RoutingProtocol::UnicastForwardCallback
+// VbpQueue::GetUcb()
+// {
+//     Ipv4RoutingProtocol::UnicastForwardCallback ucb = m_ucbQ.front();
+//     m_ucbQ.erase(m_ucbQ.begin());
+//     return ucb;
+// }
 
-Ipv4RoutingProtocol::ErrorCallback
-VbpQueue::GetEcb()
-{
-    Ipv4RoutingProtocol::ErrorCallback ecb = m_ecbQ.front();
-    m_ecbQ.erase(m_ecbQ.begin());
-    return ecb;
-}
+// Ipv4RoutingProtocol::ErrorCallback
+// VbpQueue::GetEcb()
+// {
+//     Ipv4RoutingProtocol::ErrorCallback ecb = m_ecbQ.front();
+//     m_ecbQ.erase(m_ecbQ.begin());
+//     return ecb;
+// }
 
 Ipv4Header
 VbpQueue::GetHeader()

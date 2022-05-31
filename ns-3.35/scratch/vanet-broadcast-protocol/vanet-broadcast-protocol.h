@@ -49,7 +49,7 @@ namespace ns3
                       LocalDeliverCallback lcb,
                       ErrorCallback ecb);
       virtual void SetIpv4(Ptr<Ipv4> ipv4);
-      bool RoutePacket(Ptr<const Packet> p);
+      bool RoutePacket(Ptr<const Packet> p, Ipv4Address dst, Ipv4Address src, bool *packetSentIndicator);
       void SetBroadcastArea(std::vector<float> broadcastArea);
       std::vector<float> GetBroadcastArea();
       virtual void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
@@ -92,7 +92,7 @@ namespace ns3
       /// Raw unicast socket per each IP interface, map socket -> iface address (IP + mask)
       std::map<Ptr<Socket>, Ipv4InterfaceAddress> m_socketAddresses;
       bool FindFirstHop(Ipv4Address* nextHopAheadPtr, Ipv4Address* nextHopBehindPtr);
-      bool FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr,Vector centerBA, bool movingToBA, bool closeToBA);
+      bool FindNextHop(Ipv4Address* nextHopAheadPtr,Ipv4Address* nextHopBehindPtr,Vector centerBA, bool movingToBA, bool closeToBA, bool *enqueuePacketIndicator, Ipv4Address prevHopIP);
       Ipv4Address FindNextHopDownstream(Vector centerBA, bool movingToBA);
       Ipv4Address FindNextHopUpstream(Vector centerBA, bool movingToBA);
       int FindNextHopHighTrafficDownstream(Vector centerBA, Vector vehiclePos, float stopDist);
